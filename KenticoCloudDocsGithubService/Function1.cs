@@ -12,7 +12,7 @@ namespace KenticoCloudDocsGithubService
 {
     public static class Function1
     {
-        [FunctionName("Function1")]
+        [FunctionName("kcd-github-service")]
         public static async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req,
             ILogger log)

@@ -1,0 +1,25 @@
+language: csharp
+mono: none
+dotnet: 2.1
+dist: trusty
+
+solution: KenticoCloudDocsGithubService.sln
+
+install:
+  - dotnet restore
+
+script: 
+  - dotnet build
+  - sonar-scanner
+
+deploy:
+  - provider: azure_web_apps
+    slot: kcd-github-service-staging
+    verbose: true
+    on: master
+    
+addons:
+  sonarcloud:
+    organization: "kentico-cloud-docs"
+    token:
+      secure: $SONAR_TOKEN
