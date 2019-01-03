@@ -6,20 +6,25 @@ dist: trusty
 solution: KenticoCloudDocsGithubService.sln
 
 install:
+  - dotnet tool install --global dotnet-sonarscanner
   - dotnet restore
+  
+before_script:
+  - export PATH="$PATH:$HOME/.dotnet/tools"
 
 script: 
+  - dotnet sonarscanner begin /k:"kentico-cloud-docs-github-service" /n:"KCD GitHub Service" /v:"1.0.0" /o:"kentico-cloud-docs" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="$SONAR_TOKEN" /d:sonar.language="cs" /d:sonar.exclusions="**/bin/**/*,**/obj/**/*" /d:sonar.cs.opencover.reportsPaths="lcov.opencover.xml" || true
   - dotnet build
-  - sonar-scanner
+  - dotnet sonarscanner end /d:sonar.login="$SONAR_TOKEN" || true
 
 deploy:
   - provider: azure_web_apps
     slot: kcd-github-service-staging
     verbose: true
     on: master
-    
-addons:
-  sonarcloud:
-    organization: "kentico-cloud-docs"
-    token:
-      secure: $SONAR_TOKEN
+
+cache:
+  directories:
+    - '$HOME/.nuget/packages'
+    - '$HOME/.local/share/NuGet/Cache'
+    - '$HOME/.sonar/cache'
