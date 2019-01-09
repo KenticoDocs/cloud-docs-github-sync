@@ -19,7 +19,7 @@ script:
 
 deploy:
   - provider: azure_web_apps
-    slot: kcd-github-service-staging
+    site: kcd-github-service-live-dev
     verbose: true
     on: master
 
