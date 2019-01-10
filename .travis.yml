@@ -21,6 +21,10 @@ deploy:
   - provider: azure_web_apps
     site: kcd-github-service-live-dev
     verbose: true
+    on: develop
+  - provider: azure_web_apps
+    site: kcd-github-service-live-master
+    verbose: true
     on: master
 
 cache:
