@@ -1,5 +1,4 @@
-﻿using GithubService.Models;
-using GithubService.Models.CodeSamples;
+﻿using GithubService.Models.CodeSamples;
 
 namespace GithubService.Services.Interfaces
 {

@@ -2,7 +2,7 @@
 
 namespace GithubService.Models.Webhooks
 {
-    public class WebhookResponse
+    public class WebhookMessage
     {
         public List<Commit> Commits { get; set; }
     }
