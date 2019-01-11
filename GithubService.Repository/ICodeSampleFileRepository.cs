@@ -1,13 +1,16 @@
 ﻿using GithubService.Models.CodeSamples;
+using System.Threading.Tasks;
 
 namespace GithubService.Repository
 {
     public interface ICodeSampleFileRepository
     {
-        CodeSampleFile GetFile(string filePath);
+        Task<CodeSampleFile> GetFileAsync(string filePath);
 
-        CodeSampleFile UpdateFile(string filePath, CodeSampleFile updatedFile);
+        Task<CodeSampleFile> UpdateFileAsync(CodeSampleFile updatedFile);
 
-        CodeSampleFile ArchiveFile(string filePath);
+        Task<CodeSampleFile> ArchiveFileAsync(CodeSampleFile file);
+
+        Task<CodeSampleFile> AddFileAsync(CodeSampleFile newFile);
     }
 }
