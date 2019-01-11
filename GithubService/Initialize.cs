@@ -1,3 +1,5 @@
+using System;
+using GithubService.Services.Clients;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
@@ -16,6 +18,11 @@ namespace GithubService
             logger.LogInformation("Initialize called.");
 
             // Get all the files from GitHub - use IGithubService.GetCodeSamplesFiles
+            var githubClient = new GithubClient(
+                Environment.GetEnvironmentVariable("Github.RepositoryName"),
+                Environment.GetEnvironmentVariable("Github.RepositoryOwner"));
+            var githubService = new Services.GithubService(githubClient, null);
+            var codeSampleFiles = githubService.GetCodeSampleFilesAsync().Result;
             // Persist all code sample files using ICodeSampleFileRepository
             // Convert those files using ICodeSamplesConverter.ConvertToCodenameCodeSamples
             // Create/update appropriate KC items using IKenticoCloudService
