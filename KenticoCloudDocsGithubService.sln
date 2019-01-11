@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GithubService.Models", "Git
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GithubService", "GithubService\GithubService.csproj", "{F9CF9C72-BAE6-491A-AD28-65BA206F95DD}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestRepository", "TestRepository\TestRepository.csproj", "{1A8DD5C8-188F-4E3A-BF9C-ECB8AD811B6A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{F9CF9C72-BAE6-491A-AD28-65BA206F95DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F9CF9C72-BAE6-491A-AD28-65BA206F95DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F9CF9C72-BAE6-491A-AD28-65BA206F95DD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1A8DD5C8-188F-4E3A-BF9C-ECB8AD811B6A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1A8DD5C8-188F-4E3A-BF9C-ECB8AD811B6A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1A8DD5C8-188F-4E3A-BF9C-ECB8AD811B6A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1A8DD5C8-188F-4E3A-BF9C-ECB8AD811B6A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
