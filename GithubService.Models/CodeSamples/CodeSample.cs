@@ -7,5 +7,8 @@
         public string Content { get; set; }
 
         public CodeLanguage Language { get; set; }
+
+        public override string ToString() 
+            => $"Codename: {Codename}, Content: {Content}, Language: {Language}";
     }
 }

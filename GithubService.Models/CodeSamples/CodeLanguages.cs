@@ -43,5 +43,15 @@ namespace GithubService.Models.CodeSamples
                     throw new ArgumentOutOfRangeException(nameof(language), language, "Such language does not exist");
             }
         }
+
+        public static string GetCommentPrefix(this CodeLanguage language)
+        {
+            if (language == CodeLanguage.Ruby || language == CodeLanguage.Python || language == CodeLanguage.CUrl)
+            {
+                return "#";
+            }
+
+            return "//";
+        }
     }
 }
