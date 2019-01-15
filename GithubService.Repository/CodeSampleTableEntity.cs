@@ -1,22 +1,11 @@
-﻿using Microsoft.WindowsAzure.Storage.Table;
+﻿using GithubService.Models.CodeSamples;
+using Microsoft.WindowsAzure.Storage.Table;
 
 namespace GithubService.Repository
 {
-    public class CodeSampleFileDto : TableEntity
+    public class CodeSampleTableEntity : TableEntity
     {
-        private string _filePath;
-
-        public string FilePath
-        {
-            get => _filePath;
-            set
-            {
-                PartitionKey = value;
-                RowKey = value;
-                _filePath = value;
-            }
-        }
-
-        public string CodeSamples { get; set; }
+        public string Content { get; set; }
+        public CodeLanguage Language { get; set; }
     }
 }
