@@ -9,8 +9,8 @@ namespace GithubService.Repository
 
         Task<CodeSampleFile> UpdateFileAsync(CodeSampleFile updatedFile);
 
-        Task<CodeSampleFile> ArchiveFileAsync(CodeSampleFile file);
+        Task ArchiveFileAsync(CodeSampleFile file);
 
-        Task<CodeSampleFile> AddFileAsync(CodeSampleFile newFile);
+        Task AddFileAsync(CodeSampleFile newFile);
     }
 }
