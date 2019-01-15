@@ -4,14 +4,19 @@ namespace GithubService.Repository
 {
     public class CodeSampleFileDto : TableEntity
     {
+        private string _filePath;
+
         public string FilePath
         {
-            get => filePath;
-            set { PartitionKey = value; RowKey = value; filePath = value; }
+            get => _filePath;
+            set
+            {
+                PartitionKey = value;
+                RowKey = value;
+                _filePath = value;
+            }
         }
 
         public string CodeSamples { get; set; }
-
-        private string filePath;
     }
 }
