@@ -11,6 +11,10 @@
     <ProjectReference Include="..\GithubService.Services\GithubService.Services.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\GithubService.Models\GithubService.Models.csproj" />
+    <ProjectReference Include="..\GithubService.Services\GithubService.Services.csproj" />
+  </ItemGroup>
+  <ItemGroup>
     <None Update="host.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
