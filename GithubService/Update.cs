@@ -1,8 +1,13 @@
+using System.IO;
+using System.Text;
+using GithubService.Models.Webhooks;
+using GithubService.Services.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace GithubService
 {
@@ -14,6 +19,15 @@ namespace GithubService
             ILogger logger)
         {
             logger.LogInformation("Update called.");
+            WebhookMessage webhookMessage;
+
+            using (var streamReader = new StreamReader(request.Body, Encoding.UTF8))
+            {
+                var requestBody = streamReader.ReadToEnd();
+                webhookMessage = JsonConvert.DeserializeObject<WebhookMessage>(requestBody);
+            }
+            var parser = new WebhookParser();
+            var (addedFiles, modifiedFiles, removedFiles) = parser.ParseFiles(webhookMessage);
 
             // Parse the webhook message using IWebhookParser
             // Get the affected files using IGithubService.GetCodeSamplesFile
