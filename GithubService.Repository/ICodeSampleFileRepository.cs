@@ -5,12 +5,10 @@ namespace GithubService.Repository
 {
     public interface ICodeSampleFileRepository
     {
-        Task<CodeSampleFile> GetFileAsync(string filePath);
+        Task<CodeSampleFile> GetAsync(string filePath);
 
-        Task<CodeSampleFile> UpdateFileAsync(CodeSampleFile updatedFile);
+        Task StoreAsync(CodeSampleFile file);
 
-        Task ArchiveFileAsync(CodeSampleFile file);
-
-        Task AddFileAsync(CodeSampleFile newFile);
+        Task ArchiveAsync(CodeSampleFile file);
     }
 }
