@@ -1,81 +1,102 @@
 ﻿using GithubService.Models.CodeSamples;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
-using System;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace GithubService.Repository
 {
     public class CodeSampleFileRepository : ICodeSampleFileRepository
     {
+        private static readonly string TableName = "CodeSampleFile";
+        private static readonly string EntityRowKey = "csf";
+
         private readonly CloudTable _fileCodeSamplesTable;
 
-        public static async Task<CodeSampleFileRepository> CreateInstance(ICodeSampleFileRepositoryConfig config)
+        public static async Task<CodeSampleFileRepository> CreateInstance(string connectionString)
         {
-            var instance = new CodeSampleFileRepository(config);
+            var instance = new CodeSampleFileRepository(connectionString);
             await instance._fileCodeSamplesTable.CreateIfNotExistsAsync();
             return instance;
         }
 
-        private CodeSampleFileRepository(ICodeSampleFileRepositoryConfig config)
+        private CodeSampleFileRepository(string connectionString)
         {
-            var cloudStorageAccount = CloudStorageAccount.Parse(config.ConnectionString);
+            var cloudStorageAccount = CloudStorageAccount.Parse(connectionString);
             var tableClient = cloudStorageAccount.CreateCloudTableClient();
 
-            _fileCodeSamplesTable = tableClient.GetTableReference(config.TableName);
+            _fileCodeSamplesTable = tableClient.GetTableReference(TableName);
         }
 
-        private CodeSampleFileRepository() { }
-
-        public Task ArchiveFileAsync(CodeSampleFile file)
+        public async Task<CodeSampleFile> GetAsync(string filePath)
         {
-            throw new NotImplementedException();
-        }
+            var entity = await GetEntityAsync(filePath);
 
-        public async Task<CodeSampleFile> GetFileAsync(string filePath)
-        {
-            var partitionKey = filePath.ToPartitionKey();
-            var query = new TableQuery<CodeSampleTableEntity>()
-                .Where(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, partitionKey));
-
-            var codeSampleEntities = new List<CodeSampleTableEntity>();
-            TableContinuationToken token = null;
-
-            do
+            if (entity == null || entity.IsArchived)
             {
-                var seg = await _fileCodeSamplesTable.ExecuteQuerySegmentedAsync(query, token);
-                token = seg.ContinuationToken;
-                codeSampleEntities.AddRange(seg);
-
-            } while (token != null);
-
-            var codeSamples = codeSampleEntities
-                .Select(sample => sample.ToCodeSample())
-                .ToList();
+                return null;
+            }
 
             return new CodeSampleFile
             {
                 FilePath = filePath,
-                CodeSamples = codeSamples,
+                CodeSamples = JsonConvert.DeserializeObject<List<CodeSample>>(entity.CodeSamples)
             };
         }
 
-        public Task<CodeSampleFile> UpdateFileAsync(CodeSampleFile fileToUpdate)
+        public async Task StoreAsync(CodeSampleFile file)
         {
-            throw new NotImplementedException();
+            var entity = new CodeSampleFileEntity
+            {
+                PartitionKey = ConstructPartitionKey(file.FilePath),
+                RowKey = EntityRowKey,
+                Path = file.FilePath,
+                CodeSamples = JsonConvert.SerializeObject(file.CodeSamples)
+            };
+
+            await StoreEntityAsync(entity);
         }
 
-        public async Task AddFileAsync(CodeSampleFile newFile)
+        public async Task ArchiveAsync(CodeSampleFile file)
         {
-            var batchOperation = new TableBatchOperation();
-            var partitionKey = newFile.FilePath.ToPartitionKey();
+            var entity = await GetEntityAsync(file.FilePath);
 
-            foreach (var sample in newFile.CodeSamples)
-                batchOperation.Insert(sample.ToTableEntity(partitionKey));
+            if (entity != null)
+            {
+                entity.IsArchived = true;
+                await StoreEntityAsync(entity);
+            }
+        }
 
-            await _fileCodeSamplesTable.ExecuteBatchAsync(batchOperation);
+        private async Task<CodeSampleFileEntity> GetEntityAsync(string filePath)
+        {
+            var operation = TableOperation.Retrieve<CodeSampleFileEntity>(ConstructPartitionKey(filePath), EntityRowKey);
+
+            var retrievedResult = await _fileCodeSamplesTable.ExecuteAsync(operation);
+
+            if (retrievedResult.Result == null)
+            {
+                return null;
+            }
+
+            return (CodeSampleFileEntity)retrievedResult.Result;
+        }
+
+        private async Task StoreEntityAsync(CodeSampleFileEntity entity)
+        {
+            var operation = TableOperation.InsertOrReplace(entity);
+
+            await _fileCodeSamplesTable.ExecuteAsync(operation);
+        }
+
+        private string ConstructPartitionKey(string filePath)
+        {
+            var hash = new SHA1Managed().ComputeHash(Encoding.UTF8.GetBytes(filePath));
+            return string.Join("", hash.Select(b => b.ToString("x2")).ToArray());
         }
     }
 }
