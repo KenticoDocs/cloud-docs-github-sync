@@ -1,17 +1,18 @@
-using System;
 using GithubService.Services.Clients;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Threading.Tasks;
 
 namespace GithubService
 {
     public static class Initialize
     {
         [FunctionName("kcd-github-service-initialize")]
-        public static IActionResult Run(
+        public static async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] HttpRequest request,
             ILogger logger)
         {
@@ -22,7 +23,7 @@ namespace GithubService
                 Environment.GetEnvironmentVariable("Github.RepositoryName"),
                 Environment.GetEnvironmentVariable("Github.RepositoryOwner"));
             var githubService = new Services.GithubService(githubClient, null);
-            var codeSampleFiles = githubService.GetCodeSampleFilesAsync().Result;
+            var codeSampleFiles = await githubService.GetCodeSampleFilesAsync();
             // Persist all code sample files using ICodeSampleFileRepository
             // Convert those files using ICodeSamplesConverter.ConvertToCodenameCodeSamples
             // Create/update appropriate KC items using IKenticoCloudService

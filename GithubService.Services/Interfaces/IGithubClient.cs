@@ -6,7 +6,7 @@ namespace GithubService.Services.Interfaces
 {
     public interface IGithubClient
     {
-        Task<IEnumerable<GithubTreeFile>> GetTreeFilesRecursively();
+        Task<IEnumerable<GithubTreeNode>> GetTreeNodesRecursivelyAsync();
 
         Task<string> GetBlobContentAsync(string blobId);
     }
