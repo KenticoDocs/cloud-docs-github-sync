@@ -1,10 +1,12 @@
-﻿using GithubService.Models.CodeSamples;
+﻿using System.Threading.Tasks;
+using GithubService.Models.CodeSamples;
+using GithubService.Models.KenticoCloud;
 
 namespace GithubService.Services.Interfaces
 {
     public interface IKenticoCloudService
     {
-        bool CreateCodeSampleItem(CodenameCodeSamples sample);
+        Task<CodeBlock> CreateCodeSampleItemAsync(CodenameCodeSamples sample);
 
         bool UpdateCodeSampleItem(CodenameCodeSamples sample);
 
