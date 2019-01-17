@@ -20,21 +20,16 @@ namespace GithubService.Services
 
         public async Task<IEnumerable<CodeSampleFile>> GetCodeSampleFilesAsync()
         {
-            var files = new List<CodeSampleFile>();
-            var githubTree = await _githubClient.GetTreeFilesRecursively();
-            
-            foreach (var blob in githubTree.Where(file => file.Type == "blob"))
-            {
-                var content = await _githubClient.GetBlobContentAsync(blob.Id);
-                var file = _fileParser.ParseContent(blob.Path, content);
+            var nodes = await _githubClient.GetTreeNodesRecursivelyAsync();
+            var files = nodes.Where(node => node.Type == "blob");
 
-                files.Add(file);
-            }
-
-            return files;
+            return await Task.WhenAll(files.Select(async file => {
+                var content = await _githubClient.GetBlobContentAsync(file.Id);
+                return _fileParser.ParseContent(file.Path, content);
+            }));
         }
 
-        public CodeSampleFile GetCodeSampleFile(string path)
+        public Task<CodeSampleFile> GetCodeSampleFileAsync(string path)
         {
             throw new NotImplementedException();
         }

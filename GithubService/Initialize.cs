@@ -25,7 +25,7 @@ namespace GithubService
                 Environment.GetEnvironmentVariable("Github.RepositoryName"),
                 Environment.GetEnvironmentVariable("Github.RepositoryOwner"));
             var githubService = new Services.GithubService(githubClient, null);
-            var codeSampleFiles = githubService.GetCodeSampleFilesAsync().Result;
+            var codeSampleFiles = await githubService.GetCodeSampleFilesAsync();
             // Persist all code sample files using ICodeSampleFileRepository
 
             // Convert those files using ICodeSamplesConverter.ConvertToCodenameCodeSamples

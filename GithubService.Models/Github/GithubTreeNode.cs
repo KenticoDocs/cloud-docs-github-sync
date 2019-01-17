@@ -2,7 +2,7 @@
 
 namespace GithubService.Models.Github
 {
-    public class GithubTreeFile
+    public class GithubTreeNode
     {
         [JsonProperty("path")]
         public string Path { get; set; }

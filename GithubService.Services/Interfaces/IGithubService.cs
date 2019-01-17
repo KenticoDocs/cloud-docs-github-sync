@@ -8,6 +8,6 @@ namespace GithubService.Services.Interfaces
     {
         Task<IEnumerable<CodeSampleFile>> GetCodeSampleFilesAsync();
 
-        CodeSampleFile GetCodeSampleFile(string path);
+        Task<CodeSampleFile> GetCodeSampleFileAsync(string path);
     }
 }
