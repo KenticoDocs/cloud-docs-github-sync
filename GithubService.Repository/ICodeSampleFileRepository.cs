@@ -7,7 +7,7 @@ namespace GithubService.Repository
     {
         Task<CodeSampleFile> GetAsync(string filePath);
 
-        Task StoreAsync(CodeSampleFile file);
+        Task<CodeSampleFile> StoreAsync(CodeSampleFile file);
 
         Task ArchiveAsync(CodeSampleFile file);
     }

@@ -48,7 +48,7 @@ namespace GithubService.Repository
             };
         }
 
-        public async Task StoreAsync(CodeSampleFile file)
+        public async Task<CodeSampleFile> StoreAsync(CodeSampleFile file)
         {
             var entity = new CodeSampleFileEntity
             {
@@ -58,7 +58,12 @@ namespace GithubService.Repository
                 CodeSamples = JsonConvert.SerializeObject(file.CodeSamples)
             };
 
-            await StoreEntityAsync(entity);
+            var storedEntity = await StoreEntityAsync(entity);
+            return new CodeSampleFile
+            {
+                FilePath = storedEntity.Path,
+                CodeSamples = JsonConvert.DeserializeObject<List<CodeSample>>(storedEntity.CodeSamples)
+            };
         }
 
         public async Task ArchiveAsync(CodeSampleFile file)
@@ -77,20 +82,15 @@ namespace GithubService.Repository
             var operation = TableOperation.Retrieve<CodeSampleFileEntity>(ConstructPartitionKey(filePath), EntityRowKey);
 
             var retrievedResult = await _fileCodeSamplesTable.ExecuteAsync(operation);
-
-            if (retrievedResult.Result == null)
-            {
-                return null;
-            }
-
-            return (CodeSampleFileEntity)retrievedResult.Result;
+            return (CodeSampleFileEntity) retrievedResult.Result;
         }
 
-        private async Task StoreEntityAsync(CodeSampleFileEntity entity)
+        private async Task<CodeSampleFileEntity> StoreEntityAsync(CodeSampleFileEntity entity)
         {
             var operation = TableOperation.InsertOrReplace(entity);
 
-            await _fileCodeSamplesTable.ExecuteAsync(operation);
+            var result = await _fileCodeSamplesTable.ExecuteAsync(operation);
+            return (CodeSampleFileEntity) result.Result;
         }
 
         private string ConstructPartitionKey(string filePath)
