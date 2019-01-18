@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using GithubService.Models.CodeSamples;
+﻿using GithubService.Models.CodeSamples;
 using GithubService.Services.Interfaces;
 using GithubService.Services.Services;
 using GithubService.Services.Tests.Utils;
 using NUnit.Framework;
+using System;
+using System.Collections.Generic;
 
 namespace GithubService.Services.Tests.Services
 {
@@ -42,7 +42,7 @@ namespace GithubService.Services.Tests.Services
         public void ParseContent_ParsesFileWithMultipleCodeSamples(CodeLanguage language, string filePath)
         {
             var comment = language.GetCommentPrefix();
-            var sampleFile = 
+            var sampleFile =
 $@"{comment} start::hello_world
 console.log(""Hello Kentico Cloud"");
 {comment} end::hello_world
@@ -52,7 +52,7 @@ int j = 14;
 {comment} end::create-integer
 {comment} start::make_coffee
 import com.kenticocloud.delivery;
-DeliveryClient client = new DeliveryClient("" < YOUR_PROJECT_ID > "", "" < YOUR_PREVIEW_API_KEY > "");
+DeliveryClient client = new DeliveryClient(""<YOUR_PROJECT_ID>"", ""<YOUR_PREVIEW_API_KEY>"");
 {comment} end::make_coffee
   ";
 
@@ -70,13 +70,13 @@ DeliveryClient client = new DeliveryClient("" < YOUR_PROJECT_ID > "", "" < YOUR_
                     {
                         Language = language,
                         Codename = "create-integer",
-                        Content = "int i = 10;\nint j = 14;"
+                        Content = $"int i = 10;{Environment.NewLine}int j = 14;"
                     },
                     new CodeSample
                     {
                         Language = language,
                         Codename = "make_coffee",
-                        Content = "import com.kenticocloud.delivery;\nDeliveryClient client = new DeliveryClient(\" < YOUR_PROJECT_ID > \", \" < YOUR_PREVIEW_API_KEY > \");"
+                        Content = $"import com.kenticocloud.delivery;{Environment.NewLine}DeliveryClient client = new DeliveryClient(\"<YOUR_PROJECT_ID>\", \"<YOUR_PREVIEW_API_KEY>\");"
                     }
                 },
                 FilePath = filePath
@@ -92,10 +92,11 @@ DeliveryClient client = new DeliveryClient("" < YOUR_PROJECT_ID > "", "" < YOUR_
         public void ParseContent_ParsesCodeSampleWithSpecialCharacters(CodeLanguage language, string filePath)
         {
             var comment = language.GetCommentPrefix();
-            var sampleFile = 
+            var sampleFile =
 $@"   {comment} start::_special_
 ;0123456789.*?()<>@/'
-	\|%$&:+-;~`!#^_{{}}[], //
+
+	\|%$&:+-;~`!#^_{{}}[], //
 {comment} end::_special_";
 
             var expectedOutput = new CodeSampleFile
@@ -106,7 +107,7 @@ $@"   {comment} start::_special_
                     {
                         Language = language,
                         Codename = "_special_",
-                        Content = ";0123456789.*?()<>@/'\n\r\t\a\b\f\v\\|%$&:+-;~`!#^_{}[], //"
+                        Content = $";0123456789.*?()<>@/'{Environment.NewLine}{Environment.NewLine}\t\a\b\f\v\\|%$&:+-;~`!#^_{{}}[], //"
                     }
                 },
                 FilePath = filePath
@@ -169,17 +170,17 @@ $@"   {comment} start::_special_
             Assert.That(expectedOutput, Is.EqualTo(actualOutput).UsingCodeSampleFileComparer());
         }
 
-        [Test]
-        public void ParseContent_ThrowsForEmptyOrNullFilepath()
+        [TestCase(null)]
+        [TestCase("")]
+        public void ParseContent_InvalidFilePath_ThrowsArgumentException(string filePath)
         {
-            Assert.Throws<ArgumentException>(() => _parser.ParseContent(null, "some content"));
-            Assert.Throws<ArgumentException>(() => _parser.ParseContent("", "some content"));
+            Assert.Throws<ArgumentException>(() => _parser.ParseContent(filePath, "some content"));
         }
 
         [Test]
-        public void ParseContent_ThrowsForNestedAndIntersectedSamples()
+        public void ParseContent_NestedSamples_ThrowsArgumentException()
         {
-            const string sampleFileNested = 
+            const string fileContent =
 @"// start::hello-world
 console.log(""Hello Kentico Cloud, from Javascript"");
 // start::create-integer
@@ -189,8 +190,14 @@ int j = 14;
 // end::hello-world
 ";
 
-            const string sampleFileIntersected =
-                @"// start::hello-world
+            Assert.Throws<ArgumentException>(() => _parser.ParseContent("js/file.js", fileContent));
+        }
+
+        [Test]
+        public void ParseContent_IntersectedSamples_ThrowsArgumentException()
+        {
+            const string fileContent =
+@"// start::hello-world
 console.log(""Hello Kentico Cloud, from Javascript"");
 // start::create-integer
 int i = 10;
@@ -199,8 +206,7 @@ int j = 14;
 // end::create-integer
 ";
 
-            Assert.Throws<ArgumentException>(() => _parser.ParseContent("js/file.js", sampleFileNested));
-            Assert.Throws<ArgumentException>(() => _parser.ParseContent("js/file.js", sampleFileIntersected));
+            Assert.Throws<ArgumentException>(() => _parser.ParseContent("js/file.js", fileContent));
         }
 
         [Test]
@@ -219,7 +225,7 @@ int j = 14;
             Assert.Throws<ArgumentException>(() => _parser.ParseContent("js/file.js", sampleFile));
         }
 
-        private const string ComplexSampleFile = 
+        private const string ComplexSampleFile =
 @"// start::content_unpublishing
 
 import com.kenticocloud.delivery_core.*;
