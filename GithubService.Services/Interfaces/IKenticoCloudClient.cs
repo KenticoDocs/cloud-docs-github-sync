@@ -1,6 +1,6 @@
-﻿using System.Threading.Tasks;
-using GithubService.Models.KenticoCloud;
+﻿using GithubService.Models.KenticoCloud;
 using KenticoCloud.ContentManagement.Models.Items;
+using System.Threading.Tasks;
 
 namespace GithubService.Services.Interfaces
 {
@@ -10,6 +10,10 @@ namespace GithubService.Services.Interfaces
 
         Task<ContentItemModel> CreateContentItemAsync(ContentItemCreateModel contentItem);
 
-        Task<CodeBlock> UpsertContentItemVariantAsync(CodeBlock contentItemVariant, ContentItemModel contentItem);
+        Task<CodeBlock> GetCodeBlockVariantAsync(ContentItemModel contentItem);
+
+        Task<CodeBlock> UpsertCodeBlockVariantAsync(ContentItemModel contentItem, CodeBlock codeBlock);
+
+        Task CreateNewVersionOfDefaultVariantAsync(ContentItemModel contentItem);
     }
 }

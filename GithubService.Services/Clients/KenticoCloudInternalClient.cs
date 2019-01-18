@@ -1,19 +1,19 @@
-﻿using System;
+﻿using GithubService.Services.Interfaces;
+using System;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
-using GithubService.Services.Interfaces;
 
 namespace GithubService.Services.Clients
 {
-    public class KenticoCloudInternalClient : IKenticoCloudInternalClient
+    internal class KenticoCloudInternalClient : IKenticoCloudInternalClient
     {
         private readonly string _apiEndpoint;
         private readonly HttpClient _httpClient;
 
-        public KenticoCloudInternalClient(string apiKey, string projectId)
+        public KenticoCloudInternalClient(string projectId, string apiKey)
         {
             _httpClient = new HttpClient();
             _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));

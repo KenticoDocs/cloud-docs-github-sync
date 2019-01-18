@@ -1,23 +1,25 @@
-﻿using System.Threading.Tasks;
-using GithubService.Models.KenticoCloud;
+﻿using GithubService.Models.KenticoCloud;
 using GithubService.Services.Interfaces;
 using KenticoCloud.ContentManagement;
 using KenticoCloud.ContentManagement.Models.Items;
+using System.Threading.Tasks;
 
 namespace GithubService.Services.Clients
 {
-    public class KenticoCloudClient: IKenticoCloudClient
+    public class KenticoCloudClient : IKenticoCloudClient
     {
         private readonly ContentManagementClient _contentManagementClient;
+        private readonly IKenticoCloudInternalClient _internalApiClient;
 
-        public KenticoCloudClient(string apiKey, string projectId)
+        public KenticoCloudClient(string projectId, string contentManagementApiKey, string internalApiKey)
         {
             var options = new ContentManagementOptions
             {
-                ApiKey = apiKey,
+                ApiKey = contentManagementApiKey,
                 ProjectId = projectId
             };
             _contentManagementClient = new ContentManagementClient(options);
+            _internalApiClient = new KenticoCloudInternalClient(projectId, internalApiKey);
         }
 
         public async Task<ContentItemModel> GetContentItemAsync(string codename)
@@ -26,11 +28,21 @@ namespace GithubService.Services.Clients
         public async Task<ContentItemModel> CreateContentItemAsync(ContentItemCreateModel contentItem)
             => await _contentManagementClient.CreateContentItemAsync(contentItem);
 
-        public async Task<CodeBlock> UpsertContentItemVariantAsync(CodeBlock contentItemVariant, ContentItemModel contentItem)
+        public async Task<CodeBlock> GetCodeBlockVariantAsync(ContentItemModel contentItem)
         {
             var identifier = new ContentItemVariantIdentifier(ContentItemIdentifier.ById(contentItem.Id), LanguageIdentifier.DEFAULT_LANGUAGE);
-            var response = await _contentManagementClient.UpsertContentItemVariantAsync(identifier, contentItemVariant);
+            var response = await _contentManagementClient.GetContentItemVariantAsync(identifier);
             return response.Elements;
         }
+
+        public async Task<CodeBlock> UpsertCodeBlockVariantAsync(ContentItemModel contentItem, CodeBlock codeBlock)
+        {
+            var identifier = new ContentItemVariantIdentifier(ContentItemIdentifier.ById(contentItem.Id), LanguageIdentifier.DEFAULT_LANGUAGE);
+            var response = await _contentManagementClient.UpsertContentItemVariantAsync(identifier, codeBlock);
+            return response.Elements;
+        }
+
+        public async Task CreateNewVersionOfDefaultVariantAsync(ContentItemModel contentItem)
+            => await _internalApiClient.CreateNewVersionOfDefaultVariantAsync(contentItem.Id);
     }
 }

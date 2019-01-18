@@ -1,23 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using GithubService.Models.CodeSamples;
+﻿using GithubService.Models.CodeSamples;
 using GithubService.Models.KenticoCloud;
 using GithubService.Services.Interfaces;
+using System;
+using System.Collections.Generic;
 
 namespace GithubService.Services.Converters
 {
-    public class CodeSamplesConverter: ICodeSamplesConverter
+    public class CodeSamplesConverter : ICodeSamplesConverter
     {
         public IEnumerable<CodenameCodeSamples> ConvertToCodenameCodeSamples(IEnumerable<CodeSampleFile> codeSampleFiles)
         {
             throw new NotImplementedException();
         }
+
         public CodeBlock ConvertToCodeBlock(CodenameCodeSamples codenameCodeSample)
         {
             return new CodeBlock
             {
-                Identifier = codenameCodeSample.Codename,
-                C = TryGetLanguageContent(CodeLanguage.CSharp, codenameCodeSample),
+                CSharp = TryGetLanguageContent(CodeLanguage.CSharp, codenameCodeSample),
                 Curl = TryGetLanguageContent(CodeLanguage.CUrl, codenameCodeSample),
                 Java = TryGetLanguageContent(CodeLanguage.Java, codenameCodeSample),
                 Javarx = TryGetLanguageContent(CodeLanguage.JavaRx, codenameCodeSample),
@@ -32,6 +32,6 @@ namespace GithubService.Services.Converters
         private string TryGetLanguageContent(CodeLanguage language, CodenameCodeSamples codenameCodeSample)
             => codenameCodeSample.CodeSamples.ContainsKey(language)
                 ? codenameCodeSample.CodeSamples[language]
-                : string.Empty;
+                : null;
     }
 }

@@ -10,14 +10,12 @@ namespace GithubService.Models.KenticoCloud
 {
     public class CodeBlock
     {
-        [JsonProperty("identifier")]
-        public string Identifier { get; set; }
         [JsonProperty("js")]
         public string Js { get; set; }
         [JsonProperty("javarx")]
         public string Javarx { get; set; }
         [JsonProperty("c_")]
-        public string C { get; set; }
+        public string CSharp { get; set; }
         [JsonProperty("java")]
         public string Java { get; set; }
         [JsonProperty("python")]

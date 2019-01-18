@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace GithubService.Services.Interfaces
 {
-    public interface IKenticoCloudInternalClient
+    internal interface IKenticoCloudInternalClient
     {
         Task CreateNewVersionOfDefaultVariantAsync(Guid contentItemId);
     }
