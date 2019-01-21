@@ -23,7 +23,8 @@ namespace GithubService
             // Get all the files from GitHub - use IGithubService.GetCodeSamplesFiles
             var githubClient = new GithubClient(
                 Environment.GetEnvironmentVariable("Github.RepositoryName"),
-                Environment.GetEnvironmentVariable("Github.RepositoryOwner"));
+                Environment.GetEnvironmentVariable("Github.RepositoryOwner"),
+                Environment.GetEnvironmentVariable("Github.AccessToken"));
             var githubService = new Services.GithubService(githubClient, null);
             var codeSampleFiles = await githubService.GetCodeSampleFilesAsync();
             // Persist all code sample files using ICodeSampleFileRepository
