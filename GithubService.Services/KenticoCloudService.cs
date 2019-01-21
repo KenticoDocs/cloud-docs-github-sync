@@ -22,12 +22,10 @@ namespace GithubService.Services
 
         public async Task<CodeBlock> UpsertCodeBlockAsync(CodenameCodeSamples codeSamples)
         {
-            ContentItemModel contentItem;
-            var codeBlockUpdate = _codeConverter.ConvertToCodeBlock(codeSamples);
+            var codeBlock = _codeConverter.ConvertToCodeBlock(codeSamples);
+            var contentItem = await EnsureCodeBlockItemAsync(codeSamples.Codename);
 
-            contentItem = await EnsureCodeBlockItemAsync(codeSamples);
-
-            return await EnsureCodeBlockVariantAsync(contentItem, codeBlockUpdate);
+            return await EnsureCodeBlockVariantAsync(contentItem, codeBlock);
         }
 
         public bool DeleteCodeSampleItem(CodenameCodeSamples sample)
@@ -35,12 +33,12 @@ namespace GithubService.Services
             throw new NotImplementedException();
         }
 
-        private async Task<ContentItemModel> EnsureCodeBlockItemAsync(CodenameCodeSamples codeSamples)
+        private async Task<ContentItemModel> EnsureCodeBlockItemAsync(string codename)
         {
             try
             {
                 // Try to get the content item from KC using codename
-                return await _kcClient.GetContentItemAsync(codeSamples.Codename);
+                return await _kcClient.GetContentItemAsync(codename);
             }
             catch (ContentManagementException exception)
             {
@@ -51,33 +49,17 @@ namespace GithubService.Services
                 var codeBlockItem = new ContentItemCreateModel
                 {
                     Type = ContentTypeIdentifier.ByCodename("code_block"),
-                    Name = codeSamples.Codename
+                    Name = codename
                 };
                 return await _kcClient.CreateContentItemAsync(codeBlockItem);
             }
         }
 
-        private async Task<CodeBlock> EnsureCodeBlockVariantAsync(ContentItemModel contentItem, CodeBlock codeBlockUpdate)
+        private async Task<CodeBlock> EnsureCodeBlockVariantAsync(ContentItemModel contentItem, CodeBlock codeBlock)
         {
-            CodeBlock codeBlock;
-
             try
             {
-                codeBlock = await _kcClient.GetCodeBlockVariantAsync(contentItem);
-            }
-            catch (ContentManagementException exception)
-            {
-                if (exception.StatusCode != HttpStatusCode.NotFound)
-                    throw;
-
-                // Content variant doesn't exist -> create in KC
-                return await _kcClient.UpsertCodeBlockVariantAsync(contentItem, codeBlockUpdate);
-            }
-
-            try
-            {
-                // Content variant already exists -> try to update in KC
-                MergeCodeBlocks(codeBlock, codeBlockUpdate);
+                // Try to update the content variant in KC
                 return await _kcClient.UpsertCodeBlockVariantAsync(contentItem, codeBlock);
             }
             catch (ContentManagementException exception)
@@ -88,39 +70,9 @@ namespace GithubService.Services
                 // The variant seems to be published -> create new version in KC
                 await _kcClient.CreateNewVersionOfDefaultVariantAsync(contentItem);
 
-                // the variant should be updated correctly now
+                // The content variant should be updated correctly now
                 return await _kcClient.UpsertCodeBlockVariantAsync(contentItem, codeBlock);
             }
-        }
-
-        private void MergeCodeBlocks(CodeBlock oldCodeBlock, CodeBlock newCodeblock)
-        {
-            if (newCodeblock.CSharp != null)
-                oldCodeBlock.CSharp = newCodeblock.CSharp;
-
-            if (newCodeblock.Curl != null)
-                oldCodeBlock.Curl = newCodeblock.Curl;
-
-            if (newCodeblock.Java != null)
-                oldCodeBlock.Java = newCodeblock.Java;
-
-            if (newCodeblock.Javarx != null)
-                oldCodeBlock.Javarx = newCodeblock.Javarx;
-
-            if (newCodeblock.Js != null)
-                oldCodeBlock.Js = newCodeblock.Js;
-
-            if (newCodeblock.Python != null)
-                oldCodeBlock.Python = newCodeblock.Python;
-
-            if (newCodeblock.Ruby != null)
-                oldCodeBlock.Ruby = newCodeblock.Ruby;
-
-            if (newCodeblock.Swift != null)
-                oldCodeBlock.Swift = newCodeblock.Swift;
-
-            if (newCodeblock.Ts != null)
-                oldCodeBlock.Ts = newCodeblock.Ts;
         }
     }
 }

@@ -58,8 +58,6 @@ namespace GithubService.Services.Tests
                 Throws(kcClientException);
             kcClient.CreateContentItemAsync(Arg.Any<ContentItemCreateModel>())
                 .Returns(ContentItem);
-            kcClient.GetCodeBlockVariantAsync(Arg.Any<ContentItemModel>())
-                .Throws(kcClientException);
             kcClient.UpsertCodeBlockVariantAsync(ContentItem, CodeBlock)
                 .Returns(CodeBlock);
 
@@ -75,13 +73,9 @@ namespace GithubService.Services.Tests
         public void UpsertCodeBlockAsync_ExistingUnpublishedItem_UpdatesCodeBlock()
         {
             // Arrange
-            var kcClientException = new ContentManagementException(new HttpResponseMessage(HttpStatusCode.NotFound), string.Empty);
-
             var kcClient = Substitute.For<IKenticoCloudClient>();
             kcClient.GetContentItemAsync(CodeSamples.Codename)
                 .Returns(ContentItem);
-            kcClient.GetCodeBlockVariantAsync(Arg.Any<ContentItemModel>())
-                .Returns(CodeBlock);
             kcClient.UpsertCodeBlockVariantAsync(ContentItem, CodeBlock)
                 .Returns(CodeBlock);
 
@@ -108,8 +102,6 @@ namespace GithubService.Services.Tests
             var kcClient = Substitute.For<IKenticoCloudClient>();
             kcClient.GetContentItemAsync(CodeSamples.Codename)
                 .Returns(ContentItem);
-            kcClient.GetCodeBlockVariantAsync(Arg.Any<ContentItemModel>())
-                .Returns(CodeBlock);
             kcClient.When(x => x.CreateNewVersionOfDefaultVariantAsync(Arg.Any<ContentItemModel>()))
                 .Do(_ => createNewVersionCalled++);
             kcClient.UpsertCodeBlockVariantAsync(ContentItem, CodeBlock)
@@ -152,26 +144,6 @@ namespace GithubService.Services.Tests
         }
 
         [Test]
-        public void UpsertCodeBlockAsync_UnknownExceptionInGetCodeBlockVariantAsyncMethod_RethrowsException()
-        {
-            // Arrange
-            var kcClientException =
-                new ContentManagementException(new HttpResponseMessage(HttpStatusCode.InternalServerError), string.Empty);
-
-            var kcClient = Substitute.For<IKenticoCloudClient>();
-            kcClient.GetContentItemAsync(CodeSamples.Codename)
-                .Returns(ContentItem);
-            kcClient.GetCodeBlockVariantAsync(Arg.Any<ContentItemModel>())
-                .Throws(kcClientException);
-
-            // Act
-            var kcService = new KenticoCloudService(kcClient, _codeConverter);
-
-            // Assert
-            Assert.ThrowsAsync<ContentManagementException>(() => kcService.UpsertCodeBlockAsync(CodeSamples));
-        }
-
-        [Test]
         public void UpsertCodeBlockAsync_UnknownExceptionInUpsertCodeBlockVariantAsyncMethod_RethrowsException()
         {
             // Arrange
@@ -181,8 +153,6 @@ namespace GithubService.Services.Tests
             var kcClient = Substitute.For<IKenticoCloudClient>();
             kcClient.GetContentItemAsync(CodeSamples.Codename)
                 .Returns(ContentItem);
-            kcClient.GetCodeBlockVariantAsync(Arg.Any<ContentItemModel>())
-                .Returns(CodeBlock);
             kcClient.UpsertCodeBlockVariantAsync(ContentItem, CodeBlock)
                 .Throws(kcClientException);
 

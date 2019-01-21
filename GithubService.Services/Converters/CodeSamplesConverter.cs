@@ -32,6 +32,6 @@ namespace GithubService.Services.Converters
         private string TryGetLanguageContent(CodeLanguage language, CodenameCodeSamples codenameCodeSample)
             => codenameCodeSample.CodeSamples.ContainsKey(language)
                 ? codenameCodeSample.CodeSamples[language]
-                : null;
+                : string.Empty;
     }
 }
