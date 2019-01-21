@@ -5,6 +5,6 @@ namespace GithubService.Services.Interfaces
 {
     public interface IWebhookParser
     {
-        (IEnumerable<string>, IEnumerable<string>, IEnumerable<string>) ParseFiles(WebhookMessage message);
+        (IEnumerable<string> addedFiles, IEnumerable<string> modifiedFiles, IEnumerable<string> removedFiles) ExtractFiles(WebhookMessage message);
     }
 }

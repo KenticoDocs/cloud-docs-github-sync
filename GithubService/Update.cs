@@ -27,7 +27,7 @@ namespace GithubService
                 webhookMessage = JsonConvert.DeserializeObject<WebhookMessage>(requestBody);
             }
             var parser = new WebhookParser();
-            var (addedFiles, modifiedFiles, removedFiles) = parser.ParseFiles(webhookMessage);
+            var (addedFiles, modifiedFiles, removedFiles) = parser.ExtractFiles(webhookMessage);
 
             // Parse the webhook message using IWebhookParser
             // Get the affected files using IGithubService.GetCodeSamplesFile
