@@ -8,6 +8,7 @@
     <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\GithubService.Repository\GithubService.Repository.csproj" />
     <ProjectReference Include="..\GithubService.Services\GithubService.Services.csproj" />
   </ItemGroup>
   <ItemGroup>
