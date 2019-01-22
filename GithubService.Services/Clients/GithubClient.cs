@@ -36,6 +36,19 @@ namespace GithubService.Services.Clients
         public async Task<string> GetBlobContentAsync(string blobId)
         {
             var dynamicContent = await GetContentAsync($"{_apiEndpoint}/git/blobs/{blobId}?access_token={_accessToken}");
+
+            return DecodeContent(dynamicContent);
+        }
+
+        public async Task<string> GetFileContentAsync(string filePath)
+        {
+            var dynamicContent = await GetContentAsync($"{_apiEndpoint}/contents/{filePath}?access_token={_accessToken}");
+
+            return DecodeContent(dynamicContent);
+        }
+
+        private string DecodeContent(JObject dynamicContent)
+        {
             var content = Convert.FromBase64String(dynamicContent["content"].Value<string>());
 
             return Encoding.UTF8.GetString(content);

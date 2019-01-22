@@ -69,8 +69,12 @@ namespace GithubService
                     await codeSampleFileRepository.StoreAsync(codeSampleFile);
 
                     // Create new KC content items
-                    var codenameCodeSample = codeSamplesConverter.ConvertToCodenameCodeSample(codeSampleFile);
-                    await kenticoCloudService.UpsertCodeBlockAsync(codenameCodeSample);
+                    var codenameCodeSamples = codeSamplesConverter.ConvertToCodenameCodeSamples(codeSampleFile);
+
+                    foreach (var codenameCodeSample in codenameCodeSamples)
+                    {
+                        await kenticoCloudService.UpsertCodeBlockAsync(codenameCodeSample);
+                    }
                 }
             }
 

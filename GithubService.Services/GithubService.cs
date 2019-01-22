@@ -29,9 +29,11 @@ namespace GithubService.Services
             }));
         }
 
-        public Task<CodeFile> GetCodeFileAsync(string path)
+        public async Task<CodeSampleFile> GetCodeSampleFileAsync(string path)
         {
-            throw new NotImplementedException();
+            var content = await _githubClient.GetFileContentAsync(path);
+
+            return _fileParser.ParseContent(path, content);
         }
     }
 }

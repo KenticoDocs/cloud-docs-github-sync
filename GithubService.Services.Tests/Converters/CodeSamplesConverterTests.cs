@@ -178,5 +178,95 @@ namespace GithubService.Services.Tests.Converters
 
             Assert.That(expectedOutput, Is.EqualTo(actualOutput).UsingCodenameCodeSamplesComparer());
         }
+
+        [Test]
+        public void ConvertToCodenameCodeSamples_GetCodenameCodeSamplesFromOneFile()
+        {
+            var codeSampleFile = new CodeSampleFile
+            {
+                CodeSamples = new List<CodeSample>
+                    {
+                        new CodeSample
+                        {
+                            Codename = "hello-world",
+                            Content = "console.log('Hello Kentico Cloud');",
+                            Language = CodeLanguage.Javascript
+                        },
+
+                        new CodeSample
+                        {
+                            Codename = "hello-world",
+                            Content = "System.out.println(\"Hello, World\");",
+                            Language = CodeLanguage.Java
+                        }
+                    }
+            };
+                
+            var expectedOutput = new List<CodenameCodeSamples>
+            {
+                new CodenameCodeSamples
+                {
+                    Codename = "hello-world",
+                    CodeSamples = new Dictionary<CodeLanguage, string>
+                    {
+                        {CodeLanguage.Javascript, "console.log('Hello Kentico Cloud');"},
+                        {CodeLanguage.Java, "System.out.println(\"Hello, World\");"}
+                    }
+                }
+            };
+
+            var actualOutput = _codeSamplesConverter.ConvertToCodenameCodeSamples(codeSampleFile);
+
+            Assert.That(expectedOutput, Is.EqualTo(actualOutput).UsingCodenameCodeSamplesComparer());
+        }
+
+        [Test]
+        public void ConvertToCodenameCodeSamples_GetDiferentCodenameCodeSamplesFromOneFile()
+        {
+            var codeSampleFile = new CodeSampleFile
+            {
+                CodeSamples = new List<CodeSample>
+                    {
+                        new CodeSample
+                        {
+                            Codename = "hello-world",
+                            Content = "console.log('Hello Kentico Cloud');",
+                            Language = CodeLanguage.Javascript
+                        },
+
+                        new CodeSample
+                        {
+                            Codename = "hello-world-2",
+                            Content = "System.out.println(\"Hello, World\");",
+                            Language = CodeLanguage.Java
+                        }
+                    }
+            };
+
+            var expectedOutput = new List<CodenameCodeSamples>
+            {
+                new CodenameCodeSamples
+                {
+                    Codename = "hello-world",
+                    CodeSamples = new Dictionary<CodeLanguage, string>
+                    {
+                        {CodeLanguage.Javascript, "console.log('Hello Kentico Cloud');"},
+                    }
+                },
+
+                new CodenameCodeSamples
+                {
+                    Codename = "hello-world-2",
+                    CodeSamples = new Dictionary<CodeLanguage, string>
+                    {
+                        {CodeLanguage.Java, "System.out.println(\"Hello, World\");"},
+                    }
+                }
+            };
+
+            var actualOutput = _codeSamplesConverter.ConvertToCodenameCodeSamples(codeSampleFile);
+
+            Assert.That(expectedOutput, Is.EqualTo(actualOutput).UsingCodenameCodeSamplesComparer());
+        }
     }
 }
