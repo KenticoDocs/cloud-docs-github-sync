@@ -9,6 +9,6 @@ namespace GithubService.Repository
 
         Task<CodeFile> StoreAsync(CodeFile file);
 
-        Task ArchiveAsync(CodeFile file);
+        Task<CodeFile> ArchiveAsync(string filePath);
     }
 }

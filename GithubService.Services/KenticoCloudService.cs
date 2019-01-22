@@ -2,7 +2,6 @@
 using GithubService.Services.Interfaces;
 using KenticoCloud.ContentManagement.Exceptions;
 using KenticoCloud.ContentManagement.Models.Items;
-using System;
 using System.Net;
 using System.Threading.Tasks;
 using GithubService.Models;
@@ -28,9 +27,50 @@ namespace GithubService.Services
             return await EnsureCodeSamplesVariantAsync(contentItem, codeSamples);
         }
 
-        public async Task DeleteCodeFragmentsAsync(CodenameCodeFragments fragment)
+        public async Task RemoveCodeFragmentAsync(CodeFragment codeFragment)
         {
-            throw new NotImplementedException();
+            // Try to get the content item from KC using codename
+            var contentItem = await _kcClient.GetContentItemAsync(codeFragment.Codename);
+            var codeBlockFromKc = await _kcClient.GetCodeSamplesVariantAsync(contentItem);
+
+            // remove the code
+            switch (codeFragment.Language)
+            {
+                case CodeFragmentLanguage.CUrl:
+                    codeBlockFromKc.Curl = string.Empty;
+                    break;
+                case CodeFragmentLanguage.CSharp:
+                    codeBlockFromKc.CSharp = string.Empty;
+                    break;
+                case CodeFragmentLanguage.JavaScript:
+                    codeBlockFromKc.JavaScript = string.Empty;
+                    break;
+                case CodeFragmentLanguage.TypeScript:
+                    codeBlockFromKc.TypeScript = string.Empty;
+                    break;
+                case CodeFragmentLanguage.Java:
+                    codeBlockFromKc.Java = string.Empty;
+                    break;
+                case CodeFragmentLanguage.JavaRx:
+                    codeBlockFromKc.JavaRx = string.Empty;
+                    break;
+                case CodeFragmentLanguage.Swift:
+                    codeBlockFromKc.Swift = string.Empty;
+                    break;
+                case CodeFragmentLanguage.Ruby:
+                    codeBlockFromKc.Ruby = string.Empty;
+                    break;
+                case CodeFragmentLanguage.PHP:
+                    codeBlockFromKc.PHP = string.Empty;
+                    break;
+            }
+
+            await EnsureCodeSamplesVariantAsync(contentItem, codeBlockFromKc);
+
+            if (IsReadyToUnpublish(codeBlockFromKc))
+            {
+                // TODO: sent to new workflow step, once it is defined
+            }
         }
 
         private async Task<ContentItemModel> EnsureCodeSamplesItemAsync(string codename)
@@ -74,5 +114,17 @@ namespace GithubService.Services
                 return await _kcClient.UpsertCodeSamplesVariantAsync(contentItem, codeSamples);
             }
         }
+
+        private bool IsReadyToUnpublish(CodeSamples codeSamples)
+            => string.IsNullOrEmpty(codeSamples.Curl) &&
+               string.IsNullOrEmpty(codeSamples.CSharp) &&
+               string.IsNullOrEmpty(codeSamples.Java) &&
+               string.IsNullOrEmpty(codeSamples.JavaRx) &&
+               string.IsNullOrEmpty(codeSamples.JavaScript) &&
+               string.IsNullOrEmpty(codeSamples.PHP) &&
+               string.IsNullOrEmpty(codeSamples.Ruby) &&
+               string.IsNullOrEmpty(codeSamples.TypeScript);
+
+
     }
 }

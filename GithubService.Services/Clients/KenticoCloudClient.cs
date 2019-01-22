@@ -28,6 +28,13 @@ namespace GithubService.Services.Clients
         public async Task<ContentItemModel> CreateContentItemAsync(ContentItemCreateModel contentItem)
             => await _contentManagementClient.CreateContentItemAsync(contentItem);
 
+        public async Task<CodeSamples> GetCodeSamplesVariantAsync(ContentItemModel contentItem)
+        {
+            var identifier = new ContentItemVariantIdentifier(ContentItemIdentifier.ById(contentItem.Id), LanguageIdentifier.DEFAULT_LANGUAGE);
+            var response = await _contentManagementClient.GetContentItemVariantAsync(identifier);
+            return response.Elements;
+        }
+
         public async Task<CodeSamples> UpsertCodeSamplesVariantAsync(ContentItemModel contentItem, CodeSamples codeSamples)
         {
             var identifier = new ContentItemVariantIdentifier(ContentItemIdentifier.ById(contentItem.Id), LanguageIdentifier.DEFAULT_LANGUAGE);
