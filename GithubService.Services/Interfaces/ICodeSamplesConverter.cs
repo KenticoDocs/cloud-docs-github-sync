@@ -8,6 +8,8 @@ namespace GithubService.Services.Interfaces
     {
         IEnumerable<CodenameCodeSamples> ConvertToCodenameCodeSamples(IEnumerable<CodeSampleFile> codeSampleFiles);
 
+        IEnumerable<CodenameCodeSamples> ConvertToCodenameCodeSamples(CodeSampleFile codeSampleFiles);
+
         CodeBlock ConvertToCodeBlock(CodenameCodeSamples codenameCodeSample);
     }
 }

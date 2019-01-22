@@ -9,5 +9,7 @@ namespace GithubService.Services.Interfaces
         Task<IEnumerable<GithubTreeNode>> GetTreeNodesRecursivelyAsync();
 
         Task<string> GetBlobContentAsync(string blobId);
+
+        Task<string> GetFileContentAsync(string filePath);
     }
 }

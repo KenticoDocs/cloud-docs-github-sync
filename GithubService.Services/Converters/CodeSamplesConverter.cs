@@ -14,37 +14,63 @@ namespace GithubService.Services.Converters
 
             foreach (var codeSampleFile in codeSampleFiles)
             {
-                foreach (var codeSample in codeSampleFile.CodeSamples)
-                {
-                    var codename = codeSample.Codename;
-                    var language = codeSample.Language;
-                    var content = codeSample.Content;
+                var codeNameCodeSamples = ConvertCodeSampleFileToCodeNameCodeSamples(codeSampleFile);
 
+                foreach (var (codename, codeSamples) in codeNameCodeSamples)
+                {
                     if (codenameCodeSamples.ContainsKey(codename))
                     {
-                        codenameCodeSamples[codename].CodeSamples.Add(language, content);
-                    }
+                        foreach (var codeSample in codeSamples.CodeSamples)
+                        {
+                            codenameCodeSamples[codename].CodeSamples.Add(codeSample.Key, codeSample.Value);
+                        }
+                    } 
                     else
                     {
-                        codenameCodeSamples.Add(codename, new CodenameCodeSamples
-                        {
-                            Codename = codename,
-                            CodeSamples = new Dictionary<CodeLanguage, string>
-                            {
-                                {language, content}
-                            }
-                        });
+                        codenameCodeSamples.Add(codename, codeSamples);
                     }
-                }
+
+                }                
             }
 
             return codenameCodeSamples.Values;
         }
 
-        public CodeBlock ConvertToCodeBlock(CodenameCodeSamples codenameCodeSample)
+        public IEnumerable<CodenameCodeSamples> ConvertToCodenameCodeSamples(CodeSampleFile codeSampleFiles)
+            => ConvertCodeSampleFileToCodeNameCodeSamples(codeSampleFiles).Values;
+       
+        private Dictionary<string, CodenameCodeSamples> ConvertCodeSampleFileToCodeNameCodeSamples(CodeSampleFile codeSampleFile)
         {
-            return new CodeBlock
+            var codenameCodeSamples = new Dictionary<string, CodenameCodeSamples>();
+
+            foreach (var codeSample in codeSampleFile.CodeSamples)
             {
+                var codename = codeSample.Codename;
+                var language = codeSample.Language;
+                var content = codeSample.Content;
+
+                if (codenameCodeSamples.ContainsKey(codename))
+                {
+                    codenameCodeSamples[codename].CodeSamples.Add(language, content);
+                }
+                else
+                {
+                    codenameCodeSamples.Add(codename, new CodenameCodeSamples
+                    {
+                        Codename = codename,
+                        CodeSamples = new Dictionary<CodeLanguage, string>
+                            {
+                                {language, content}
+                            }
+                    });
+                }
+            }
+
+            return codenameCodeSamples;
+        }
+
+        public CodeBlock ConvertToCodeBlock(CodenameCodeSamples codenameCodeSample) 
+            => new CodeBlock {
                 CSharp = TryGetLanguageContent(CodeLanguage.CSharp, codenameCodeSample),
                 Curl = TryGetLanguageContent(CodeLanguage.CUrl, codenameCodeSample),
                 Java = TryGetLanguageContent(CodeLanguage.Java, codenameCodeSample),
@@ -55,7 +81,6 @@ namespace GithubService.Services.Converters
                 Ruby = TryGetLanguageContent(CodeLanguage.Ruby, codenameCodeSample),
                 Ts = TryGetLanguageContent(CodeLanguage.Typescript, codenameCodeSample),
             };
-        }
 
         private string TryGetLanguageContent(CodeLanguage language, CodenameCodeSamples codenameCodeSample)
             => codenameCodeSample.CodeSamples.ContainsKey(language)
