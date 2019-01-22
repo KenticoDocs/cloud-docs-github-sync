@@ -3,7 +3,7 @@ using System.Linq;
 using GithubService.Models.Webhooks;
 using GithubService.Services.Interfaces;
 
-namespace GithubService.Services.Services
+namespace GithubService.Services.Parsers
 {
     public class WebhookParser : IWebhookParser
     {

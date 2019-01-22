@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using GithubService.Models.CodeSamples;
+using GithubService.Models;
 
 namespace GithubService.Services.Interfaces
 {
     public interface IGithubService
     {
-        Task<IEnumerable<CodeSampleFile>> GetCodeSampleFilesAsync();
+        Task<IEnumerable<CodeFile>> GetCodeFilesAsync();
 
-        Task<CodeSampleFile> GetCodeSampleFileAsync(string path);
+        Task<CodeFile> GetCodeFileAsync(string path);
     }
 }

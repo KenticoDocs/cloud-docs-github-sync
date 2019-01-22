@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using GithubService.Models.CodeSamples;
+using GithubService.Models;
 using GithubService.Services.Interfaces;
 
 namespace GithubService.Services
@@ -18,7 +18,7 @@ namespace GithubService.Services
             _fileParser = fileParser;
         }
 
-        public async Task<IEnumerable<CodeSampleFile>> GetCodeSampleFilesAsync()
+        public async Task<IEnumerable<CodeFile>> GetCodeFilesAsync()
         {
             var nodes = await _githubClient.GetTreeNodesRecursivelyAsync();
             var files = nodes.Where(node => node.Type == "blob");
@@ -29,7 +29,7 @@ namespace GithubService.Services
             }));
         }
 
-        public Task<CodeSampleFile> GetCodeSampleFileAsync(string path)
+        public Task<CodeFile> GetCodeFileAsync(string path)
         {
             throw new NotImplementedException();
         }
