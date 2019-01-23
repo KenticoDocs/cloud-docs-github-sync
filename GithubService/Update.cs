@@ -78,6 +78,37 @@ namespace GithubService
                 }
             }
 
+            if (modifiedFiles.ToList().Count > 0)
+            {
+                foreach (var filePath in modifiedFiles.ToList())
+                {
+                    var modifiedCodeSampleFile = await githubService.GetCodeSampleFileAsync(filePath);
+                    var storedCodeSampleFile = await codeSampleFileRepository.GetAsync(filePath);
+
+                    // In table storage replace whole file entity
+                    await codeSampleFileRepository.StoreAsync(modifiedCodeSampleFile);
+
+                    var modifiedCodenameCodeSamples = codeSamplesConverter.ConvertToCodenameCodeSamples(modifiedCodeSampleFile);
+
+                    foreach (var storedCodeSample in storedCodeSampleFile.CodeSamples)
+                    {
+                        var removedCodeSample = modifiedCodenameCodeSamples
+                            .Where(codeSample => codeSample.Codename == storedCodeSample.Codename)
+                            .First();
+
+                        if (!modifiedCodeSampleFile.CodeSamples.Contains(storedCodeSample))
+                        {
+                            kenticoCloudService.DeleteCodeSampleItem(removedCodeSample);
+                        }
+                    }
+
+                    foreach (var modifiedCodeSample in modifiedCodenameCodeSamples)
+                    {
+                        await kenticoCloudService.UpsertCodeBlockAsync(modifiedCodeSample);
+                    }
+                }
+            }
+
             // Parse the webhook message using IWebhookParser
             // Get the affected files using IGithubService.GetCodeSamplesFile
             // Persist all code sample files using ICodeSampleFileRepository
