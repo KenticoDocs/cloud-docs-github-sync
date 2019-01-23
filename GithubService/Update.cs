@@ -15,6 +15,8 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using System.Collections.Generic;
+using GithubService.Services.Interfaces;
 
 namespace GithubService
 {
@@ -60,6 +62,23 @@ namespace GithubService
 
             var kenticoCloudService = new KenticoCloudService(kenticoCloudClient, codeSamplesConverter);
 
+            ProcessAddedFiles(addedFiles, codeSampleFileRepository, githubService, kenticoCloudService, codeSamplesConverter);
+            ProcessModifiedFiles(modifiedFiles, codeSampleFileRepository, githubService, kenticoCloudService, codeSamplesConverter);
+
+
+            // Parse the webhook message using IWebhookParser
+            // Get the affected files using IGithubService.GetCodeSamplesFile
+            // Persist all code sample files using ICodeSampleFileRepository
+            // Convert those files using ICodeSamplesConverter.ConvertToCodenameCodeSamples
+            // Create/update appropriate KC items using IKenticoCloudService
+
+            return new OkObjectResult("Updated.");
+        }
+
+        private static async void ProcessAddedFiles(IEnumerable<string> addedFiles, 
+            ICodeSampleFileRepository codeSampleFileRepository, IGithubService githubService, 
+            IKenticoCloudService kenticoCloudService, ICodeSamplesConverter codeSamplesConverter)
+        {
             if (addedFiles.ToList().Count > 0)
             {
                 foreach (var filePath in addedFiles.ToList())
@@ -77,7 +96,12 @@ namespace GithubService
                     }
                 }
             }
+        }
 
+        private static async void ProcessModifiedFiles(IEnumerable<string> modifiedFiles,
+            ICodeSampleFileRepository codeSampleFileRepository, IGithubService githubService,
+            IKenticoCloudService kenticoCloudService, ICodeSamplesConverter codeSamplesConverter)
+        {
             if (modifiedFiles.ToList().Count > 0)
             {
                 foreach (var filePath in modifiedFiles.ToList())
@@ -108,14 +132,6 @@ namespace GithubService
                     }
                 }
             }
-
-            // Parse the webhook message using IWebhookParser
-            // Get the affected files using IGithubService.GetCodeSamplesFile
-            // Persist all code sample files using ICodeSampleFileRepository
-            // Convert those files using ICodeSamplesConverter.ConvertToCodenameCodeSamples
-            // Create/update appropriate KC items using IKenticoCloudService
-
-            return new OkObjectResult("Updated.");
         }
     }
 }
