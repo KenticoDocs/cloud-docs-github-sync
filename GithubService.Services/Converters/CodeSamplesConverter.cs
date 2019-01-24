@@ -1,7 +1,7 @@
-﻿using GithubService.Models.KenticoCloud;
+﻿using GithubService.Models;
+using GithubService.Models.KenticoCloud;
 using GithubService.Services.Interfaces;
 using System.Collections.Generic;
-using GithubService.Models;
 
 namespace GithubService.Services.Converters
 {

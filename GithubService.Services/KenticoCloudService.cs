@@ -20,15 +20,15 @@ namespace GithubService.Services
             _codeConverter = codeConverter;
         }
 
-        public async Task<CodeSamples> UpsertCodeFragmentsAsync(CodenameCodeFragments codenameCodeFragments)
+        public async Task<CodeSamples> UpsertCodeFragmentsAsync(CodenameCodeFragments fragment)
         {
-            var codeSamples = _codeConverter.ConvertToCodeSamples(codenameCodeFragments);
-            var contentItem = await EnsureCodeSamplesItemAsync(codenameCodeFragments.Codename);
+            var codeSamples = _codeConverter.ConvertToCodeSamples(fragment);
+            var contentItem = await EnsureCodeSamplesItemAsync(fragment.Codename);
 
             return await EnsureCodeSamplesVariantAsync(contentItem, codeSamples);
         }
 
-        public async Task DeleteCodeFragmentsAsync(CodenameCodeFragments fragment)
+        public Task DeleteCodeFragmentsAsync(CodenameCodeFragments fragment)
         {
             throw new NotImplementedException();
         }
