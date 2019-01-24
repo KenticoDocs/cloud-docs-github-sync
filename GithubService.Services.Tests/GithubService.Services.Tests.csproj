@@ -17,4 +17,10 @@
     <ProjectReference Include="..\GithubService.Services\GithubService.Services.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="KenticoCloud.ContentManagement">
+      <HintPath>..\..\..\..\Users\vaclavm\.nuget\packages\kenticocloud.contentmanagement\1.5.0\lib\netstandard2.0\KenticoCloud.ContentManagement.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>

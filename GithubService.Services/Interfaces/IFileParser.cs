@@ -1,9 +1,9 @@
-﻿using GithubService.Models.CodeSamples;
+﻿using GithubService.Models;
 
 namespace GithubService.Services.Interfaces
 {
     public interface IFileParser
     {
-        CodeSampleFile ParseContent(string filePath, string content);
+        CodeFile ParseContent(string filePath, string content);
     }
 }

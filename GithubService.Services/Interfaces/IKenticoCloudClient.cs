@@ -10,7 +10,7 @@ namespace GithubService.Services.Interfaces
 
         Task<ContentItemModel> CreateContentItemAsync(ContentItemCreateModel contentItem);
 
-        Task<CodeBlock> UpsertCodeBlockVariantAsync(ContentItemModel contentItem, CodeBlock codeBlock);
+        Task<CodeSamples> UpsertCodeSamplesVariantAsync(ContentItemModel contentItem, CodeSamples codeSamples);
 
         Task CreateNewVersionOfDefaultVariantAsync(ContentItemModel contentItem);
     }

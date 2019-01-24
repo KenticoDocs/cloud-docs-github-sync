@@ -1,5 +1,4 @@
-﻿using GithubService.Models.CodeSamples;
-using GithubService.Models.KenticoCloud;
+﻿using GithubService.Models.KenticoCloud;
 using GithubService.Services.Interfaces;
 using KenticoCloud.ContentManagement.Exceptions;
 using KenticoCloud.ContentManagement.Models.Items;
@@ -10,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
+using GithubService.Models;
 
 namespace GithubService.Services.Tests
 {
@@ -17,17 +17,17 @@ namespace GithubService.Services.Tests
     {
         private static readonly Guid CodeSampleGuid = Guid.NewGuid();
 
-        private static readonly CodenameCodeSamples CodeSamples =
-            new CodenameCodeSamples
+        private static readonly CodenameCodeFragments CodenameCodeFragments =
+            new CodenameCodeFragments
             {
                 Codename = CodeSampleGuid.ToString(),
-                CodeSamples = new Dictionary<CodeLanguage, string>
+                CodeFragments = new Dictionary<CodeFragmentLanguage, string>
                 {
-                    { CodeLanguage.CSharp, "var the_answer = 42;" }
+                    { CodeFragmentLanguage.CSharp, "var the_answer = 42;" }
                 }
             };
 
-        private static readonly CodeBlock CodeBlock = new CodeBlock
+        private static readonly CodeSamples CodeSamples = new CodeSamples
         {
             CSharp = "var the_answer = 42;"
         };
@@ -43,52 +43,52 @@ namespace GithubService.Services.Tests
         public void SetUp()
         {
             _codeConverter = Substitute.For<ICodeSamplesConverter>();
-            _codeConverter.ConvertToCodeBlock(CodeSamples)
-                .Returns(CodeBlock);
+            _codeConverter.ConvertToCodeSamples(CodenameCodeFragments)
+                .Returns(CodeSamples);
         }
 
         [Test]
-        public void UpsertCodeBlockAsync_NoItem_CreatesCodeBlock()
+        public void UpsertCodeSamplesAsync_NoItem_CreatesCodeSamples()
         {
             // Arrange
             var kcClientException = new ContentManagementException(new HttpResponseMessage(HttpStatusCode.NotFound), string.Empty);
 
             var kcClient = Substitute.For<IKenticoCloudClient>();
-            kcClient.GetContentItemAsync(CodeSamples.Codename).
+            kcClient.GetContentItemAsync(CodenameCodeFragments.Codename).
                 Throws(kcClientException);
             kcClient.CreateContentItemAsync(Arg.Any<ContentItemCreateModel>())
                 .Returns(ContentItem);
-            kcClient.UpsertCodeBlockVariantAsync(ContentItem, CodeBlock)
-                .Returns(CodeBlock);
+            kcClient.UpsertCodeSamplesVariantAsync(ContentItem, CodeSamples)
+                .Returns(CodeSamples);
 
             // Act
             var kcService = new KenticoCloudService(kcClient, _codeConverter);
-            var result = kcService.UpsertCodeBlockAsync(CodeSamples).Result;
+            var result = kcService.UpsertCodeFragmentsAsync(CodenameCodeFragments).Result;
 
             // Assert
-            Assert.AreEqual(CodeBlock, result);
+            Assert.AreEqual(CodeSamples, result);
         }
 
         [Test]
-        public void UpsertCodeBlockAsync_ExistingUnpublishedItem_UpdatesCodeBlock()
+        public void UpsertCodeSamplesAsync_ExistingUnpublishedItem_UpdatesCodeSamples()
         {
             // Arrange
             var kcClient = Substitute.For<IKenticoCloudClient>();
-            kcClient.GetContentItemAsync(CodeSamples.Codename)
+            kcClient.GetContentItemAsync(CodenameCodeFragments.Codename)
                 .Returns(ContentItem);
-            kcClient.UpsertCodeBlockVariantAsync(ContentItem, CodeBlock)
-                .Returns(CodeBlock);
+            kcClient.UpsertCodeSamplesVariantAsync(ContentItem, CodeSamples)
+                .Returns(CodeSamples);
 
             // Act
             var kcService = new KenticoCloudService(kcClient, _codeConverter);
-            var result = kcService.UpsertCodeBlockAsync(CodeSamples).Result;
+            var result = kcService.UpsertCodeFragmentsAsync(CodenameCodeFragments).Result;
 
             // Assert
-            Assert.AreEqual(CodeBlock, result);
+            Assert.AreEqual(CodeSamples, result);
         }
 
         [Test]
-        public void UpsertCodeBlockAsync_ExistingPublishedItem_CreatesNewVersion()
+        public void UpsertCodeSamplesAsync_ExistingPublishedItem_CreatesNewVersion()
         {
             // Arrange
             var responseMessage = new HttpResponseMessage(HttpStatusCode.InternalServerError)
@@ -100,24 +100,24 @@ namespace GithubService.Services.Tests
             var createNewVersionCalled = 0;
 
             var kcClient = Substitute.For<IKenticoCloudClient>();
-            kcClient.GetContentItemAsync(CodeSamples.Codename)
+            kcClient.GetContentItemAsync(CodenameCodeFragments.Codename)
                 .Returns(ContentItem);
             kcClient.When(x => x.CreateNewVersionOfDefaultVariantAsync(Arg.Any<ContentItemModel>()))
                 .Do(_ => createNewVersionCalled++);
-            kcClient.UpsertCodeBlockVariantAsync(ContentItem, CodeBlock)
+            kcClient.UpsertCodeSamplesVariantAsync(ContentItem, CodeSamples)
                 .Throws(kcClientException).AndDoes(_ => upsertCalled++);
 
             // Act
             try
             {
                 var kcService = new KenticoCloudService(kcClient, _codeConverter);
-                var result = kcService.UpsertCodeBlockAsync(CodeSamples).Result;
+                var result = kcService.UpsertCodeFragmentsAsync(CodenameCodeFragments).Result;
             }
             catch (Exception)
             {
                 // Do nothing as we need to check if the method was called twice
                 // This try-catch block is needed because we cannot change the kcClient
-                // mock during the UpsertCodeBlockAsync method execution
+                // mock during the UpsertCodeSamplesAsync method execution
             }
 
             // Assert
@@ -126,41 +126,41 @@ namespace GithubService.Services.Tests
         }
 
         [Test]
-        public void UpsertCodeBlockAsync_UnknownExceptionInGetContentItemAsyncMethod_RethrowsException()
+        public void UpsertCodeSamplesAsync_UnknownExceptionInGetContentItemAsyncMethod_RethrowsException()
         {
             // Arrange
             var kcClientException =
                 new ContentManagementException(new HttpResponseMessage(HttpStatusCode.InternalServerError), string.Empty);
 
             var kcClient = Substitute.For<IKenticoCloudClient>();
-            kcClient.GetContentItemAsync(CodeSamples.Codename)
+            kcClient.GetContentItemAsync(CodenameCodeFragments.Codename)
                 .Throws(kcClientException);
 
             // Act
             var kcService = new KenticoCloudService(kcClient, _codeConverter);
 
             // Assert
-            Assert.ThrowsAsync<ContentManagementException>(() => kcService.UpsertCodeBlockAsync(CodeSamples));
+            Assert.ThrowsAsync<ContentManagementException>(() => kcService.UpsertCodeFragmentsAsync(CodenameCodeFragments));
         }
 
         [Test]
-        public void UpsertCodeBlockAsync_UnknownExceptionInUpsertCodeBlockVariantAsyncMethod_RethrowsException()
+        public void UpsertCodeSamplesAsync_UnknownExceptionInUpsertCodeSamplesVariantAsyncMethod_RethrowsException()
         {
             // Arrange
             var kcClientException =
                 new ContentManagementException(new HttpResponseMessage(HttpStatusCode.InternalServerError), string.Empty);
 
             var kcClient = Substitute.For<IKenticoCloudClient>();
-            kcClient.GetContentItemAsync(CodeSamples.Codename)
+            kcClient.GetContentItemAsync(CodenameCodeFragments.Codename)
                 .Returns(ContentItem);
-            kcClient.UpsertCodeBlockVariantAsync(ContentItem, CodeBlock)
+            kcClient.UpsertCodeSamplesVariantAsync(ContentItem, CodeSamples)
                 .Throws(kcClientException);
 
             // Act
             var kcService = new KenticoCloudService(kcClient, _codeConverter);
 
             // Assert
-            Assert.ThrowsAsync<ContentManagementException>(() => kcService.UpsertCodeBlockAsync(CodeSamples));
+            Assert.ThrowsAsync<ContentManagementException>(() => kcService.UpsertCodeFragmentsAsync(CodenameCodeFragments));
         }
     }
 }

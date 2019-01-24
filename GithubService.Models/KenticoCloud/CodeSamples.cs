@@ -8,25 +8,25 @@ using Newtonsoft.Json;
 
 namespace GithubService.Models.KenticoCloud
 {
-    public class CodeBlock
+    public class CodeSamples
     {
-        [JsonProperty("js")]
-        public string Js { get; set; }
-        [JsonProperty("javarx")]
-        public string Javarx { get; set; }
-        [JsonProperty("c_")]
-        public string CSharp { get; set; }
-        [JsonProperty("java")]
-        public string Java { get; set; }
-        [JsonProperty("python")]
-        public string Python { get; set; }
-        [JsonProperty("ts")]
-        public string Ts { get; set; }
-        [JsonProperty("ruby")]
-        public string Ruby { get; set; }
-        [JsonProperty("swift")]
-        public string Swift { get; set; }
         [JsonProperty("curl")]
         public string Curl { get; set; }
+        [JsonProperty("csharp")]
+        public string CSharp { get; set; }
+        [JsonProperty("javascript")]
+        public string JavaScript { get; set; }
+        [JsonProperty("typescript")]
+        public string TypeScript { get; set; }
+        [JsonProperty("java")]
+        public string Java { get; set; }
+        [JsonProperty("javarx")]
+        public string JavaRx { get; set; }
+        [JsonProperty("php")]
+        public string PHP { get; set; }
+        [JsonProperty("swift")]
+        public string Swift { get; set; }
+        [JsonProperty("ruby")]
+        public string Ruby { get; set; }
     }
 }

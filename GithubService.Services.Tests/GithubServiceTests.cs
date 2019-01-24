@@ -1,10 +1,10 @@
-using GithubService.Models.CodeSamples;
 using GithubService.Models.Github;
 using GithubService.Services.Interfaces;
 using NSubstitute;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using GithubService.Models;
 
 namespace GithubService.Services.Tests
 {
@@ -27,10 +27,10 @@ namespace GithubService.Services.Tests
             // Arrange
             var treeNodes = new List<GithubTreeNode> { NodeA, NodeB, NodeC, NodeD, NodeE };
 
-            var codeSampleFileA = new CodeSampleFile { FilePath = NodeA.Path };
-            var codeSampleFileB = new CodeSampleFile { FilePath = NodeB.Path };
-            var codeSampleFileD = new CodeSampleFile { FilePath = NodeD.Path };
-            var expectedResult = new List<CodeSampleFile> { codeSampleFileA, codeSampleFileB, codeSampleFileD };
+            var codeSampleFileA = new CodeFile { FilePath = NodeA.Path };
+            var codeSampleFileB = new CodeFile { FilePath = NodeB.Path };
+            var codeSampleFileD = new CodeFile { FilePath = NodeD.Path };
+            var expectedResult = new List<CodeFile> { codeSampleFileA, codeSampleFileB, codeSampleFileD };
 
             var blobAContent = "Path_A_Content";
             var blobBContent = "Path_B_Content";
@@ -49,7 +49,7 @@ namespace GithubService.Services.Tests
 
             // Act
             var githubService = new GithubService(githubClient, fileParser);
-            var result = await githubService.GetCodeSampleFilesAsync();
+            var result = await githubService.GetCodeFilesAsync();
 
             // Assert
             CollectionAssert.AreEquivalent(expectedResult, result);
@@ -60,7 +60,7 @@ namespace GithubService.Services.Tests
         {
             // Arrange
             var treeNodes = new List<GithubTreeNode> { NodeC, NodeE };
-            var expectedResult = new List<CodeSampleFile>();
+            var expectedResult = new List<CodeFile>();
 
             var githubClient = Substitute.For<IGithubClient>();
             githubClient.GetTreeNodesRecursivelyAsync().Returns(treeNodes);
@@ -69,7 +69,7 @@ namespace GithubService.Services.Tests
 
             // Act
             var githubService = new GithubService(githubClient, fileParser);
-            var result = await githubService.GetCodeSampleFilesAsync();
+            var result = await githubService.GetCodeFilesAsync();
 
             // Assert
             CollectionAssert.AreEquivalent(expectedResult, result);

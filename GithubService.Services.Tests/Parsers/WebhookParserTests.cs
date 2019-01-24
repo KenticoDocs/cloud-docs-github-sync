@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using GithubService.Models.Webhooks;
 using GithubService.Services.Interfaces;
-using GithubService.Services.Services;
+using GithubService.Services.Parsers;
 using NUnit.Framework;
 
-namespace GithubService.Services.Tests.Services
+namespace GithubService.Services.Tests.Parsers
 {
     [TestFixture]
     internal class WebhookParserTests

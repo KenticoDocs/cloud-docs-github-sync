@@ -1,35 +1,35 @@
-﻿using GithubService.Models.CodeSamples;
-using GithubService.Models.KenticoCloud;
+﻿using GithubService.Models.KenticoCloud;
 using GithubService.Services.Interfaces;
 using System.Collections.Generic;
+using GithubService.Models;
 
 namespace GithubService.Services.Converters
 {
     public class CodeSamplesConverter : ICodeSamplesConverter
     {
-        public IEnumerable<CodenameCodeSamples> ConvertToCodenameCodeSamples(
-            IEnumerable<CodeSampleFile> codeSampleFiles)
+        public IEnumerable<CodenameCodeFragments> ConvertToCodenameCodeFragments(
+            IEnumerable<CodeFile> codeFiles)
         {
-            var codenameCodeSamples = new Dictionary<string, CodenameCodeSamples>();
+            var codenameCodeSamples = new Dictionary<string, CodenameCodeFragments>();
 
-            foreach (var codeSampleFile in codeSampleFiles)
+            foreach (var codeFile in codeFiles)
             {
-                foreach (var codeSample in codeSampleFile.CodeSamples)
+                foreach (var codeFragment in codeFile.CodeFragments)
                 {
-                    var codename = codeSample.Codename;
-                    var language = codeSample.Language;
-                    var content = codeSample.Content;
+                    var codename = codeFragment.Codename;
+                    var language = codeFragment.Language;
+                    var content = codeFragment.Content;
 
                     if (codenameCodeSamples.ContainsKey(codename))
                     {
-                        codenameCodeSamples[codename].CodeSamples.Add(language, content);
+                        codenameCodeSamples[codename].CodeFragments.Add(language, content);
                     }
                     else
                     {
-                        codenameCodeSamples.Add(codename, new CodenameCodeSamples
+                        codenameCodeSamples.Add(codename, new CodenameCodeFragments
                         {
                             Codename = codename,
-                            CodeSamples = new Dictionary<CodeLanguage, string>
+                            CodeFragments = new Dictionary<CodeFragmentLanguage, string>
                             {
                                 {language, content}
                             }
@@ -41,25 +41,25 @@ namespace GithubService.Services.Converters
             return codenameCodeSamples.Values;
         }
 
-        public CodeBlock ConvertToCodeBlock(CodenameCodeSamples codenameCodeSample)
+        public CodeSamples ConvertToCodeSamples(CodenameCodeFragments codenameCodeFragment)
         {
-            return new CodeBlock
+            return new CodeSamples
             {
-                CSharp = TryGetLanguageContent(CodeLanguage.CSharp, codenameCodeSample),
-                Curl = TryGetLanguageContent(CodeLanguage.CUrl, codenameCodeSample),
-                Java = TryGetLanguageContent(CodeLanguage.Java, codenameCodeSample),
-                Javarx = TryGetLanguageContent(CodeLanguage.JavaRx, codenameCodeSample),
-                Js = TryGetLanguageContent(CodeLanguage.Javascript, codenameCodeSample),
-                Swift = TryGetLanguageContent(CodeLanguage.Swift, codenameCodeSample),
-                Python = TryGetLanguageContent(CodeLanguage.Python, codenameCodeSample),
-                Ruby = TryGetLanguageContent(CodeLanguage.Ruby, codenameCodeSample),
-                Ts = TryGetLanguageContent(CodeLanguage.Typescript, codenameCodeSample),
+                Curl = TryGetLanguageContent(CodeFragmentLanguage.CUrl, codenameCodeFragment),
+                CSharp = TryGetLanguageContent(CodeFragmentLanguage.CSharp, codenameCodeFragment),
+                JavaScript = TryGetLanguageContent(CodeFragmentLanguage.JavaScript, codenameCodeFragment),
+                TypeScript = TryGetLanguageContent(CodeFragmentLanguage.TypeScript, codenameCodeFragment),
+                Java = TryGetLanguageContent(CodeFragmentLanguage.Java, codenameCodeFragment),
+                JavaRx = TryGetLanguageContent(CodeFragmentLanguage.JavaRx, codenameCodeFragment),
+                PHP = TryGetLanguageContent(CodeFragmentLanguage.PHP, codenameCodeFragment),
+                Swift = TryGetLanguageContent(CodeFragmentLanguage.Swift, codenameCodeFragment),
+                Ruby = TryGetLanguageContent(CodeFragmentLanguage.Ruby, codenameCodeFragment)
             };
         }
 
-        private string TryGetLanguageContent(CodeLanguage language, CodenameCodeSamples codenameCodeSample)
-            => codenameCodeSample.CodeSamples.ContainsKey(language)
-                ? codenameCodeSample.CodeSamples[language]
+        private string TryGetLanguageContent(CodeFragmentLanguage language, CodenameCodeFragments codenameCodeFragment)
+            => codenameCodeFragment.CodeFragments.ContainsKey(language)
+                ? codenameCodeFragment.CodeFragments[language]
                 : string.Empty;
     }
 }

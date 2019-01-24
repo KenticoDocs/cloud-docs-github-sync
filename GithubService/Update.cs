@@ -1,7 +1,7 @@
 using System.IO;
 using System.Text;
 using GithubService.Models.Webhooks;
-using GithubService.Services.Services;
+using GithubService.Services.Parsers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;

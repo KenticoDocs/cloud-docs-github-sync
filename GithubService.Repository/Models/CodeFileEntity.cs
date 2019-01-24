@@ -1,12 +1,12 @@
 ﻿using Microsoft.WindowsAzure.Storage.Table;
 
-namespace GithubService.Repository
+namespace GithubService.Repository.Models
 {
-    public class CodeSampleFileEntity : TableEntity
+    public class CodeFileEntity : TableEntity
     {
         public string Path { get; set; }
 
-        public string CodeSamples { get; set; }
+        public string CodeFragments { get; set; }
 
         public bool IsArchived { get; set; }
     }
