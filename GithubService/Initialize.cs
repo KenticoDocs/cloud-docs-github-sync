@@ -41,7 +41,7 @@ namespace GithubService
                 await codeFileRepository.StoreAsync(codeFile);
             }
 
-            var codeSamplesConverter = new CodeSamplesConverter();
+            var codeSamplesConverter = new CodeConverter();
             var samplesByCodename = codeSamplesConverter.ConvertToCodenameCodeFragments(codeFiles);
 
             // Create/update appropriate KC items

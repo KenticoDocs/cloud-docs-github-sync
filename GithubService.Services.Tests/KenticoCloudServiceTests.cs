@@ -37,12 +37,12 @@ namespace GithubService.Services.Tests
             Id = CodeSampleGuid
         };
 
-        private ICodeSamplesConverter _codeConverter;
+        private ICodeConverter _codeConverter;
 
         [SetUp]
         public void SetUp()
         {
-            _codeConverter = Substitute.For<ICodeSamplesConverter>();
+            _codeConverter = Substitute.For<ICodeConverter>();
             _codeConverter.ConvertToCodeSamples(CodenameCodeFragments)
                 .Returns(CodeSamples);
         }

@@ -12,9 +12,9 @@ namespace GithubService.Services
     public class KenticoCloudService : IKenticoCloudService
     {
         private readonly IKenticoCloudClient _kcClient;
-        private readonly ICodeSamplesConverter _codeConverter;
+        private readonly ICodeConverter _codeConverter;
 
-        public KenticoCloudService(IKenticoCloudClient kcClient, ICodeSamplesConverter codeConverter)
+        public KenticoCloudService(IKenticoCloudClient kcClient, ICodeConverter codeConverter)
         {
             _kcClient = kcClient;
             _codeConverter = codeConverter;
