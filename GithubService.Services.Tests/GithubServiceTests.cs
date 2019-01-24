@@ -74,5 +74,27 @@ namespace GithubService.Services.Tests
             // Assert
             CollectionAssert.AreEquivalent(expectedResult, result);
         }
+
+        [Test]
+        public async Task GetCodeSampleFileAsync_ReturnsCorrectFile()
+        {
+            // Arrange
+            var filePath = "File_Path";
+            var fileContent = "var three = 3;";
+            var expectedCodeSample = new CodeSampleFile { FilePath = filePath };
+
+            var githubClient = Substitute.For<IGithubClient>();
+            githubClient.GetFileContentAsync(filePath).Returns(fileContent);
+
+            var fileParser = Substitute.For<IFileParser>();
+            fileParser.ParseContent(filePath, fileContent).Returns(expectedCodeSample);
+
+            // Act
+            var githubService = new GithubService(githubClient, fileParser);
+            var result = await githubService.GetCodeSampleFileAsync(filePath);
+
+            // Assert
+            Assert.AreEqual(expectedCodeSample, result);
+        }
     }
 }
