@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using GithubService.Models.CodeSamples;
+using GithubService.Models;
 using GithubService.Services.Converters;
 using GithubService.Services.Interfaces;
 using GithubService.Services.Tests.Utils;
@@ -13,258 +13,258 @@ namespace GithubService.Services.Tests.Converters
         private readonly ICodeSamplesConverter _codeSamplesConverter = new CodeSamplesConverter();
 
         [Test]
-        public void ConvertToCodenameCodeSamples_OnEmptyCodeSampleFiles_ReturnsEmptyList()
+        public void ConvertToCodenameCodeFragments_OnEmptyCodeFiles_ReturnsEmptyList()
         {
-            var codeSampleFile = new CodeSampleFile();
-            var codeSampleFilesList = new List<CodeSampleFile> {codeSampleFile};
-            var expectedOutput = new List<CodenameCodeSamples>();
+            var codeFile = new CodeFile();
+            var codeFilesList = new List<CodeFile> {codeFile};
+            var expectedOutput = new List<CodenameCodeFragments>();
 
             var actualOutput =
-                _codeSamplesConverter.ConvertToCodenameCodeSamples(new List<CodeSampleFile>(codeSampleFilesList));
+                _codeSamplesConverter.ConvertToCodenameCodeFragments(new List<CodeFile>(codeFilesList));
 
             Assert.That(expectedOutput, Is.EqualTo(actualOutput.ToList()));
         }
 
         [Test]
-        public void ConvertToCodenameCodeSamples_HandlesMultipleCodeSamplesInOneFile()
+        public void ConvertToCodenameCodeFragments_HandlesMultipleCodeFragmentsInOneFile()
         {
-            var codeSampleFile = new CodeSampleFile
+            var codeFile = new CodeFile
             {
-                CodeSamples = new List<CodeSample>
+                CodeFragments = new List<CodeFragment>
                 {
-                    new CodeSample
+                    new CodeFragment
                     {
                         Codename = "hello-world",
                         Content = "console.log('Hello Kentico Cloud');",
-                        Language = CodeLanguage.Javascript
+                        Language = CodeFragmentLanguage.JavaScript
                     },
-                    new CodeSample
+                    new CodeFragment
                     {
                         Codename = "one-two-three",
                         Content = "int i += 3",
-                        Language = CodeLanguage.Javascript
+                        Language = CodeFragmentLanguage.JavaScript
                     },
-                    new CodeSample
+                    new CodeFragment
                     {
                         Codename = "let_s_begin",
                         Content =
                             "const client = new DeliveryClient({ projectId: 'a0a9d198-e604-007a-50c9-fecbb46046d1' });",
-                        Language = CodeLanguage.Javascript
+                        Language = CodeFragmentLanguage.JavaScript
                     },
-                    new CodeSample
+                    new CodeFragment
                     {
                         Codename = "byebye",
                         Content = "export default ArticleListing;",
-                        Language = CodeLanguage.Javascript
+                        Language = CodeFragmentLanguage.JavaScript
                     }
                 }
             };
-            var codeSampleFilesList = new List<CodeSampleFile> {codeSampleFile};
-            var expectedOutput = new List<CodenameCodeSamples>
+            var codeFilesList = new List<CodeFile> {codeFile};
+            var expectedOutput = new List<CodenameCodeFragments>
             {
-                new CodenameCodeSamples
+                new CodenameCodeFragments
                 {
                     Codename = "hello-world",
-                    CodeSamples = new Dictionary<CodeLanguage, string>
+                    CodeFragments = new Dictionary<CodeFragmentLanguage, string>
                     {
-                        {CodeLanguage.Javascript, "console.log('Hello Kentico Cloud');"}
+                        {CodeFragmentLanguage.JavaScript, "console.log('Hello Kentico Cloud');"}
                     }
                 },
-                new CodenameCodeSamples
+                new CodenameCodeFragments
                 {
                     Codename = "one-two-three",
-                    CodeSamples = new Dictionary<CodeLanguage, string>
+                    CodeFragments = new Dictionary<CodeFragmentLanguage, string>
                     {
-                        {CodeLanguage.Javascript, "int i += 3"}
+                        {CodeFragmentLanguage.JavaScript, "int i += 3"}
                     }
                 },
-                new CodenameCodeSamples
+                new CodenameCodeFragments
                 {
                     Codename = "let_s_begin",
-                    CodeSamples = new Dictionary<CodeLanguage, string>
+                    CodeFragments = new Dictionary<CodeFragmentLanguage, string>
                     {
                         {
-                            CodeLanguage.Javascript,
+                            CodeFragmentLanguage.JavaScript,
                             "const client = new DeliveryClient({ projectId: 'a0a9d198-e604-007a-50c9-fecbb46046d1' });"
                         }
                     }
                 },
-                new CodenameCodeSamples
+                new CodenameCodeFragments
                 {
                     Codename = "byebye",
-                    CodeSamples = new Dictionary<CodeLanguage, string>
+                    CodeFragments = new Dictionary<CodeFragmentLanguage, string>
                     {
-                        {CodeLanguage.Javascript, "export default ArticleListing;"}
+                        {CodeFragmentLanguage.JavaScript, "export default ArticleListing;"}
                     }
                 }
             };
 
             var actualOutput =
-                _codeSamplesConverter.ConvertToCodenameCodeSamples(new List<CodeSampleFile>(codeSampleFilesList));
+                _codeSamplesConverter.ConvertToCodenameCodeFragments(new List<CodeFile>(codeFilesList));
 
             Assert.That(expectedOutput, Is.EqualTo(actualOutput).UsingCodenameCodeSamplesComparer());
         }
 
         [Test]
-        public void ConvertToCodenameCodeSamples_ComposesSamplesFromMultipleFilesIntoOneObject()
+        public void ConvertToCodenameCodeFragments_ComposesFragmentsFromMultipleFilesIntoOneObject()
         {
-            var codeSampleFilesList = new List<CodeSampleFile>
+            var codeFilesList = new List<CodeFile>
             {
-                new CodeSampleFile
+                new CodeFile
                 {
-                    CodeSamples = new List<CodeSample>
+                    CodeFragments = new List<CodeFragment>
                     {
-                        new CodeSample
+                        new CodeFragment
                         {
                             Codename = "hello-world",
                             Content = "console.log('Hello Kentico Cloud');",
-                            Language = CodeLanguage.Javascript
+                            Language = CodeFragmentLanguage.JavaScript
                         }
                     }
                 },
-                new CodeSampleFile
+                new CodeFile
                 {
-                    CodeSamples = new List<CodeSample>
+                    CodeFragments = new List<CodeFragment>
                     {
-                        new CodeSample
+                        new CodeFragment
                         {
                             Codename = "hello-world",
                             Content = "Console.WriteLine(\"Hello World!\");",
-                            Language = CodeLanguage.CSharp
+                            Language = CodeFragmentLanguage.CSharp
                         }
                     }
                 },
-                new CodeSampleFile
+                new CodeFile
                 {
-                    CodeSamples = new List<CodeSample>
+                    CodeFragments = new List<CodeFragment>
                     {
-                        new CodeSample
+                        new CodeFragment
                         {
                             Codename = "hello-world",
                             Content = "print(\"Hello, World!\")",
-                            Language = CodeLanguage.Python
+                            Language = CodeFragmentLanguage.PHP
                         }
                     }
                 },
-                new CodeSampleFile
+                new CodeFile
                 {
-                    CodeSamples = new List<CodeSample>
+                    CodeFragments = new List<CodeFragment>
                     {
-                        new CodeSample
+                        new CodeFragment
                         {
                             Codename = "hello-world",
                             Content = "System.out.println(\"Hello, World\");",
-                            Language = CodeLanguage.Java
+                            Language = CodeFragmentLanguage.Java
                         }
                     }
                 }
             };
-            var expectedOutput = new List<CodenameCodeSamples>
+            var expectedOutput = new List<CodenameCodeFragments>
             {
-                new CodenameCodeSamples
+                new CodenameCodeFragments
                 {
                     Codename = "hello-world",
-                    CodeSamples = new Dictionary<CodeLanguage, string>
+                    CodeFragments = new Dictionary<CodeFragmentLanguage, string>
                     {
-                        {CodeLanguage.Javascript, "console.log('Hello Kentico Cloud');"},
-                        {CodeLanguage.CSharp, "Console.WriteLine(\"Hello World!\");"},
-                        {CodeLanguage.Python, "print(\"Hello, World!\")"},
-                        {CodeLanguage.Java, "System.out.println(\"Hello, World\");"}
+                        {CodeFragmentLanguage.JavaScript, "console.log('Hello Kentico Cloud');"},
+                        {CodeFragmentLanguage.CSharp, "Console.WriteLine(\"Hello World!\");"},
+                        {CodeFragmentLanguage.PHP, "print(\"Hello, World!\")"},
+                        {CodeFragmentLanguage.Java, "System.out.println(\"Hello, World\");"}
                     }
                 }
             };
 
-            var actualOutput = _codeSamplesConverter.ConvertToCodenameCodeSamples(new List<CodeSampleFile>(codeSampleFilesList));
+            var actualOutput = _codeSamplesConverter.ConvertToCodenameCodeFragments(new List<CodeFile>(codeFilesList));
 
             Assert.That(expectedOutput, Is.EqualTo(actualOutput).UsingCodenameCodeSamplesComparer());
         }
 
         [Test]
-        public void ConvertToCodenameCodeSamples_GetCodenameCodeSamplesFromOneFile()
+        public void ConvertToCodenameCodeFragments_GetCodenameCodeFragmentsFromOneFile()
         {
-            var codeSampleFile = new CodeSampleFile
+            var codeSampleFile = new CodeFile
             {
-                CodeSamples = new List<CodeSample>
+                CodeFragments = new List<CodeFragment>
                     {
-                        new CodeSample
+                        new CodeFragment
                         {
                             Codename = "hello-world",
                             Content = "console.log('Hello Kentico Cloud');",
-                            Language = CodeLanguage.Javascript
+                            Language = CodeFragmentLanguage.JavaScript
                         },
 
-                        new CodeSample
+                        new CodeFragment
                         {
                             Codename = "hello-world",
                             Content = "System.out.println(\"Hello, World\");",
-                            Language = CodeLanguage.Java
+                            Language = CodeFragmentLanguage.Java
                         }
                     }
             };
                 
-            var expectedOutput = new List<CodenameCodeSamples>
+            var expectedOutput = new List<CodenameCodeFragments>
             {
-                new CodenameCodeSamples
+                new CodenameCodeFragments
                 {
                     Codename = "hello-world",
-                    CodeSamples = new Dictionary<CodeLanguage, string>
+                    CodeFragments = new Dictionary<CodeFragmentLanguage, string>
                     {
-                        {CodeLanguage.Javascript, "console.log('Hello Kentico Cloud');"},
-                        {CodeLanguage.Java, "System.out.println(\"Hello, World\");"}
+                        {CodeFragmentLanguage.JavaScript, "console.log('Hello Kentico Cloud');"},
+                        {CodeFragmentLanguage.Java, "System.out.println(\"Hello, World\");"}
                     }
                 }
             };
 
-            var actualOutput = _codeSamplesConverter.ConvertToCodenameCodeSamples(codeSampleFile);
+            var actualOutput = _codeSamplesConverter.ConvertToCodenameCodeFragments(codeSampleFile);
 
             Assert.That(expectedOutput, Is.EqualTo(actualOutput).UsingCodenameCodeSamplesComparer());
         }
 
         [Test]
-        public void ConvertToCodenameCodeSamples_GetDiferentCodenameCodeSamplesFromOneFile()
+        public void ConvertToCodenameCodeFragments_GetDiferentCodenameCodeFragmentsFromOneFile()
         {
-            var codeSampleFile = new CodeSampleFile
+            var codeFile = new CodeFile
             {
-                CodeSamples = new List<CodeSample>
+                CodeFragments = new List<CodeFragment>
                     {
-                        new CodeSample
+                        new CodeFragment
                         {
                             Codename = "hello-world",
                             Content = "console.log('Hello Kentico Cloud');",
-                            Language = CodeLanguage.Javascript
+                            Language = CodeFragmentLanguage.JavaScript
                         },
 
-                        new CodeSample
+                        new CodeFragment
                         {
                             Codename = "hello-world-2",
                             Content = "System.out.println(\"Hello, World\");",
-                            Language = CodeLanguage.Java
+                            Language = CodeFragmentLanguage.Java
                         }
                     }
             };
 
-            var expectedOutput = new List<CodenameCodeSamples>
+            var expectedOutput = new List<CodenameCodeFragments>
             {
-                new CodenameCodeSamples
+                new CodenameCodeFragments
                 {
                     Codename = "hello-world",
-                    CodeSamples = new Dictionary<CodeLanguage, string>
+                    CodeFragments = new Dictionary<CodeFragmentLanguage, string>
                     {
-                        {CodeLanguage.Javascript, "console.log('Hello Kentico Cloud');"},
+                        {CodeFragmentLanguage.JavaScript, "console.log('Hello Kentico Cloud');"},
                     }
                 },
 
-                new CodenameCodeSamples
+                new CodenameCodeFragments
                 {
                     Codename = "hello-world-2",
-                    CodeSamples = new Dictionary<CodeLanguage, string>
+                    CodeFragments = new Dictionary<CodeFragmentLanguage, string>
                     {
-                        {CodeLanguage.Java, "System.out.println(\"Hello, World\");"},
+                        {CodeFragmentLanguage.Java, "System.out.println(\"Hello, World\");"},
                     }
                 }
             };
 
-            var actualOutput = _codeSamplesConverter.ConvertToCodenameCodeSamples(codeSampleFile);
+            var actualOutput = _codeSamplesConverter.ConvertToCodenameCodeFragments(codeFile);
 
             Assert.That(expectedOutput, Is.EqualTo(actualOutput).UsingCodenameCodeSamplesComparer());
         }

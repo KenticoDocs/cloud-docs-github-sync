@@ -9,7 +9,7 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 using GithubService.Repository;
-using GithubService.Services.Services;
+using GithubService.Services.Parsers;
 
 namespace GithubService
 {
@@ -30,19 +30,19 @@ namespace GithubService
                 Environment.GetEnvironmentVariable("Github.RepositoryOwner"),
                 Environment.GetEnvironmentVariable("Github.AccessToken"));
             var githubService = new Services.GithubService(githubClient, fileParser);
-            var codeSampleFiles = await githubService.GetCodeSampleFilesAsync();
+            var codeFiles = await githubService.GetCodeFilesAsync();
 
             // Persist all code sample files
             var connectionString = Environment.GetEnvironmentVariable("Repository.ConnectionString");
-            var codeSampleFileRepository = await CodeSampleFileRepository.CreateInstance(connectionString);
+            var codeFileRepository = await CodeFileRepository.CreateInstance(connectionString);
 
-            foreach (var codeSampleFile in codeSampleFiles)
+            foreach (var codeFile in codeFiles)
             {
-                await codeSampleFileRepository.StoreAsync(codeSampleFile);
+                await codeFileRepository.StoreAsync(codeFile);
             }
 
             var codeSamplesConverter = new CodeSamplesConverter();
-            var samplesByCodename = codeSamplesConverter.ConvertToCodenameCodeSamples(codeSampleFiles);
+            var samplesByCodename = codeSamplesConverter.ConvertToCodenameCodeFragments(codeFiles);
 
             // Create/update appropriate KC items
             var kenticoCloudClient = new KenticoCloudClient(
@@ -55,7 +55,7 @@ namespace GithubService
 
             foreach (var codeSample in samplesByCodename)
             {
-                await kenticoCloudService.UpsertCodeBlockAsync(codeSample);
+                await kenticoCloudService.UpsertCodeFragmentsAsync(codeSample);
             }
 
             return new OkObjectResult("Initialized.");

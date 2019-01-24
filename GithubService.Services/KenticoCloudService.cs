@@ -1,11 +1,11 @@
-﻿using GithubService.Models.CodeSamples;
-using GithubService.Models.KenticoCloud;
+﻿using GithubService.Models.KenticoCloud;
 using GithubService.Services.Interfaces;
 using KenticoCloud.ContentManagement.Exceptions;
 using KenticoCloud.ContentManagement.Models.Items;
 using System;
 using System.Net;
 using System.Threading.Tasks;
+using GithubService.Models;
 
 namespace GithubService.Services
 {
@@ -20,20 +20,20 @@ namespace GithubService.Services
             _codeConverter = codeConverter;
         }
 
-        public async Task<CodeBlock> UpsertCodeBlockAsync(CodenameCodeSamples codeSamples)
+        public async Task<CodeSamples> UpsertCodeFragmentsAsync(CodenameCodeFragments codenameCodeFragments)
         {
-            var codeBlock = _codeConverter.ConvertToCodeBlock(codeSamples);
-            var contentItem = await EnsureCodeBlockItemAsync(codeSamples.Codename);
+            var codeSamples = _codeConverter.ConvertToCodeSamples(codenameCodeFragments);
+            var contentItem = await EnsureCodeSamplesItemAsync(codenameCodeFragments.Codename);
 
-            return await EnsureCodeBlockVariantAsync(contentItem, codeBlock);
+            return await EnsureCodeSamplesVariantAsync(contentItem, codeSamples);
         }
 
-        public bool DeleteCodeSampleItem(CodenameCodeSamples sample)
+        public async Task DeleteCodeFragmentsAsync(CodenameCodeFragments fragment)
         {
             throw new NotImplementedException();
         }
 
-        private async Task<ContentItemModel> EnsureCodeBlockItemAsync(string codename)
+        private async Task<ContentItemModel> EnsureCodeSamplesItemAsync(string codename)
         {
             try
             {
@@ -46,21 +46,21 @@ namespace GithubService.Services
                     throw;
 
                 // Content item doesn't exist in KC -> create it
-                var codeBlockItem = new ContentItemCreateModel
+                var codeSamplesItem = new ContentItemCreateModel
                 {
-                    Type = ContentTypeIdentifier.ByCodename("code_block"),
+                    Type = ContentTypeIdentifier.ByCodename("code_samples"),
                     Name = codename
                 };
-                return await _kcClient.CreateContentItemAsync(codeBlockItem);
+                return await _kcClient.CreateContentItemAsync(codeSamplesItem);
             }
         }
 
-        private async Task<CodeBlock> EnsureCodeBlockVariantAsync(ContentItemModel contentItem, CodeBlock codeBlock)
+        private async Task<CodeSamples> EnsureCodeSamplesVariantAsync(ContentItemModel contentItem, CodeSamples codeSamples)
         {
             try
             {
                 // Try to update the content variant in KC
-                return await _kcClient.UpsertCodeBlockVariantAsync(contentItem, codeBlock);
+                return await _kcClient.UpsertCodeSamplesVariantAsync(contentItem, codeSamples);
             }
             catch (ContentManagementException exception)
             {
@@ -71,7 +71,7 @@ namespace GithubService.Services
                 await _kcClient.CreateNewVersionOfDefaultVariantAsync(contentItem);
 
                 // The content variant should be updated correctly now
-                return await _kcClient.UpsertCodeBlockVariantAsync(contentItem, codeBlock);
+                return await _kcClient.UpsertCodeSamplesVariantAsync(contentItem, codeSamples);
             }
         }
     }

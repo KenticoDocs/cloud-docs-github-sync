@@ -1,13 +1,13 @@
-﻿using GithubService.Models.CodeSamples;
+﻿using System.Threading.Tasks;
 using GithubService.Models.KenticoCloud;
-using System.Threading.Tasks;
+using GithubService.Models;
 
 namespace GithubService.Services.Interfaces
 {
     public interface IKenticoCloudService
     {
-        Task<CodeBlock> UpsertCodeBlockAsync(CodenameCodeSamples sample);
+        Task<CodeSamples> UpsertCodeFragmentsAsync(CodenameCodeFragments fragment);
 
-        bool DeleteCodeSampleItem(CodenameCodeSamples sample);
+        Task DeleteCodeFragmentsAsync(CodenameCodeFragments fragment);
     }
 }

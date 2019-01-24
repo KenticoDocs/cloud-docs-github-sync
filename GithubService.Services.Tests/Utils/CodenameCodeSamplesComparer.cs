@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using GithubService.Models.CodeSamples;
+using GithubService.Models;
 using NUnit.Framework.Constraints;
 
 namespace GithubService.Services.Tests.Utils
@@ -14,30 +14,30 @@ namespace GithubService.Services.Tests.Utils
         public static EqualConstraint UsingCodenameCodeSamplesComparer(this EqualConstraint constraint) =>
             constraint.Using(Comparer);
 
-        private sealed class CodenameCodeSamplesComparer : IEqualityComparer<CodenameCodeSamples>
+        private sealed class CodenameCodeSamplesComparer : IEqualityComparer<CodenameCodeFragments>
         {
-            public bool Equals(CodenameCodeSamples x, CodenameCodeSamples y)
+            public bool Equals(CodenameCodeFragments x, CodenameCodeFragments y)
             {
                 if (ReferenceEquals(x, y)) return true;
                 if (ReferenceEquals(x, null)) return false;
                 if (ReferenceEquals(y, null)) return false;
                 if (x.GetType() != y.GetType()) return false;
 
-                var codeSamplesEqual = x.CodeSamples.Count == y.CodeSamples.Count;
+                var codeSamplesEqual = x.CodeFragments.Count == y.CodeFragments.Count;
 
-                foreach (var codeSample in x.CodeSamples)
+                foreach (var codeSample in x.CodeFragments)
                 {
-                    var secondSample = y.CodeSamples[codeSample.Key];
+                    var secondSample = y.CodeFragments[codeSample.Key];
                     codeSamplesEqual = codeSamplesEqual && codeSample.Value == secondSample;
                 }
 
                 return string.Equals(x.Codename, y.Codename) && codeSamplesEqual;
             }
 
-            public int GetHashCode(CodenameCodeSamples obj)
+            public int GetHashCode(CodenameCodeFragments obj)
             {
                 var hashCode = 0;
-                foreach (var sample in obj.CodeSamples)
+                foreach (var sample in obj.CodeFragments)
                 {
                     hashCode = 43 * (hashCode + sample.GetHashCode());
                 }

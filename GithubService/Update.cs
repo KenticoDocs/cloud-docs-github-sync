@@ -4,11 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using GithubService.Models.Webhooks;
-using GithubService.Repository;
 using GithubService.Services;
 using GithubService.Services.Clients;
 using GithubService.Services.Converters;
-using GithubService.Services.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
@@ -17,6 +15,8 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using GithubService.Services.Interfaces;
+using GithubService.Services.Parsers;
+using GithubService.Repository;
 
 namespace GithubService
 {
@@ -51,7 +51,7 @@ namespace GithubService
             var (addedFiles, modifiedFiles, removedFiles) = parser.ExtractFiles(webhookMessage);
 
             var connectionString = Environment.GetEnvironmentVariable("Repository.ConnectionString");
-            var codeSampleFileRepository = await CodeSampleFileRepository.CreateInstance(connectionString);
+            var codeFileRepository = await CodeFileRepository.CreateInstance(connectionString);
 
             var codeSamplesConverter = new CodeSamplesConverter();
             var kenticoCloudClient = new KenticoCloudClient(
@@ -62,8 +62,8 @@ namespace GithubService
 
             var kenticoCloudService = new KenticoCloudService(kenticoCloudClient, codeSamplesConverter);
 
-            ProcessAddedFiles(addedFiles, codeSampleFileRepository, githubService, kenticoCloudService, codeSamplesConverter);
-            ProcessModifiedFiles(modifiedFiles, codeSampleFileRepository, githubService, kenticoCloudService, codeSamplesConverter);
+            ProcessAddedFiles(addedFiles, codeFileRepository, githubService, kenticoCloudService, codeSamplesConverter);
+            ProcessModifiedFiles(modifiedFiles, codeFileRepository, githubService, kenticoCloudService, codeSamplesConverter);
 
 
             // Parse the webhook message using IWebhookParser
@@ -76,7 +76,7 @@ namespace GithubService
         }
 
         private static async void ProcessAddedFiles(IEnumerable<string> addedFiles, 
-            ICodeSampleFileRepository codeSampleFileRepository, IGithubService githubService, 
+            ICodeFileRepository codeSampleFileRepository, IGithubService githubService, 
             IKenticoCloudService kenticoCloudService, ICodeSamplesConverter codeSamplesConverter)
         {
             if (addedFiles.ToList().Count > 0)
@@ -84,51 +84,51 @@ namespace GithubService
                 foreach (var filePath in addedFiles.ToList())
                 {
                     // Persist each added file
-                    var codeSampleFile = await githubService.GetCodeSampleFileAsync(filePath);
+                    var codeSampleFile = await githubService.GetCodeFileAsync(filePath);
                     await codeSampleFileRepository.StoreAsync(codeSampleFile);
 
                     // Create new KC content items
-                    var codenameCodeSamples = codeSamplesConverter.ConvertToCodenameCodeSamples(codeSampleFile);
+                    var codenameCodeFragments = codeSamplesConverter.ConvertToCodenameCodeFragments(codeSampleFile);
 
-                    foreach (var codenameCodeSample in codenameCodeSamples)
+                    foreach (var codenameCodeFragment in codenameCodeFragments)
                     {
-                        await kenticoCloudService.UpsertCodeBlockAsync(codenameCodeSample);
+                        await kenticoCloudService.UpsertCodeFragmentsAsync(codenameCodeFragment);
                     }
                 }
             }
         }
 
         private static async void ProcessModifiedFiles(IEnumerable<string> modifiedFiles,
-            ICodeSampleFileRepository codeSampleFileRepository, IGithubService githubService,
+            ICodeFileRepository codeSampleFileRepository, IGithubService githubService,
             IKenticoCloudService kenticoCloudService, ICodeSamplesConverter codeSamplesConverter)
         {
             if (modifiedFiles.ToList().Count > 0)
             {
                 foreach (var filePath in modifiedFiles.ToList())
                 {
-                    var modifiedCodeSampleFile = await githubService.GetCodeSampleFileAsync(filePath);
-                    var storedCodeSampleFile = await codeSampleFileRepository.GetAsync(filePath);
+                    var modifiedCodeFile = await githubService.GetCodeFileAsync(filePath);
+                    var storedCodeFile = await codeSampleFileRepository.GetAsync(filePath);
 
                     // In table storage replace whole file entity
-                    await codeSampleFileRepository.StoreAsync(modifiedCodeSampleFile);
+                    await codeSampleFileRepository.StoreAsync(modifiedCodeFile);
 
-                    var modifiedCodenameCodeSamples = codeSamplesConverter.ConvertToCodenameCodeSamples(modifiedCodeSampleFile);
+                    var modifiedCodenameCodeFragments = codeSamplesConverter.ConvertToCodenameCodeFragments(modifiedCodeFile);
 
-                    foreach (var storedCodeSample in storedCodeSampleFile.CodeSamples)
+                    foreach (var storedCodeFragment in storedCodeFile.CodeFragments)
                     {
-                        var removedCodeSample = modifiedCodenameCodeSamples
-                            .Where(codeSample => codeSample.Codename == storedCodeSample.Codename)
+                        var removedCodeFragment = modifiedCodenameCodeFragments
+                            .Where(codeFragment => codeFragment.Codename == storedCodeFragment.Codename)
                             .First();
 
-                        if (!modifiedCodeSampleFile.CodeSamples.Contains(storedCodeSample))
+                        if (!modifiedCodeFile.CodeFragments.Contains(storedCodeFragment))
                         {
-                            kenticoCloudService.DeleteCodeSampleItem(removedCodeSample);
+                            await kenticoCloudService.DeleteCodeFragmentsAsync(removedCodeFragment);
                         }
                     }
 
-                    foreach (var modifiedCodeSample in modifiedCodenameCodeSamples)
+                    foreach (var modifiedCodeSample in modifiedCodenameCodeFragments)
                     {
-                        await kenticoCloudService.UpsertCodeBlockAsync(modifiedCodeSample);
+                        await kenticoCloudService.UpsertCodeFragmentsAsync(modifiedCodeSample);
                     }
                 }
             }
