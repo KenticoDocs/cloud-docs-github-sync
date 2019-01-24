@@ -8,9 +8,9 @@ using NUnit.Framework;
 
 namespace GithubService.Services.Tests.Converters
 {
-    internal class CodeSamplesConverterTests
+    internal class CodeConverterTests
     {
-        private readonly ICodeSamplesConverter _codeSamplesConverter = new CodeSamplesConverter();
+        private readonly ICodeConverter _codeSamplesConverter = new CodeConverter();
 
         [Test]
         public void ConvertToCodenameCodeSamples_OnEmptyCodeSampleFiles_ReturnsEmptyList()

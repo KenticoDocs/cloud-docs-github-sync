@@ -4,7 +4,7 @@ using GithubService.Models.KenticoCloud;
 
 namespace GithubService.Services.Interfaces
 {
-    public interface ICodeSamplesConverter
+    public interface ICodeConverter
     {
         IEnumerable<CodenameCodeFragments> ConvertToCodenameCodeFragments(IEnumerable<CodeFile> codeFiles);
 

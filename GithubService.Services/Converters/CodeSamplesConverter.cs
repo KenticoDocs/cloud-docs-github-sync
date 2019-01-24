@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace GithubService.Services.Converters
 {
-    public class CodeSamplesConverter : ICodeSamplesConverter
+    public class CodeConverter : ICodeConverter
     {
         public IEnumerable<CodenameCodeFragments> ConvertToCodenameCodeFragments(
             IEnumerable<CodeFile> codeFiles)
