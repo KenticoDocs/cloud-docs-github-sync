@@ -9,5 +9,7 @@ namespace GithubService.Services.Interfaces
         Task<CodeSamples> UpsertCodeFragmentsAsync(CodenameCodeFragments fragment);
 
         Task DeleteCodeFragmentsAsync(CodenameCodeFragments fragment);
+
+        Task RemoveCodeFragmentAsync(CodeFragment codeFragment);
     }
 }

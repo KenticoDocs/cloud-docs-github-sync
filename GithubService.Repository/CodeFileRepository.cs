@@ -67,15 +67,21 @@ namespace GithubService.Repository
             };
         }
 
-        public async Task ArchiveAsync(CodeFile file)
+        public async Task<CodeFile> ArchiveAsync(string filePath)
         {
-            var entity = await GetEntityAsync(file.FilePath);
+            var entity = await GetEntityAsync(filePath);
 
-            if (entity != null)
+            if (entity == null || entity.IsArchived)
+                return null;
+
+            entity.IsArchived = true;
+            await StoreEntityAsync(entity);
+
+            return new CodeFile
             {
-                entity.IsArchived = true;
-                await StoreEntityAsync(entity);
-            }
+                FilePath = entity.Path,
+                CodeFragments = JsonConvert.DeserializeObject<List<CodeFragment>>(entity.CodeFragments)
+            };
         }
 
         private async Task<CodeFileEntity> GetEntityAsync(string filePath)

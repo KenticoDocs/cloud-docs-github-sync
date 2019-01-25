@@ -64,7 +64,7 @@ namespace GithubService
 
             ProcessAddedFiles(addedFiles, codeFileRepository, githubService, kenticoCloudService, codeConverter);
             ProcessModifiedFiles(modifiedFiles, codeFileRepository, githubService, kenticoCloudService, codeConverter);
-
+            ProcessRemovedFiles(removedFiles.ToArray(), codeFileRepository, kenticoCloudService);
 
             // Parse the webhook message using IWebhookParser
             // Get the affected files using IGithubService.GetCodeSamplesFile
@@ -130,6 +130,26 @@ namespace GithubService
                     {
                         await kenticoCloudService.UpsertCodeFragmentsAsync(modifiedCodeSample);
                     }
+                }
+            }
+        }
+
+        private static async void ProcessRemovedFiles(ICollection<string> removedFiles,
+            ICodeFileRepository codeFileRepository, IKenticoCloudService kenticoCloudService)
+        {
+            if (!removedFiles.Any())
+                return;
+
+            foreach (var removedFile in removedFiles)
+            {
+                var archivedFile = await codeFileRepository.ArchiveAsync(removedFile);
+
+                if (archivedFile == null)
+                    continue;
+
+                foreach (var codeFragment in archivedFile.CodeFragments)
+                {
+                    await kenticoCloudService.RemoveCodeFragmentAsync(codeFragment);
                 }
             }
         }
