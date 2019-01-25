@@ -7,9 +7,7 @@ namespace GithubService.Services.Interfaces
     public interface ICodeConverter
     {
         IEnumerable<CodenameCodeFragments> ConvertToCodenameCodeFragments(IEnumerable<CodeFile> codeSampleFiles);
-
-        IEnumerable<CodenameCodeFragments> ConvertToCodenameCodeFragments(CodeFile codeSampleFiles);
-
+        
         CodeSamples ConvertToCodeSamples(CodenameCodeFragments codenameCodeSample);
     }
 }

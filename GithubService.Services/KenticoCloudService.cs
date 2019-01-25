@@ -1,5 +1,4 @@
-﻿using System;
-using GithubService.Models.KenticoCloud;
+﻿using GithubService.Models.KenticoCloud;
 using GithubService.Services.Interfaces;
 using KenticoCloud.ContentManagement.Exceptions;
 using KenticoCloud.ContentManagement.Models.Items;
@@ -20,6 +19,14 @@ namespace GithubService.Services
             _codeConverter = codeConverter;
         }
 
+        public async Task<CodeSamples> UpsertCodeFragmentAsync(CodeFragment codeFragment)
+        {
+            var contentItem = await EnsureCodeSamplesItemAsync(codeFragment.Codename);
+            var codeSamples = UpdateValuesInCodeSamples(new CodeSamples(), codeFragment.Language, codeFragment.Content);
+
+            return await EnsureCodeSamplesVariantAsync(contentItem, codeSamples);
+        }
+
         public async Task<CodeSamples> UpsertCodeFragmentsAsync(CodenameCodeFragments codenameCodeFragments)
         {
             var codeSamples = _codeConverter.ConvertToCodeSamples(codenameCodeFragments);
@@ -28,52 +35,16 @@ namespace GithubService.Services
             return await EnsureCodeSamplesVariantAsync(contentItem, codeSamples);
         }
 
-        public async Task DeleteCodeFragmentsAsync(CodenameCodeFragments fragment)
-        {
-            throw new NotImplementedException();
-        }
-
         public async Task RemoveCodeFragmentAsync(CodeFragment codeFragment)
         {
             // Try to get the content item from KC using codename
             var contentItem = await _kcClient.GetContentItemAsync(codeFragment.Codename);
-            var codeBlockFromKc = await _kcClient.GetCodeSamplesVariantAsync(contentItem);
+            var codeSamples = await _kcClient.GetCodeSamplesVariantAsync(contentItem);
+            codeSamples = UpdateValuesInCodeSamples(codeSamples, codeFragment.Language, codeFragment.Content);
+            
+            await EnsureCodeSamplesVariantAsync(contentItem, codeSamples);
 
-            // remove the code
-            switch (codeFragment.Language)
-            {
-                case CodeFragmentLanguage.CUrl:
-                    codeBlockFromKc.Curl = string.Empty;
-                    break;
-                case CodeFragmentLanguage.CSharp:
-                    codeBlockFromKc.CSharp = string.Empty;
-                    break;
-                case CodeFragmentLanguage.JavaScript:
-                    codeBlockFromKc.JavaScript = string.Empty;
-                    break;
-                case CodeFragmentLanguage.TypeScript:
-                    codeBlockFromKc.TypeScript = string.Empty;
-                    break;
-                case CodeFragmentLanguage.Java:
-                    codeBlockFromKc.Java = string.Empty;
-                    break;
-                case CodeFragmentLanguage.JavaRx:
-                    codeBlockFromKc.JavaRx = string.Empty;
-                    break;
-                case CodeFragmentLanguage.Swift:
-                    codeBlockFromKc.Swift = string.Empty;
-                    break;
-                case CodeFragmentLanguage.Ruby:
-                    codeBlockFromKc.Ruby = string.Empty;
-                    break;
-                case CodeFragmentLanguage.PHP:
-                    codeBlockFromKc.PHP = string.Empty;
-                    break;
-            }
-
-            await EnsureCodeSamplesVariantAsync(contentItem, codeBlockFromKc);
-
-            if (IsReadyToUnpublish(codeBlockFromKc))
+            if (IsReadyToUnpublish(codeSamples))
             {
                 // TODO: sent to new workflow step, once it is defined
             }
@@ -130,5 +101,41 @@ namespace GithubService.Services
                string.IsNullOrEmpty(codeSamples.PHP) &&
                string.IsNullOrEmpty(codeSamples.Ruby) &&
                string.IsNullOrEmpty(codeSamples.TypeScript);
+
+        private CodeSamples UpdateValuesInCodeSamples(CodeSamples codeSamples, CodeFragmentLanguage language, string codeContent)
+        {
+            switch (language)
+            {
+                case CodeFragmentLanguage.CUrl:
+                    codeSamples.Curl = codeContent;
+                    break;
+                case CodeFragmentLanguage.CSharp:
+                    codeSamples.CSharp = codeContent;
+                    break;
+                case CodeFragmentLanguage.JavaScript:
+                    codeSamples.JavaScript = codeContent;
+                    break;
+                case CodeFragmentLanguage.TypeScript:
+                    codeSamples.TypeScript = codeContent;
+                    break;
+                case CodeFragmentLanguage.Java:
+                    codeSamples.Java = codeContent;
+                    break;
+                case CodeFragmentLanguage.JavaRx:
+                    codeSamples.JavaRx = codeContent;
+                    break;
+                case CodeFragmentLanguage.Swift:
+                    codeSamples.Swift = codeContent;
+                    break;
+                case CodeFragmentLanguage.Ruby:
+                    codeSamples.Ruby = codeContent;
+                    break;
+                case CodeFragmentLanguage.PHP:
+                    codeSamples.PHP = codeContent;
+                    break;
+            }
+
+            return codeSamples;
+        }
     }
 }

@@ -13,59 +13,31 @@ namespace GithubService.Services.Converters
 
             foreach (var codeFile in codeFiles)
             {
-                var currentCodenameCodeFragments = ConvertCodeFileToCodenameCodeFragments(codeFile);
-
-                foreach (var (codename, codenameCodeFragment) in currentCodenameCodeFragments)
+                foreach (var codeFragment in codeFile.CodeFragments)
                 {
+                    var codename = codeFragment.Codename;
+                    var language = codeFragment.Language;
+                    var content = codeFragment.Content;
+
                     if (codenameCodeFragments.ContainsKey(codename))
                     {
-                        foreach (var codeFragment in codenameCodeFragment.CodeFragments)
-                        {
-                            codenameCodeFragments[codename].CodeFragments.Add(codeFragment.Key, codeFragment.Value);
-                        }
-                    } 
+                        codenameCodeFragments[codename].CodeFragments.Add(language, content);
+                    }
                     else
                     {
-                        codenameCodeFragments.Add(codename, codenameCodeFragment);
+                        codenameCodeFragments.Add(codename, new CodenameCodeFragments
+                        {
+                            Codename = codename,
+                            CodeFragments = new Dictionary<CodeFragmentLanguage, string>
+                            {
+                                {language, content}
+                            }
+                        });
                     }
-
-                }                
+                }
             }
 
             return codenameCodeFragments.Values;
-        }
-
-        public IEnumerable<CodenameCodeFragments> ConvertToCodenameCodeFragments(CodeFile codeFiles)
-            => ConvertCodeFileToCodenameCodeFragments(codeFiles).Values;
-       
-        private Dictionary<string, CodenameCodeFragments> ConvertCodeFileToCodenameCodeFragments(CodeFile codeFile)
-        {
-            var codenameCodeFragments = new Dictionary<string, CodenameCodeFragments>();
-
-            foreach (var codeFragment in codeFile.CodeFragments)
-            {
-                var codename = codeFragment.Codename;
-                var language = codeFragment.Language;
-                var content = codeFragment.Content;
-
-                if (codenameCodeFragments.ContainsKey(codename))
-                {
-                    codenameCodeFragments[codename].CodeFragments.Add(language, content);
-                }
-                else
-                {
-                    codenameCodeFragments.Add(codename, new CodenameCodeFragments
-                    {
-                        Codename = codename,
-                        CodeFragments = new Dictionary<CodeFragmentLanguage, string>
-                        {
-                            {language, content}
-                        }
-                });
-                }
-            }
-
-            return codenameCodeFragments;
         }
 
         public CodeSamples ConvertToCodeSamples(CodenameCodeFragments codenameCodeFragment) => new CodeSamples

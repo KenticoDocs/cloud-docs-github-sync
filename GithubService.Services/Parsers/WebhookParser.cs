@@ -7,7 +7,7 @@ namespace GithubService.Services.Parsers
 {
     public class WebhookParser : IWebhookParser
     {
-        public (IEnumerable<string> addedFiles, IEnumerable<string> modifiedFiles, IEnumerable<string> removedFiles) ExtractFiles(WebhookMessage message)
+        public (ICollection<string> addedFiles, ICollection<string> modifiedFiles, ICollection<string> removedFiles) ExtractFiles(WebhookMessage message)
         {
             var addedFiles = new HashSet<string>();
             var modifiedFiles = new HashSet<string>();
