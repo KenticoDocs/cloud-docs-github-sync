@@ -62,8 +62,8 @@ namespace GithubService
 
             var kenticoCloudService = new KenticoCloudService(kenticoCloudClient, codeConverter);
 
-            ProcessAddedFiles(addedFiles, codeFileRepository, githubService, kenticoCloudService, codeConverter);
-            ProcessModifiedFiles(modifiedFiles, codeFileRepository, githubService, kenticoCloudService, codeConverter);
+            ProcessAddedFiles(addedFiles, codeFileRepository, githubService, kenticoCloudService);
+            ProcessModifiedFiles(modifiedFiles, codeFileRepository, githubService, kenticoCloudService);
             ProcessRemovedFiles(removedFiles.ToArray(), codeFileRepository, kenticoCloudService);
 
             // Parse the webhook message using IWebhookParser
@@ -75,60 +75,53 @@ namespace GithubService
             return new OkObjectResult("Updated.");
         }
 
-        private static async void ProcessAddedFiles(IEnumerable<string> addedFiles, 
+        private static async void ProcessAddedFiles(ICollection<string> addedFiles, 
             ICodeFileRepository codeFileRepository, IGithubService githubService, 
-            IKenticoCloudService kenticoCloudService, ICodeConverter codeConverter)
+            IKenticoCloudService kenticoCloudService)
         {
-            if (addedFiles.ToList().Count > 0)
+            if (!addedFiles.Any())
+                return;
+
+            foreach (var filePath in addedFiles)
             {
-                foreach (var filePath in addedFiles.ToList())
+                // Persist each added file
+                var codeFile = await githubService.GetCodeFileAsync(filePath);
+                await codeFileRepository.StoreAsync(codeFile);
+
+                foreach (var codeFragment in codeFile.CodeFragments)
                 {
-                    // Persist each added file
-                    var codeFile = await githubService.GetCodeFileAsync(filePath);
-                    await codeFileRepository.StoreAsync(codeFile);
-
-                    // Create new KC content items
-                    var codenameCodeFragments = codeConverter.ConvertToCodenameCodeFragments(codeFile);
-
-                    foreach (var codenameCodeSample in codenameCodeSamples)
-                    {
-                        await kenticoCloudService.UpsertCodeBlockAsync(codenameCodeSample);
-                    }
+                    await kenticoCloudService.UpsertCodeFragmentAsync(codeFragment);
                 }
             }
         }
 
-        private static async void ProcessModifiedFiles(IEnumerable<string> modifiedFiles,
+        private static async void ProcessModifiedFiles(ICollection<string> modifiedFiles,
             ICodeFileRepository codeFileRepository, IGithubService githubService,
-            IKenticoCloudService kenticoCloudService, ICodeConverter codeConverter)
+            IKenticoCloudService kenticoCloudService)
         {
-            if (modifiedFiles.ToList().Count > 0)
+            if (!modifiedFiles.Any())
+                return;
+
+            foreach (var filePath in modifiedFiles)
             {
-                foreach (var filePath in modifiedFiles.ToList())
+                var modifiedCodeFile = await githubService.GetCodeFileAsync(filePath);
+                var storedCodeFile = await codeFileRepository.GetAsync(filePath);
+
+                // In table storage replace whole file entity
+                await codeFileRepository.StoreAsync(modifiedCodeFile);
+
+                foreach (var codeFragment in storedCodeFile.CodeFragments)
                 {
-                    var modifiedCodeFile = await githubService.GetCodeFileAsync(filePath);
-                    var storedCodeFile = await codeFileRepository.GetAsync(filePath);
+                    var modifiedCodeFragment =
+                        modifiedCodeFile.CodeFragments.FirstOrDefault(cf => cf.Codename == codeFragment.Codename);
 
-                    // In table storage replace whole file entity
-                    await codeFileRepository.StoreAsync(modifiedCodeFile);
-
-                    var modifiedCodenameCodeFragments = codeConverter.ConvertToCodenameCodeFragments(modifiedCodeFile);
-
-                    foreach (var storedCodeSample in storedCodeSampleFile.CodeSamples)
+                    if (modifiedCodeFragment == null)
                     {
-                        var removedCodeSample = modifiedCodenameCodeSamples
-                            .Where(codeSample => codeSample.Codename == storedCodeSample.Codename)
-                            .First();
-
-                        if (!modifiedCodeSampleFile.CodeSamples.Contains(storedCodeSample))
-                        {
-                            kenticoCloudService.DeleteCodeSampleItem(removedCodeSample);
-                        }
+                        await kenticoCloudService.RemoveCodeFragmentAsync(codeFragment);
                     }
-
-                    foreach (var modifiedCodeSample in modifiedCodenameCodeSamples)
+                    else if (modifiedCodeFragment.Content != codeFragment.Content)
                     {
-                        await kenticoCloudService.UpsertCodeBlockAsync(modifiedCodeSample);
+                        await kenticoCloudService.UpsertCodeFragmentAsync(modifiedCodeFragment);
                     }
                 }
             }
