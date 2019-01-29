@@ -38,17 +38,17 @@ namespace GithubService.Services.Converters
             return codenameCodeFragments.Values;
         }
 
-        public CodeSamples ConvertToCodeSamples(CodenameCodeFragments codenameCodeFragment) => new CodeSamples
+        public CodeSamples ConvertToCodeSamples(CodenameCodeFragments codenameCodeFragments) => new CodeSamples
         {
-            Curl = GetLanguageContent(CodeFragmentLanguage.CUrl, codenameCodeFragment),
-            CSharp = GetLanguageContent(CodeFragmentLanguage.CSharp, codenameCodeFragment),
-            JavaScript = GetLanguageContent(CodeFragmentLanguage.JavaScript, codenameCodeFragment),
-            TypeScript = GetLanguageContent(CodeFragmentLanguage.TypeScript, codenameCodeFragment),
-            Java = GetLanguageContent(CodeFragmentLanguage.Java, codenameCodeFragment),
-            JavaRx = GetLanguageContent(CodeFragmentLanguage.JavaRx, codenameCodeFragment),
-            PHP = GetLanguageContent(CodeFragmentLanguage.PHP, codenameCodeFragment),
-            Swift = GetLanguageContent(CodeFragmentLanguage.Swift, codenameCodeFragment),
-            Ruby = GetLanguageContent(CodeFragmentLanguage.Ruby, codenameCodeFragment)
+            Curl = GetLanguageContent(CodeFragmentLanguage.CUrl, codenameCodeFragments),
+            CSharp = GetLanguageContent(CodeFragmentLanguage.CSharp, codenameCodeFragments),
+            JavaScript = GetLanguageContent(CodeFragmentLanguage.JavaScript, codenameCodeFragments),
+            TypeScript = GetLanguageContent(CodeFragmentLanguage.TypeScript, codenameCodeFragments),
+            Java = GetLanguageContent(CodeFragmentLanguage.Java, codenameCodeFragments),
+            JavaRx = GetLanguageContent(CodeFragmentLanguage.JavaRx, codenameCodeFragments),
+            PHP = GetLanguageContent(CodeFragmentLanguage.PHP, codenameCodeFragments),
+            Swift = GetLanguageContent(CodeFragmentLanguage.Swift, codenameCodeFragments),
+            Ruby = GetLanguageContent(CodeFragmentLanguage.Ruby, codenameCodeFragments)
         };
 
         public (List<CodeFragment> newFragments, List<CodeFragment> modifiedFragments, List<CodeFragment> removedFragments) CompareFragmentLists(List<CodeFragment> oldFragmentList, List<CodeFragment> newFragmentList)
@@ -87,9 +87,9 @@ namespace GithubService.Services.Converters
             return (newFragments, modifiedFragments, removedFragments);
         }
 
-        private string GetLanguageContent(CodeFragmentLanguage language, CodenameCodeFragments codenameCodeFragment)
-            => codenameCodeFragment.CodeFragments.ContainsKey(language)
-                ? codenameCodeFragment.CodeFragments[language]
+        private string GetLanguageContent(CodeFragmentLanguage language, CodenameCodeFragments codenameCodeFragments)
+            => codenameCodeFragments.CodeFragments.ContainsKey(language)
+                ? codenameCodeFragments.CodeFragments[language]
                 : string.Empty;
 
         private bool CompareCodeFragments(CodeFragment first, CodeFragment second)

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using GithubService.Models;
@@ -29,7 +28,7 @@ namespace GithubService.Services
             }));
         }
 
-        public async Task<CodeSampleFile> GetCodeSampleFileAsync(string path)
+        public async Task<CodeFile> GetCodeFileAsync(string path)
         {
             var content = await _githubClient.GetFileContentAsync(path);
 

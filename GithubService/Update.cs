@@ -63,14 +63,14 @@ namespace GithubService
 
             var kenticoCloudService = new KenticoCloudService(kenticoCloudClient, codeConverter);
 
-            ProcessAddedFiles(addedFiles, codeFileRepository, githubService, kenticoCloudService);
-            ProcessModifiedFiles(modifiedFiles, codeFileRepository, githubService, kenticoCloudService, logger);
-            ProcessRemovedFiles(removedFiles.ToArray(), codeFileRepository, kenticoCloudService);
+            await ProcessAddedFiles(addedFiles, codeFileRepository, githubService, kenticoCloudService);
+            await ProcessModifiedFiles(modifiedFiles, codeFileRepository, githubService, kenticoCloudService, logger);
+            await ProcessRemovedFiles(removedFiles.ToArray(), codeFileRepository, kenticoCloudService);
 
             return new OkObjectResult("Updated.");
         }
 
-        private static async void ProcessAddedFiles(
+        private static async Task ProcessAddedFiles(
             ICollection<string> addedFiles,
             ICodeFileRepository codeFileRepository,
             IGithubService githubService,
@@ -98,7 +98,7 @@ namespace GithubService
             }
         }
 
-        private static async void ProcessModifiedFiles(
+        private static async Task ProcessModifiedFiles(
             ICollection<string> modifiedFiles,
             ICodeFileRepository codeFileRepository,
             IGithubService githubService,
@@ -135,14 +135,18 @@ namespace GithubService
                 }
             }
 
-            codeConverter.ConvertToCodenameCodeFragments(fragmentsToRemove)
-                .Select(async fragments => await kenticoCloudService.RemoveCodeFragmentsAsync(fragments));
+            foreach (var fragments in codeConverter.ConvertToCodenameCodeFragments(fragmentsToRemove))
+            {
+                await kenticoCloudService.RemoveCodeFragmentsAsync(fragments);
+            }
 
-            codeConverter.ConvertToCodenameCodeFragments(fragmentsToUpsert)
-                .Select(async fragments => await kenticoCloudService.UpsertCodeFragmentsAsync(fragments));
+            foreach (var fragments in codeConverter.ConvertToCodenameCodeFragments(fragmentsToUpsert))
+            {
+                await kenticoCloudService.UpsertCodeFragmentsAsync(fragments);
+            }
         }
 
-        private static async void ProcessRemovedFiles(
+        private static async Task ProcessRemovedFiles(
             ICollection<string> removedFiles,
             ICodeFileRepository codeFileRepository,
             IKenticoCloudService kenticoCloudService)

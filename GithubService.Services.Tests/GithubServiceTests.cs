@@ -81,7 +81,7 @@ namespace GithubService.Services.Tests
             // Arrange
             var filePath = "File_Path";
             var fileContent = "var three = 3;";
-            var expectedCodeSample = new CodeSampleFile { FilePath = filePath };
+            var expectedCodeSample = new CodeFile { FilePath = filePath };
 
             var githubClient = Substitute.For<IGithubClient>();
             githubClient.GetFileContentAsync(filePath).Returns(fileContent);
@@ -91,7 +91,7 @@ namespace GithubService.Services.Tests
 
             // Act
             var githubService = new GithubService(githubClient, fileParser);
-            var result = await githubService.GetCodeSampleFileAsync(filePath);
+            var result = await githubService.GetCodeFileAsync(filePath);
 
             // Assert
             Assert.AreEqual(expectedCodeSample, result);
