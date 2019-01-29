@@ -6,10 +6,8 @@ namespace GithubService.Services.Interfaces
 {
     public interface IKenticoCloudService
     {
-        Task<CodeSamples> UpsertCodeFragmentAsync(CodeFragment codeFragment);
-
-        Task<CodeSamples> UpsertCodeFragmentsAsync(CodenameCodeFragments fragment);
+        Task<CodeSamples> UpsertCodeFragmentsAsync(CodenameCodeFragments fragments);
         
-        Task RemoveCodeFragmentAsync(CodeFragment codeFragment);
+        Task<CodeSamples> RemoveCodeFragmentsAsync(CodenameCodeFragments fragments);
     }
 }

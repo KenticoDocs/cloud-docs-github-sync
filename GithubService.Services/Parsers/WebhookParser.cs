@@ -15,19 +15,19 @@ namespace GithubService.Services.Parsers
 
             foreach (var commit in message.Commits)
             {
-                if (commit.Added.Count > 0)
+                if (commit.Added.Any())
                 {
                     removedFiles.ExceptWith(commit.Added);
                     addedFiles.UnionWith(commit.Added);
                 }
 
-                if (commit.Modified.Count > 0)
+                if (commit.Modified.Any())
                 {
                     var onlyModifiedFiles = commit.Modified.Except(addedFiles);
                     modifiedFiles.UnionWith(onlyModifiedFiles);
                 }
 
-                if (commit.Removed.Count > 0)
+                if (commit.Removed.Any())
                 {
                     var addedAndRemoved = addedFiles.Intersect(commit.Removed).ToList();
 
