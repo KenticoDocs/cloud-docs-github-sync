@@ -1,15 +1,16 @@
+using GithubService.Repository;
 using GithubService.Services;
 using GithubService.Services.Clients;
 using GithubService.Services.Converters;
+using GithubService.Services.Parsers;
 using Microsoft.AspNetCore.Http;
-using System;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Linq;
 using System.Threading.Tasks;
-using GithubService.Repository;
-using GithubService.Services.Parsers;
 
 namespace GithubService
 {
@@ -41,8 +42,8 @@ namespace GithubService
                 await codeFileRepository.StoreAsync(codeFile);
             }
 
-            var codeSamplesConverter = new CodeSamplesConverter();
-            var samplesByCodename = codeSamplesConverter.ConvertToCodenameCodeFragments(codeFiles);
+            var codeConverter = new CodeConverter();
+            var fragmentsByCodename = codeConverter.ConvertToCodenameCodeFragments(codeFiles.SelectMany(file => file.CodeFragments));
 
             // Create/update appropriate KC items
             var kenticoCloudClient = new KenticoCloudClient(
@@ -51,11 +52,11 @@ namespace GithubService
                 Environment.GetEnvironmentVariable("KenticoCloud.InternalApiKey")
             );
 
-            var kenticoCloudService = new KenticoCloudService(kenticoCloudClient, codeSamplesConverter);
+            var kenticoCloudService = new KenticoCloudService(kenticoCloudClient, codeConverter);
 
-            foreach (var codeSample in samplesByCodename)
+            foreach (var fragments in fragmentsByCodename)
             {
-                await kenticoCloudService.UpsertCodeFragmentsAsync(codeSample);
+                await kenticoCloudService.UpsertCodeFragmentsAsync(fragments);
             }
 
             return new OkObjectResult("Initialized.");

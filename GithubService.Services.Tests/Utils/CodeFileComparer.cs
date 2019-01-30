@@ -1,23 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using GithubService.Models;
+﻿using GithubService.Models;
 using NUnit.Framework.Constraints;
+using System;
+using System.Collections.Generic;
 
 namespace GithubService.Services.Tests.Utils
 {
-    internal static class CodeSampleFileComparerWrapper
+    internal static class CodeFileComparerWrapper
     {
-        private static Lazy<CodeSampleFileComparer> Lazy => new Lazy<CodeSampleFileComparer>();
+        private static Lazy<CodeFileComparer> Lazy => new Lazy<CodeFileComparer>();
 
-        private static CodeSampleFileComparer Comparer => Lazy.Value;
+        private static CodeFileComparer Comparer => Lazy.Value;
 
         public static EqualConstraint UsingCodeSampleFileComparer(this EqualConstraint constraint) =>
             constraint.Using(Comparer);
 
-        private sealed class CodeSampleFileComparer : IEqualityComparer<CodeFile>
+        private sealed class CodeFileComparer : IEqualityComparer<CodeFile>
         {
-            private static Lazy<CodeSampleComparer> LazyCodeSampleComparer => new Lazy<CodeSampleComparer>();
-            private static CodeSampleComparer CodeSampleComparer => LazyCodeSampleComparer.Value;
+            private static Lazy<CodeFragmentComparer> LazyCodeFragmentComparer => new Lazy<CodeFragmentComparer>();
+            private static CodeFragmentComparer CodeFragmentComparer => LazyCodeFragmentComparer.Value;
 
             public bool Equals(CodeFile x, CodeFile y)
             {
@@ -31,7 +31,7 @@ namespace GithubService.Services.Tests.Utils
                 foreach (var codeSample in x.CodeFragments)
                 {
                     var secondSample = y.CodeFragments[x.CodeFragments.IndexOf(codeSample)];
-                    codeSamplesEqual = codeSamplesEqual && CodeSampleComparer.Equals(codeSample, secondSample);
+                    codeSamplesEqual = codeSamplesEqual && CodeFragmentComparer.Equals(codeSample, secondSample);
                 }
 
                 return string.Equals(x.FilePath, y.FilePath) && codeSamplesEqual;
