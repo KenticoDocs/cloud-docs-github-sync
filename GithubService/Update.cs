@@ -65,7 +65,7 @@ namespace GithubService
 
             await ProcessAddedFiles(addedFiles, codeFileRepository, githubService, kenticoCloudService);
             await ProcessModifiedFiles(modifiedFiles, codeFileRepository, githubService, kenticoCloudService, logger);
-            await ProcessRemovedFiles(removedFiles.ToArray(), codeFileRepository, kenticoCloudService);
+            await ProcessRemovedFiles(removedFiles, codeFileRepository, kenticoCloudService);
 
             return new OkObjectResult("Updated.");
         }

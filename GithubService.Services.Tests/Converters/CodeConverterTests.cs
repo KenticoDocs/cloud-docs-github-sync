@@ -20,7 +20,7 @@ namespace GithubService.Services.Tests.Converters
             var actualOutput =
                 _codeConverter.ConvertToCodenameCodeFragments(new List<CodeFragment>());
 
-            Assert.That(expectedOutput, Is.EqualTo(actualOutput.ToList()));
+            Assert.That(actualOutput.ToList(), Is.EqualTo(expectedOutput));
         }
 
         [Test]
