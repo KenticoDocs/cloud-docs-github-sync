@@ -11,47 +11,41 @@ namespace GithubService.Services.Parsers
     {
         public CodeFile ParseContent(string filePath, string content)
         {
-            CheckNullOrEmptyArguments(filePath, content);
-
-            var codeSampleFile = new CodeFile
+            if (string.IsNullOrEmpty(filePath))
+            {
+                throw new ArgumentException("Invalid file path");
+            }
+            var codeFile = new CodeFile
             {
                 FilePath = filePath
             };
 
+            if (string.IsNullOrEmpty(content))
+            {
+                return codeFile;
+            }
+
             var extractedLanguage = GetLanguage(filePath);
             if (extractedLanguage == null)
             {
-                return codeSampleFile;
+                return codeFile;
             }
             var language = (CodeFragmentLanguage) extractedLanguage;
 
             var sampleIdentifiers = ExtractSampleIdentifiers(content, language);
             if (sampleIdentifiers.Count == 0)
             {
-                return codeSampleFile;
+                return codeFile;
             }
 
-            ExtractCodeSamples(content, sampleIdentifiers, language, codeSampleFile);
+            ExtractCodeSamples(content, sampleIdentifiers, language, codeFile);
 
-            if (sampleIdentifiers.Count != codeSampleFile.CodeFragments.Count)
+            if (sampleIdentifiers.Count != codeFile.CodeFragments.Count)
             {
                 throw new ArgumentException($"Incorrectly marked code sample in file {filePath}");
             }
 
-            return codeSampleFile;
-        }
-
-        private static void CheckNullOrEmptyArguments(string filePath, string content)
-        {
-            if (string.IsNullOrEmpty(content))
-            {
-                throw new ArgumentException($"Content of file {filePath} is either empty or null");
-            }
-
-            if (string.IsNullOrEmpty(filePath))
-            {
-                throw new ArgumentException("Invalid file path");
-            }
+            return codeFile;
         }
 
         private static CodeFragmentLanguage? GetLanguage(string filepath)
@@ -138,7 +132,7 @@ namespace GithubService.Services.Parsers
         private static Regex GetCodeSamplesExtractor(IEnumerable<string> sampleIdentifiers, CodeFragmentLanguage language)
         {
             var codeSamplesExtractor = sampleIdentifiers.Aggregate("",
-                (current, sampleIdentifier) => current + $"{language.GetCommentPrefix()} DocSection: {sampleIdentifier}\n*?((.|\n)*?){language.GetCommentPrefix()} EndDocSection|");
+                (current, sampleIdentifier) => current + $"{language.GetCommentPrefix()} DocSection: {sampleIdentifier}\\s*?\n((.|\n)*?){language.GetCommentPrefix()} EndDocSection|");
 
             codeSamplesExtractor = codeSamplesExtractor.Length > 0
                 ? codeSamplesExtractor.Remove(codeSamplesExtractor.Length - 1)

@@ -35,7 +35,7 @@ namespace GithubService.Services.Tests.Parsers
 
             var actualOutput = _parser.ParseContent(filePath, sampleFile);
 
-            Assert.That(expectedOutput, Is.EqualTo(actualOutput).UsingCodeSampleFileComparer());
+            Assert.That(actualOutput, Is.EqualTo(expectedOutput).UsingCodeSampleFileComparer());
         }
 
         [TestCase(CodeFragmentLanguage.JavaScript, "js/file.js")]
@@ -47,11 +47,17 @@ namespace GithubService.Services.Tests.Parsers
 $@"{comment} DocSection: multiple_hello_world
 console.log(""Hello Kentico Cloud"");
 {comment} EndDocSection
+{comment} DocSection: single_create-integer-long-codename123
+int abcd = 12345;
+{comment} EndDocSection
 {comment} DocSection: single_create-integer
+int i = 1000;
+{comment} EndDocSection
+{comment} DocSection: multiple_create-integer
 int i = 10;
 int j = 14;
 {comment} EndDocSection
-{comment} DocSection: multiple_make_coffee
+{comment} DocSection: single_create-integer-variable
 import com.kenticocloud.delivery;
 DeliveryClient client = new DeliveryClient(""<YOUR_PROJECT_ID>"", ""<YOUR_PREVIEW_API_KEY>"");
 {comment} EndDocSection
@@ -71,15 +77,29 @@ DeliveryClient client = new DeliveryClient(""<YOUR_PROJECT_ID>"", ""<YOUR_PREVIE
                     new CodeFragment
                     {
                         Language = language,
+                        Codename = "create-integer-long-codename123",
+                        Type = CodeFragmentType.Single,
+                        Content = "int abcd = 12345;"
+                    },
+                    new CodeFragment
+                    {
+                        Language = language,
                         Codename = "create-integer",
                         Type = CodeFragmentType.Single,
+                        Content = "int i = 1000;"
+                    },
+                    new CodeFragment
+                    {
+                        Language = language,
+                        Codename = "create-integer",
+                        Type = CodeFragmentType.Multiple,
                         Content = $"int i = 10;{Environment.NewLine}int j = 14;"
                     },
                     new CodeFragment
                     {
                         Language = language,
-                        Codename = "make_coffee",
-                        Type = CodeFragmentType.Multiple,
+                        Codename = "create-integer-variable",
+                        Type = CodeFragmentType.Single,
                         Content = $"import com.kenticocloud.delivery;{Environment.NewLine}DeliveryClient client = new DeliveryClient(\"<YOUR_PROJECT_ID>\", \"<YOUR_PREVIEW_API_KEY>\");"
                     }
                 },
@@ -88,7 +108,7 @@ DeliveryClient client = new DeliveryClient(""<YOUR_PROJECT_ID>"", ""<YOUR_PREVIE
 
             var actualOutput = _parser.ParseContent(filePath, sampleFile);
 
-            Assert.That(expectedOutput, Is.EqualTo(actualOutput).UsingCodeSampleFileComparer());
+            Assert.That(actualOutput, Is.EqualTo(expectedOutput).UsingCodeSampleFileComparer());
         }
 
         [TestCase(CodeFragmentLanguage.JavaScript, "js/file.js")]
@@ -143,7 +163,22 @@ $@"   {comment} DocSection: multiple_special_
 
             var actualOutput = _parser.ParseContent("javarx/unpublishing.java", ComplexSampleFile);
 
-            Assert.That(expectedOutput, Is.EqualTo(actualOutput).UsingCodeSampleFileComparer());
+            Assert.That(actualOutput, Is.EqualTo(expectedOutput).UsingCodeSampleFileComparer());
+        }
+
+        [TestCase("js/file.js")]
+        [TestCase("python/file.py")]
+        public void ParseContent_ReturnsEmptyObjectOnEmptyFile(string filePath)
+        {
+            const string sampleFile = "";
+            var expectedOutput = new CodeFile
+            {
+                FilePath = filePath
+            };
+
+            var actualOutput = _parser.ParseContent(filePath, sampleFile);
+
+            Assert.That(actualOutput, Is.EqualTo(expectedOutput).UsingCodeSampleFileComparer());
         }
 
         [TestCase("js/file.js")]
@@ -158,7 +193,7 @@ $@"   {comment} DocSection: multiple_special_
 
             var actualOutput = _parser.ParseContent(filePath, sampleFile);
 
-            Assert.That(expectedOutput, Is.EqualTo(actualOutput).UsingCodeSampleFileComparer());
+            Assert.That(actualOutput, Is.EqualTo(expectedOutput).UsingCodeSampleFileComparer());
         }
 
         [Test]
@@ -173,7 +208,7 @@ $@"   {comment} DocSection: multiple_special_
 
             var actualOutput = _parser.ParseContent(filePath, sampleFile);
 
-            Assert.That(expectedOutput, Is.EqualTo(actualOutput).UsingCodeSampleFileComparer());
+            Assert.That(actualOutput, Is.EqualTo(expectedOutput).UsingCodeSampleFileComparer());
         }
 
         [TestCase(null)]
