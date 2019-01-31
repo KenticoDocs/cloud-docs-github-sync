@@ -13,7 +13,7 @@ before_script:
   - export PATH="$PATH:$HOME/.dotnet/tools"
 
 script: 
-  - dotnet sonarscanner begin /k:"kentico-cloud-docs-github-service" /n:"KCD GitHub Service" /v:"1.0.0" /o:"kentico-cloud-docs" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="$SONAR_TOKEN" /d:sonar.language="cs" /d:sonar.exclusions="**/bin/**/*,**/obj/**/*" /d:sonar.cs.opencover.reportsPaths="lcov.opencover.xml" || true
+  - dotnet sonarscanner begin /k:"kentico-cloud-docs-github-sync" /n:"GitHub Sync" /v:"1.0.0" /o:"kentico-cloud-docs" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="$SONAR_TOKEN" /d:sonar.language="cs" /d:sonar.exclusions="**/bin/**/*,**/obj/**/*" /d:sonar.cs.opencover.reportsPaths="lcov.opencover.xml" || true
   - dotnet build
   - dotnet test GithubService.Services.Tests/GithubService.Services.Tests.csproj "--logger:trx;LogFileName=results.trx"
   - dotnet sonarscanner end /d:sonar.login="$SONAR_TOKEN" || true
