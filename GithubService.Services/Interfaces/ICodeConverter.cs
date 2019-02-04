@@ -11,5 +11,7 @@ namespace GithubService.Services.Interfaces
         CodeSamples ConvertToCodeSamples(CodenameCodeFragments codenameCodeFragments);
 
         (List<CodeFragment> newFragments, List<CodeFragment> modifiedFragments, List<CodeFragment> removedFragments) CompareFragmentLists(List<CodeFragment> oldFragmentList, List<CodeFragment> newFragmentList);
+
+        string ConvertCodenameToItemName(string codename);
     }
 }

@@ -2,6 +2,7 @@
 using GithubService.Models.KenticoCloud;
 using GithubService.Services.Interfaces;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 
 namespace GithubService.Services.Converters
@@ -85,6 +86,16 @@ namespace GithubService.Services.Converters
             }
 
             return (newFragments, modifiedFragments, removedFragments);
+        }
+
+        public string ConvertCodenameToItemName(string codename)
+        {
+            if (string.IsNullOrEmpty(codename))
+                return codename;
+
+            var textInfo = new CultureInfo("en-US", false).TextInfo;
+
+            return textInfo.ToTitleCase(codename.Replace('_', ' '));
         }
 
         private string GetLanguageContent(CodeFragmentLanguage language, CodenameCodeFragments codenameCodeFragments)

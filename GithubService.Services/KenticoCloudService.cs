@@ -91,7 +91,7 @@ namespace GithubService.Services
                 var codeSamplesItem = new ContentItemCreateModel
                 {
                     Type = ContentTypeIdentifier.ByCodename("code_samples"),
-                    Name = codename
+                    Name = _codeConverter.ConvertCodenameToItemName(codename)
                 };
                 return await _kcClient.CreateContentItemAsync(codeSamplesItem);
             }

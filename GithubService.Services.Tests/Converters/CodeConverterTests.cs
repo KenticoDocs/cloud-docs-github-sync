@@ -272,5 +272,20 @@ namespace GithubService.Services.Tests.Converters
             Assert.That(newFragments, Is.Empty);
             Assert.That(modifiedFragments, Is.Empty);
         }
+
+        [TestCase(null, null)]
+        [TestCase("", "")]
+        [TestCase("test", "Test")]
+        [TestCase("random_test", "Random Test")]
+        [TestCase("cool_kentico_api", "Cool Kentico Api")]
+        [TestCase("cool__api", "Cool  Api")]
+        [TestCase("1_2_3", "1 2 3")]
+        [TestCase("wRoNg_CASing", "Wrong Casing")]
+        public void ConvertCodenameToItemName(string codename, string expectedName)
+        {
+            var actualName = _codeConverter.ConvertCodenameToItemName(codename);
+
+            Assert.That(actualName, Is.EqualTo(expectedName));
+        }
     }
 }
