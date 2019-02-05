@@ -13,8 +13,8 @@ namespace GithubService.Services.Tests.Parsers
         private readonly IFileParser _parser = new FileParser();
 
         [TestCase(CodeFragmentLanguage.JavaScript, "js/file.js")]
-        [TestCase(CodeFragmentLanguage.PHP, "php/file.php")]
-        public void ParseContent_ParsesFileWithOneCodeSample(CodeFragmentLanguage language, string filePath)
+        [TestCase(CodeFragmentLanguage.Php, "php/file.php")]
+        public void ParseContent_ParsesFileWithOneCodeSample(string language, string filePath)
         {
             var comment = language.GetCommentPrefix();
             var sampleFile = $"{comment} DocSection: multiple_hello\nanything \n{comment} EndDocSection";
@@ -39,8 +39,8 @@ namespace GithubService.Services.Tests.Parsers
         }
 
         [TestCase(CodeFragmentLanguage.JavaScript, "js/file.js")]
-        [TestCase(CodeFragmentLanguage.PHP, "php/file.php")]
-        public void ParseContent_ParsesFileWithMultipleCodeSamples(CodeFragmentLanguage language, string filePath)
+        [TestCase(CodeFragmentLanguage.Php, "php/file.php")]
+        public void ParseContent_ParsesFileWithMultipleCodeSamples(string language, string filePath)
         {
             var comment = language.GetCommentPrefix();
             var sampleFile =
@@ -112,8 +112,8 @@ DeliveryClient client = new DeliveryClient(""<YOUR_PROJECT_ID>"", ""<YOUR_PREVIE
         }
 
         [TestCase(CodeFragmentLanguage.JavaScript, "js/file.js")]
-        [TestCase(CodeFragmentLanguage.PHP, "php/file.php")]
-        public void ParseContent_ParsesCodeSampleWithSpecialCharacters(CodeFragmentLanguage language, string filePath)
+        [TestCase(CodeFragmentLanguage.Php, "php/file.php")]
+        public void ParseContent_ParsesCodeSampleWithSpecialCharacters(string language, string filePath)
         {
             var comment = language.GetCommentPrefix();
             var sampleFile =

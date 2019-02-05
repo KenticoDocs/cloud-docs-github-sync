@@ -30,15 +30,14 @@ namespace GithubService.Services.Parsers
             {
                 return codeFile;
             }
-            var language = (CodeFragmentLanguage) extractedLanguage;
 
-            var sampleIdentifiers = ExtractSampleIdentifiers(content, language);
+            var sampleIdentifiers = ExtractSampleIdentifiers(content, extractedLanguage);
             if (sampleIdentifiers.Count == 0)
             {
                 return codeFile;
             }
 
-            ExtractCodeSamples(content, sampleIdentifiers, language, codeFile);
+            ExtractCodeSamples(content, sampleIdentifiers, extractedLanguage, codeFile);
 
             if (sampleIdentifiers.Count != codeFile.CodeFragments.Count)
             {
@@ -48,16 +47,16 @@ namespace GithubService.Services.Parsers
             return codeFile;
         }
 
-        private static CodeFragmentLanguage? GetLanguage(string filepath)
+        private static string GetLanguage(string filepath)
         {
             var languageIdentifier = filepath.Split('/')[0];
 
             switch (languageIdentifier)
             {
                 case "cUrl":
-                    return CodeFragmentLanguage.CUrl;
+                    return CodeFragmentLanguage.Curl;
                 case "c#":
-                    return CodeFragmentLanguage.CSharp;
+                    return CodeFragmentLanguage.Net;
                 case "js":
                     return CodeFragmentLanguage.JavaScript;
                 case "ts":
@@ -67,17 +66,21 @@ namespace GithubService.Services.Parsers
                 case "javarx":
                     return CodeFragmentLanguage.JavaRx;
                 case "php":
-                    return CodeFragmentLanguage.PHP;
+                    return CodeFragmentLanguage.Php;
                 case "swift":
                     return CodeFragmentLanguage.Swift;
                 case "ruby":
                     return CodeFragmentLanguage.Ruby;
+                case "python":
+                    return CodeFragmentLanguage.Python;
+                case "shell":
+                    return CodeFragmentLanguage.Shell;
                 default:
                     return null;
             }
         }
 
-        private static List<string> ExtractSampleIdentifiers(string content, CodeFragmentLanguage language)
+        private static List<string> ExtractSampleIdentifiers(string content, string language)
         {
             var sampleIdentifiersExtractor = new Regex($"{language.GetCommentPrefix()} DocSection: (.*?)\n", RegexOptions.Compiled);
             var sampleIdentifiers = new List<string>();
@@ -95,7 +98,7 @@ namespace GithubService.Services.Parsers
         private static void ExtractCodeSamples(
             string content,
             IReadOnlyList<string> sampleIdentifiers,
-            CodeFragmentLanguage language,
+            string language,
             CodeFile codeFile)
         {
             var codeSamplesExtractor = GetCodeSamplesExtractor(sampleIdentifiers, language);
@@ -129,7 +132,7 @@ namespace GithubService.Services.Parsers
             }
         }
 
-        private static Regex GetCodeSamplesExtractor(IEnumerable<string> sampleIdentifiers, CodeFragmentLanguage language)
+        private static Regex GetCodeSamplesExtractor(IEnumerable<string> sampleIdentifiers, string language)
         {
             var codeSamplesExtractor = sampleIdentifiers.Aggregate("",
                 (current, sampleIdentifier) => current + $"{language.GetCommentPrefix()} DocSection: {sampleIdentifier}\\s*?\n((.|\n)*?){language.GetCommentPrefix()} EndDocSection|");

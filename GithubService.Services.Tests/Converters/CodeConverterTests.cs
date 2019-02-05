@@ -60,36 +60,54 @@ namespace GithubService.Services.Tests.Converters
                 new CodenameCodeFragments
                 {
                     Codename = "hello-world",
-                    CodeFragments = new Dictionary<CodeFragmentLanguage, string>
+                    CodeFragments = new List<CodeFragment>
                     {
-                        {CodeFragmentLanguage.JavaScript, "console.log('Hello Kentico Cloud');"}
+                        new CodeFragment
+                        {
+                            Codename = "hello-world",
+                            Content = "console.log('Hello Kentico Cloud');",
+                            Language = CodeFragmentLanguage.JavaScript
+                        }
                     }
                 },
                 new CodenameCodeFragments
                 {
                     Codename = "one-two-three",
-                    CodeFragments = new Dictionary<CodeFragmentLanguage, string>
+                    CodeFragments = new List<CodeFragment>
                     {
-                        {CodeFragmentLanguage.JavaScript, "int i += 3"}
+                        new CodeFragment
+                        {
+                            Codename = "one-two-three",
+                            Content = "int i += 3",
+                            Language = CodeFragmentLanguage.JavaScript
+                        }
                     }
                 },
                 new CodenameCodeFragments
                 {
                     Codename = "let_s_begin",
-                    CodeFragments = new Dictionary<CodeFragmentLanguage, string>
+                    CodeFragments = new List<CodeFragment>
                     {
+                        new CodeFragment
                         {
-                            CodeFragmentLanguage.JavaScript,
-                            "const client = new DeliveryClient({ projectId: 'a0a9d198-e604-007a-50c9-fecbb46046d1' });"
+                            Codename = "let_s_begin",
+                            Content =
+                                "const client = new DeliveryClient({ projectId: 'a0a9d198-e604-007a-50c9-fecbb46046d1' });",
+                            Language = CodeFragmentLanguage.JavaScript
                         }
                     }
                 },
                 new CodenameCodeFragments
                 {
                     Codename = "byebye",
-                    CodeFragments = new Dictionary<CodeFragmentLanguage, string>
+                    CodeFragments = new List<CodeFragment>
                     {
-                        {CodeFragmentLanguage.JavaScript, "export default ArticleListing;"}
+                        new CodeFragment
+                        {
+                            Codename = "byebye",
+                            Content = "export default ArticleListing;",
+                            Language = CodeFragmentLanguage.JavaScript
+                        }
                     }
                 }
             };
@@ -114,13 +132,13 @@ namespace GithubService.Services.Tests.Converters
                 {
                     Codename = "hello-world",
                     Content = "Console.WriteLine(\"Hello World!\");",
-                    Language = CodeFragmentLanguage.CSharp
+                    Language = CodeFragmentLanguage.Net
                 },
                 new CodeFragment
                 {
                     Codename = "hello-world",
                     Content = "print(\"Hello, World!\")",
-                    Language = CodeFragmentLanguage.PHP
+                    Language = CodeFragmentLanguage.Php
                 },
                 new CodeFragment
                 {
@@ -135,13 +153,7 @@ namespace GithubService.Services.Tests.Converters
                 new CodenameCodeFragments
                 {
                     Codename = "hello-world",
-                    CodeFragments = new Dictionary<CodeFragmentLanguage, string>
-                    {
-                        {CodeFragmentLanguage.JavaScript, "console.log('Hello Kentico Cloud');"},
-                        {CodeFragmentLanguage.CSharp, "Console.WriteLine(\"Hello World!\");"},
-                        {CodeFragmentLanguage.PHP, "print(\"Hello, World!\")"},
-                        {CodeFragmentLanguage.Java, "System.out.println(\"Hello, World\");"}
-                    }
+                    CodeFragments = codeFragments
                 }
             };
 
@@ -175,7 +187,7 @@ namespace GithubService.Services.Tests.Converters
                 {
                     Codename = "hello-world",
                     Content = "Console.WriteLine(\"Hello World!\");",
-                    Language = CodeFragmentLanguage.CSharp
+                    Language = CodeFragmentLanguage.Net
                 }
             };
 
@@ -183,7 +195,7 @@ namespace GithubService.Services.Tests.Converters
             {
                 Codename = "hello-world",
                 Content = "Console.WriteLine(\"Hello World!\");",
-                Language = CodeFragmentLanguage.CSharp
+                Language = CodeFragmentLanguage.Net
             };
 
             var (newFragments, modifiedFragments, removedFragments) = _codeConverter.CompareFragmentLists(oldList, newList);
@@ -245,7 +257,7 @@ namespace GithubService.Services.Tests.Converters
                 {
                     Codename = "hello-world",
                     Content = "Console.WriteLine(\"Hello World!\");",
-                    Language = CodeFragmentLanguage.CSharp
+                    Language = CodeFragmentLanguage.Net
                 }
             };
 
@@ -263,7 +275,7 @@ namespace GithubService.Services.Tests.Converters
             {
                 Codename = "hello-world",
                 Content = "Console.WriteLine(\"Hello World!\");",
-                Language = CodeFragmentLanguage.CSharp
+                Language = CodeFragmentLanguage.Net
             };
 
             var (newFragments, modifiedFragments, removedFragments) = _codeConverter.CompareFragmentLists(oldList, newList);

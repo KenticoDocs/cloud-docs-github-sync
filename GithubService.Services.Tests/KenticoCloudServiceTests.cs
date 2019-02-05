@@ -22,18 +22,24 @@ namespace GithubService.Services.Tests
         {
             Codename = CodeSampleGuid.ToString(),
             Content = "var the_answer = 42;",
-            Language = CodeFragmentLanguage.CSharp
+            Language = CodeFragmentLanguage.Net
         };
 
         private static readonly CodenameCodeFragments CodenameCodeFragments =
             new CodenameCodeFragments
             {
                 Codename = CodeFragment.Codename,
-                CodeFragments = new Dictionary<CodeFragmentLanguage, string>
+                CodeFragments = new List<CodeFragment>
                 {
-                    { CodeFragment.Language, CodeFragment.Content }
+                    CodeFragment
                 }
             };
+
+        private static readonly CodeSample CodeSample = new CodeSample
+        {
+            Code = CodeFragment.Content,
+            ProgrammingLanguage = new[] {TaxonomyTermIdentifier.ByCodename(CodeFragment.Language)}
+        };
 
         private static readonly CodeSamples CodeSamples = new CodeSamples
         {
@@ -66,9 +72,9 @@ namespace GithubService.Services.Tests
                 Throws(notFoundException);
             kcClient.CreateContentItemAsync(Arg.Any<ContentItemCreateModel>())
                 .Returns(ContentItem);
-            kcClient.GetCodeSamplesVariantAsync(Arg.Any<ContentItemModel>())
+            kcClient.GetVariantAsync<CodeSamples>(Arg.Any<ContentItemModel>())
                 .Throws(notFoundException);
-            kcClient.UpsertCodeSamplesVariantAsync(ContentItem, CodeSamples)
+            kcClient.UpsertVariantAsync(ContentItem, CodeSamples)
                 .Returns(CodeSamples);
 
             // Act
@@ -86,9 +92,9 @@ namespace GithubService.Services.Tests
             var kcClient = Substitute.For<IKenticoCloudClient>();
             kcClient.GetContentItemAsync(CodenameCodeFragments.Codename)
                 .Returns(ContentItem);
-            kcClient.GetCodeSamplesVariantAsync(Arg.Any<ContentItemModel>())
+            kcClient.GetVariantAsync<CodeSamples>(Arg.Any<ContentItemModel>())
                 .Returns(new CodeSamples());
-            kcClient.UpsertCodeSamplesVariantAsync(Arg.Any<ContentItemModel>(), Arg.Any<CodeSamples>())
+            kcClient.UpsertVariantAsync(Arg.Any<ContentItemModel>(), Arg.Any<CodeSamples>())
                 .Returns(CodeSamples);
 
             // Act
@@ -114,11 +120,11 @@ namespace GithubService.Services.Tests
             var kcClient = Substitute.For<IKenticoCloudClient>();
             kcClient.GetContentItemAsync(CodenameCodeFragments.Codename)
                 .Returns(ContentItem);
-            kcClient.GetCodeSamplesVariantAsync(Arg.Any<ContentItemModel>())
+            kcClient.GetVariantAsync<CodeSamples>(Arg.Any<ContentItemModel>())
                 .Returns(new CodeSamples());
             kcClient.When(x => x.CreateNewVersionOfDefaultVariantAsync(Arg.Any<ContentItemModel>()))
                 .Do(_ => createNewVersionCalled++);
-            kcClient.UpsertCodeSamplesVariantAsync(ContentItem, Arg.Any<CodeSamples>())
+            kcClient.UpsertVariantAsync(ContentItem, Arg.Any<CodeSamples>())
                 .Throws(kcClientException).AndDoes(_ => upsertCalled++);
 
             // Act
@@ -167,9 +173,9 @@ namespace GithubService.Services.Tests
             var kcClient = Substitute.For<IKenticoCloudClient>();
             kcClient.GetContentItemAsync(CodenameCodeFragments.Codename)
                 .Returns(ContentItem);
-            kcClient.GetCodeSamplesVariantAsync(Arg.Any<ContentItemModel>())
+            kcClient.GetVariantAsync<CodeSamples>(Arg.Any<ContentItemModel>())
                 .Returns(CodeSamples);
-            kcClient.UpsertCodeSamplesVariantAsync(ContentItem, CodeSamples)
+            kcClient.UpsertVariantAsync(ContentItem, CodeSamples)
                 .Throws(kcClientException);
 
             // Act
@@ -177,6 +183,128 @@ namespace GithubService.Services.Tests
 
             // Assert
             Assert.ThrowsAsync<ContentManagementException>(() => kcService.UpsertCodeFragmentsAsync(CodenameCodeFragments));
+        }
+
+        [Test]
+        public async Task UpsertCodeFragmentAsync_NoItem_CreatesCodeSample()
+        {
+            // Arrange
+            var notFoundException = new ContentManagementException(new HttpResponseMessage(HttpStatusCode.NotFound), string.Empty);
+
+            var kcClient = Substitute.For<IKenticoCloudClient>();
+            kcClient.GetContentItemAsync(CodeFragment.Codename).
+                Throws(notFoundException);
+            kcClient.CreateContentItemAsync(Arg.Any<ContentItemCreateModel>())
+                .Returns(ContentItem);
+            kcClient.UpsertVariantAsync(ContentItem, Arg.Any<CodeSample>())
+                .Returns(CodeSample);
+
+            // Act
+            var kcService = new KenticoCloudService(kcClient, _codeConverter);
+            var result = await kcService.UpsertCodeFragmentAsync(CodeFragment);
+
+            // Assert
+            Assert.AreEqual(CodeSample, result);
+        }
+
+        [Test]
+        public async Task UpsertCodeFragmentAsync_ExistingUnpublishedItem_UpdatesCodeSample()
+        {
+            // Arrange
+            var kcClient = Substitute.For<IKenticoCloudClient>();
+            kcClient.GetContentItemAsync(CodenameCodeFragments.Codename)
+                .Returns(ContentItem);
+            kcClient.GetVariantAsync<CodeSample>(Arg.Any<ContentItemModel>())
+                .Returns(new CodeSample());
+            kcClient.UpsertVariantAsync(Arg.Any<ContentItemModel>(), Arg.Any<CodeSample>())
+                .Returns(CodeSample);
+
+            // Act
+            var kcService = new KenticoCloudService(kcClient, _codeConverter);
+            var result = await kcService.UpsertCodeFragmentAsync(CodeFragment);
+
+            // Assert
+            Assert.AreEqual(CodeSample, result);
+        }
+
+        [Test]
+        public async Task UpsertCodeFragmentAsync_ExistingPublishedItem_CreatesNewVersion()
+        {
+            // Arrange
+            var responseMessage = new HttpResponseMessage(HttpStatusCode.InternalServerError)
+            {
+                ReasonPhrase = "Cannot update published content"
+            };
+            var kcClientException = new ContentManagementException(responseMessage, string.Empty);
+            var upsertCalled = 0;
+            var createNewVersionCalled = 0;
+
+            var kcClient = Substitute.For<IKenticoCloudClient>();
+            kcClient.GetContentItemAsync(CodenameCodeFragments.Codename)
+                .Returns(ContentItem);
+            kcClient.GetVariantAsync<CodeSample>(Arg.Any<ContentItemModel>())
+                .Returns(new CodeSample());
+            kcClient.When(x => x.CreateNewVersionOfDefaultVariantAsync(Arg.Any<ContentItemModel>()))
+                .Do(_ => createNewVersionCalled++);
+            kcClient.UpsertVariantAsync(ContentItem, Arg.Any<CodeSample>())
+                .Throws(kcClientException).AndDoes(_ => upsertCalled++);
+
+            // Act
+            try
+            {
+                var kcService = new KenticoCloudService(kcClient, _codeConverter);
+                await kcService.UpsertCodeFragmentAsync(CodeFragment);
+            }
+            catch (Exception)
+            {
+                // Do nothing as we need to check if the method was called twice
+                // This try-catch block is needed because we cannot change the kcClient
+                // mock during the UpsertCodeSamplesAsync method execution
+            }
+
+            // Assert
+            Assert.AreEqual(1, createNewVersionCalled);
+            Assert.AreEqual(2, upsertCalled);
+        }
+
+        [Test]
+        public void UpsertCodeFragmentAsync_UnknownExceptionInGetContentItemAsyncMethod_RethrowsException()
+        {
+            // Arrange
+            var kcClientException =
+                new ContentManagementException(new HttpResponseMessage(HttpStatusCode.InternalServerError), string.Empty);
+
+            var kcClient = Substitute.For<IKenticoCloudClient>();
+            kcClient.GetContentItemAsync(CodeFragment.Codename)
+                .Throws(kcClientException);
+
+            // Act
+            var kcService = new KenticoCloudService(kcClient, _codeConverter);
+
+            // Assert
+            Assert.ThrowsAsync<ContentManagementException>(() => kcService.UpsertCodeFragmentAsync(CodeFragment));
+        }
+
+        [Test]
+        public void UpsertCodeFragmentAsync_UnknownExceptionInUpsertCodeSampleVariantAsyncMethod_RethrowsException()
+        {
+            // Arrange
+            var kcClientException =
+                new ContentManagementException(new HttpResponseMessage(HttpStatusCode.InternalServerError), string.Empty);
+
+            var kcClient = Substitute.For<IKenticoCloudClient>();
+            kcClient.GetContentItemAsync(CodeFragment.Codename)
+                .Returns(ContentItem);
+            kcClient.GetVariantAsync<CodeSample>(Arg.Any<ContentItemModel>())
+                .Returns(CodeSample);
+            kcClient.UpsertVariantAsync(ContentItem, Arg.Any<CodeSample>())
+                .Throws(kcClientException);
+
+            // Act
+            var kcService = new KenticoCloudService(kcClient, _codeConverter);
+
+            // Assert
+            Assert.ThrowsAsync<ContentManagementException>(() => kcService.UpsertCodeFragmentAsync(CodeFragment));
         }
 
         [Test]
@@ -188,11 +316,11 @@ namespace GithubService.Services.Tests
             var kcClient = Substitute.For<IKenticoCloudClient>();
             kcClient.GetContentItemAsync(CodeFragment.Codename)
                 .Returns(ContentItem);
-            kcClient.GetCodeSamplesVariantAsync(ContentItem)
+            kcClient.GetVariantAsync<CodeSamples>(ContentItem)
                 .Returns(CodeSamples);
-            kcClient.UpsertCodeSamplesVariantAsync(Arg.Any<ContentItemModel>(), Arg.Any<CodeSamples>())
+            kcClient.UpsertVariantAsync(Arg.Any<ContentItemModel>(), Arg.Any<CodeSamples>())
                 .Returns(CodeSamples);
-            kcClient.When(client => client.UpsertCodeSamplesVariantAsync(ContentItem, Arg.Is<CodeSamples>(sample => sample.CSharp == string.Empty)))
+            kcClient.When(client => client.UpsertVariantAsync(ContentItem, Arg.Is<CodeSamples>(sample => sample.CSharp == string.Empty)))
                 .Do(_ => upserted = true);
 
             // Act
@@ -200,9 +328,9 @@ namespace GithubService.Services.Tests
             var codeFragmentsToRemove = new CodenameCodeFragments
             {
                 Codename = CodeFragment.Codename,
-                CodeFragments = new Dictionary<CodeFragmentLanguage, string>
+                CodeFragments = new List<CodeFragment>
                 {
-                    { CodeFragmentLanguage.CSharp, "This can be any text!" }
+                    new CodeFragment { Language = CodeFragmentLanguage.Net, Content = "This can be any text!" }
                 }
             };
             await kcService.RemoveCodeFragmentsAsync(codeFragmentsToRemove);
@@ -226,11 +354,11 @@ namespace GithubService.Services.Tests
             var kcClient = Substitute.For<IKenticoCloudClient>();
             kcClient.GetContentItemAsync(CodeFragment.Codename)
                 .Returns(ContentItem);
-            kcClient.GetCodeSamplesVariantAsync(ContentItem)
+            kcClient.GetVariantAsync<CodeSamples>(ContentItem)
                 .Returns(CodeSamples);
             kcClient.When(client => client.CreateNewVersionOfDefaultVariantAsync(Arg.Any<ContentItemModel>()))
                 .Do(_ => createNewVersionCalled++);
-            kcClient.UpsertCodeSamplesVariantAsync(ContentItem, Arg.Is<CodeSamples>(sample => sample.CSharp == string.Empty))
+            kcClient.UpsertVariantAsync(ContentItem, Arg.Is<CodeSamples>(sample => sample.CSharp == string.Empty))
                 .Throws(kcClientException).AndDoes(_ => upsertCalled++);
 
             // Act
@@ -240,12 +368,76 @@ namespace GithubService.Services.Tests
                 var codeFragmentsToRemove = new CodenameCodeFragments
                 {
                     Codename = CodeFragment.Codename,
-                    CodeFragments = new Dictionary<CodeFragmentLanguage, string>
-                {
-                    { CodeFragmentLanguage.CSharp, "This can be any text!" }
-                }
+                    CodeFragments = new List<CodeFragment>
+                    {
+                        new CodeFragment { Language = CodeFragmentLanguage.Net, Content = "This can be any text!" }
+                    }
                 };
                 await kcService.RemoveCodeFragmentsAsync(codeFragmentsToRemove);
+            }
+            catch (Exception)
+            {
+                // Do nothing as we need to check if the method was called twice
+                // This try-catch block is needed because we cannot change the kcClient
+                // mock during the UpsertCodeBlockAsync method execution
+            }
+
+            // Assert
+            Assert.AreEqual(1, createNewVersionCalled);
+            Assert.AreEqual(2, upsertCalled);
+        }
+
+        [Test]
+        public async Task RemoveCodeFragmentAsync_CodeSampleVariantExists_RemovesCode()
+        {
+            // Arrange
+            var upserted = false;
+
+            var kcClient = Substitute.For<IKenticoCloudClient>();
+            kcClient.GetContentItemAsync(CodeFragment.Codename)
+                .Returns(ContentItem);
+            kcClient.GetVariantAsync<CodeSample>(ContentItem)
+                .Returns(CodeSample);
+            kcClient.UpsertVariantAsync(Arg.Any<ContentItemModel>(), Arg.Any<CodeSample>())
+                .Returns(CodeSample);
+            kcClient.When(client => client.UpsertVariantAsync(ContentItem, Arg.Is<CodeSample>(sample => sample.Code == string.Empty)))
+                .Do(_ => upserted = true);
+
+            // Act
+            var kcService = new KenticoCloudService(kcClient, _codeConverter);
+            await kcService.RemoveCodeFragmentAsync(CodeFragment);
+
+            // Assert
+            Assert.IsTrue(upserted);
+        }
+
+        [Test]
+        public async Task RemoveCodeFragmentAsync_CodeSampleVariantIsPublished_CreatesNewVariantWithRemovedCode()
+        {
+            // Arrange
+            var responseMessage = new HttpResponseMessage(HttpStatusCode.InternalServerError)
+            {
+                ReasonPhrase = "Cannot update published content"
+            };
+            var kcClientException = new ContentManagementException(responseMessage, string.Empty);
+            var upsertCalled = 0;
+            var createNewVersionCalled = 0;
+
+            var kcClient = Substitute.For<IKenticoCloudClient>();
+            kcClient.GetContentItemAsync(CodeFragment.Codename)
+                .Returns(ContentItem);
+            kcClient.GetVariantAsync<CodeSample>(ContentItem)
+                .Returns(CodeSample);
+            kcClient.When(client => client.CreateNewVersionOfDefaultVariantAsync(Arg.Any<ContentItemModel>()))
+                .Do(_ => createNewVersionCalled++);
+            kcClient.UpsertVariantAsync(ContentItem, Arg.Is<CodeSample>(sample => sample.Code == string.Empty))
+                .Throws(kcClientException).AndDoes(_ => upsertCalled++);
+
+            // Act
+            try
+            {
+                var kcService = new KenticoCloudService(kcClient, _codeConverter);
+                await kcService.RemoveCodeFragmentAsync(CodeFragment);
             }
             catch (Exception)
             {

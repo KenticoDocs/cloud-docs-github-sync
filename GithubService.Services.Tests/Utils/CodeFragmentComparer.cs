@@ -23,7 +23,7 @@ namespace GithubService.Services.Tests.Utils
             {
                 var hashCode = (obj.Codename != null ? obj.Codename.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (obj.Content != null ? obj.Content.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (int)obj.Language;
+                hashCode = (hashCode * 397) ^ (obj.Language != null ? obj.Language.GetHashCode() : 0);
 
                 return hashCode;
             }
