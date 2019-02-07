@@ -5,6 +5,9 @@ dist: trusty
 
 solution: KenticoCloudDocsGithubService.sln
 
+before_install:
+  - chmod +rx .travis/deploy.sh
+
 install:
   - dotnet tool install --global dotnet-sonarscanner
   - dotnet restore
@@ -17,16 +20,8 @@ script:
   - dotnet build
   - dotnet test GithubService.Services.Tests/GithubService.Services.Tests.csproj "--logger:trx;LogFileName=results.trx"
   - dotnet sonarscanner end /d:sonar.login="$SONAR_TOKEN" || true
-
-deploy:
-  - provider: azure_web_apps
-    site: kcd-github-service-live-dev
-    verbose: true
-    on: develop
-  - provider: azure_web_apps
-    site: kcd-github-service-live-master
-    verbose: true
-    on: master
+  - dotnet clean
+  - .travis/deploy.sh
 
 cache:
   directories:
