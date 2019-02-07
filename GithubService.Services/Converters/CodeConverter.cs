@@ -98,12 +98,12 @@ namespace GithubService.Services.Converters
             return textInfo.ToTitleCase(codename.Replace('_', ' '));
         }
 
-        private string GetLanguageContent(CodeFragmentLanguage language, CodenameCodeFragments codenameCodeFragments)
+        private static string GetLanguageContent(CodeFragmentLanguage language, CodenameCodeFragments codenameCodeFragments)
             => codenameCodeFragments.CodeFragments.ContainsKey(language)
                 ? codenameCodeFragments.CodeFragments[language]
                 : string.Empty;
 
-        private bool CompareCodeFragments(CodeFragment first, CodeFragment second)
+        private static bool CompareCodeFragments(CodeFragment first, CodeFragment second)
             => first.Codename == second.Codename &&
                first.Language == second.Language &&
                first.Type == second.Type;
