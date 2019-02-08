@@ -3,13 +3,13 @@ using GithubService.Services;
 using GithubService.Services.Clients;
 using GithubService.Services.Converters;
 using GithubService.Services.Parsers;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 
 namespace GithubService
 {
@@ -17,7 +17,8 @@ namespace GithubService
     {
         [FunctionName("kcd-github-service-initialize")]
         public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "post", Route = "kcd-github-service-initialize/{testAttribute?}")] HttpRequest request, string testAttribute,
+            [HttpTrigger(AuthorizationLevel.Function, "post", Route = "kcd-github-service-initialize/{testAttribute?}")] HttpRequest request,
+            string testAttribute,
             ILogger logger)
         {
             logger.LogInformation("Initialize called.");
