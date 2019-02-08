@@ -12,7 +12,6 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -25,18 +24,20 @@ namespace GithubService
     {
         [FunctionName("kcd-github-service-update")]
         public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] HttpRequest request,
+            [HttpTrigger(AuthorizationLevel.Function, "post", Route = "kcd-github-service-update/{testAttribute?}")] HttpRequest request,
+            string testAttribute,
             ILogger logger)
         {
             logger.LogInformation("Update called.");
 
+            var configuration = new Configuration.Configuration(testAttribute);
             var fileParser = new FileParser();
 
             // Get all the files from GitHub
             var githubClient = new GithubClient(
-                Environment.GetEnvironmentVariable("Github.RepositoryName"),
-                Environment.GetEnvironmentVariable("Github.RepositoryOwner"),
-                Environment.GetEnvironmentVariable("Github.AccessToken"));
+                configuration.GithubRepositoryName,
+                configuration.GithubRepositoryOwner,
+                configuration.GithubAccessToken);
             var githubService = new Services.GithubService(githubClient, fileParser);
 
             // Read Webhook message from GitHub
@@ -51,15 +52,14 @@ namespace GithubService
             var parser = new WebhookParser();
             var (addedFiles, modifiedFiles, removedFiles) = parser.ExtractFiles(webhookMessage);
 
-            var connectionString = Environment.GetEnvironmentVariable("Repository.ConnectionString");
+            var connectionString = configuration.RepositoryConnectionString;
             var codeFileRepository = await CodeFileRepository.CreateInstance(connectionString);
 
             var codeConverter = new CodeConverter();
             var kenticoCloudClient = new KenticoCloudClient(
-                Environment.GetEnvironmentVariable("KenticoCloud.ProjectId"),
-                Environment.GetEnvironmentVariable("KenticoCloud.ContentManagementApiKey"),
-                Environment.GetEnvironmentVariable("KenticoCloud.InternalApiKey")
-            );
+                configuration.KenticoCloudProjectId,
+                configuration.KenticoCloudContentManagementApiKy,
+                configuration.KenticoCloudInternalApiKey);
 
             var kenticoCloudService = new KenticoCloudService(kenticoCloudClient, codeConverter);
 
