@@ -25,19 +25,19 @@ namespace GithubService.Services.Parsers
                 return codeFile;
             }
 
-            var extractedLanguage = GetLanguage(filePath);
-            if (extractedLanguage == null)
+            var language = GetLanguage(filePath);
+            if (language == null)
             {
                 return codeFile;
             }
 
-            var sampleIdentifiers = ExtractSampleIdentifiers(content, extractedLanguage);
+            var sampleIdentifiers = ExtractSampleIdentifiers(content, language);
             if (sampleIdentifiers.Count == 0)
             {
                 return codeFile;
             }
 
-            ExtractCodeSamples(content, sampleIdentifiers, extractedLanguage, codeFile);
+            ExtractCodeSamples(content, sampleIdentifiers, language, codeFile);
 
             if (sampleIdentifiers.Count != codeFile.CodeFragments.Count)
             {

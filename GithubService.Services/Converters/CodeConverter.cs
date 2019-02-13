@@ -26,7 +26,7 @@ namespace GithubService.Services.Converters
                     codenameCodeFragments.Add(codename, new CodenameCodeFragments
                     {
                         Codename = codename,
-                        CodeFragments = new List<CodeFragment> {codeFragment}
+                        CodeFragments = new List<CodeFragment> { codeFragment }
                     });
                 }
             }

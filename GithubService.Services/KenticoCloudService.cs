@@ -85,14 +85,14 @@ namespace GithubService.Services
         public async Task<CodeSample> RemoveCodeFragmentAsync(CodeFragment fragment)
         {
             var contentItem = await _kcClient.GetContentItemAsync(fragment.Codename);
-            var codeSamples = await _kcClient.GetVariantAsync<CodeSample>(contentItem);
-            codeSamples.Code = string.Empty;
+            var codeSample = await _kcClient.GetVariantAsync<CodeSample>(contentItem);
+            codeSample.Code = string.Empty;
 
-            var updatedCodeSamples = await EnsureVariantAsync(contentItem, codeSamples);
+            var updatedCodeSample = await EnsureVariantAsync(contentItem, codeSample);
 
             // TODO: Send to new workflow step, once it's defined
 
-            return updatedCodeSamples;
+            return updatedCodeSample;
         }
 
         private async Task<ContentItemModel> EnsureItemAsync(string codename, string contentType)
