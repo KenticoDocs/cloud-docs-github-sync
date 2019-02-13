@@ -21,24 +21,31 @@ namespace GithubService.Services
 
         public async Task<CodeSamples> UpsertCodeFragmentsAsync(CodenameCodeFragments fragments)
         {
-            var contentItem = await EnsureCodeSamplesItemAsync(fragments.Codename);
+            var contentItem = await EnsureItemAsync(fragments.Codename, "code_samples");
 
             return await EnsureCodeSamplesVariantAsync(contentItem, fragments);
+        }
+
+        public async Task<CodeSample> UpsertCodeFragmentAsync(CodeFragment fragment)
+        {
+            var contentItem = await EnsureItemAsync(fragment.Codename, "code_sample");
+
+            return await EnsureCodeSampleVariantAsync(contentItem, fragment);
         }
 
         public async Task<CodeSamples> RemoveCodeFragmentsAsync(CodenameCodeFragments fragments)
         {
             var contentItem = await _kcClient.GetContentItemAsync(fragments.Codename);
-            var codeSamples = await _kcClient.GetCodeSamplesVariantAsync(contentItem);
+            var codeSamples = await _kcClient.GetVariantAsync<CodeSamples>(contentItem);
 
             foreach (var codeFragment in fragments.CodeFragments)
             {
-                switch (codeFragment.Key)
+                switch (codeFragment.Language)
                 {
-                    case CodeFragmentLanguage.CUrl:
+                    case CodeFragmentLanguage.Curl:
                         codeSamples.Curl = string.Empty;
                         break;
-                    case CodeFragmentLanguage.CSharp:
+                    case CodeFragmentLanguage.Net:
                         codeSamples.CSharp = string.Empty;
                         break;
                     case CodeFragmentLanguage.JavaScript:
@@ -53,7 +60,7 @@ namespace GithubService.Services
                     case CodeFragmentLanguage.JavaRx:
                         codeSamples.JavaRx = string.Empty;
                         break;
-                    case CodeFragmentLanguage.PHP:
+                    case CodeFragmentLanguage.Php:
                         codeSamples.PHP = string.Empty;
                         break;
                     case CodeFragmentLanguage.Swift:
@@ -65,7 +72,7 @@ namespace GithubService.Services
                 }
             }
 
-            var updatedCodeSamples = await EnsureCodeSamplesVariantAsync(contentItem, codeSamples);
+            var updatedCodeSamples = await EnsureVariantAsync(contentItem, codeSamples);
 
             if (IsReadyToUnpublish(updatedCodeSamples))
             {
@@ -75,7 +82,20 @@ namespace GithubService.Services
             return updatedCodeSamples;
         }
 
-        private async Task<ContentItemModel> EnsureCodeSamplesItemAsync(string codename)
+        public async Task<CodeSample> RemoveCodeFragmentAsync(CodeFragment fragment)
+        {
+            var contentItem = await _kcClient.GetContentItemAsync(fragment.Codename);
+            var codeSample = await _kcClient.GetVariantAsync<CodeSample>(contentItem);
+            codeSample.Code = string.Empty;
+
+            var updatedCodeSample = await EnsureVariantAsync(contentItem, codeSample);
+
+            // TODO: Send to new workflow step, once it's defined
+
+            return updatedCodeSample;
+        }
+
+        private async Task<ContentItemModel> EnsureItemAsync(string codename, string contentType)
         {
             try
             {
@@ -90,7 +110,7 @@ namespace GithubService.Services
                 // Content item doesn't exist in KC -> create it
                 var codeSamplesItem = new ContentItemCreateModel
                 {
-                    Type = ContentTypeIdentifier.ByCodename("code_samples"),
+                    Type = ContentTypeIdentifier.ByCodename(contentType),
                     Name = _codeConverter.ConvertCodenameToItemName(codename)
                 };
                 return await _kcClient.CreateContentItemAsync(codeSamplesItem);
@@ -105,7 +125,7 @@ namespace GithubService.Services
             try
             {
                 // Try to get the variant from KC
-                existingCodeSamples = await _kcClient.GetCodeSamplesVariantAsync(contentItem);
+                existingCodeSamples = await _kcClient.GetVariantAsync<CodeSamples>(contentItem);
             }
             catch (ContentManagementException exception)
             {
@@ -114,20 +134,31 @@ namespace GithubService.Services
 
                 // Content variant doesn't exist -> create in KC
                 newCodeSamples = _codeConverter.ConvertToCodeSamples(fragments);
-                return await _kcClient.UpsertCodeSamplesVariantAsync(contentItem, newCodeSamples);
+                return await _kcClient.UpsertVariantAsync(contentItem, newCodeSamples);
             }
 
             newCodeSamples = UpdateValuesInCodeSamples(existingCodeSamples, fragments);
 
-            return await EnsureCodeSamplesVariantAsync(contentItem, newCodeSamples);
+            return await EnsureVariantAsync(contentItem, newCodeSamples);
         }
 
-        private async Task<CodeSamples> EnsureCodeSamplesVariantAsync(ContentItemModel contentItem, CodeSamples codeSamples)
+        private async Task<CodeSample> EnsureCodeSampleVariantAsync(ContentItemModel contentItem, CodeFragment fragment)
+        {
+            var newCodeSample = new CodeSample
+            {
+                ProgrammingLanguage = new [] { TaxonomyTermIdentifier.ByCodename(fragment.Language) },
+                Code = fragment.Content
+            };
+
+            return await EnsureVariantAsync(contentItem, newCodeSample);
+        }
+
+        private async Task<T> EnsureVariantAsync<T>(ContentItemModel contentItem, T variant) where T : new()
         {
             try
             {
                 // Try to update the content variant in KC
-                return await _kcClient.UpsertCodeSamplesVariantAsync(contentItem, codeSamples);
+                return await _kcClient.UpsertVariantAsync(contentItem, variant);
             }
             catch (ContentManagementException exception)
             {
@@ -138,7 +169,7 @@ namespace GithubService.Services
                 await _kcClient.CreateNewVersionOfDefaultVariantAsync(contentItem);
 
                 // The content variant should be updated correctly now
-                return await _kcClient.UpsertCodeSamplesVariantAsync(contentItem, codeSamples);
+                return await _kcClient.UpsertVariantAsync(contentItem, variant);
             }
         }
 
@@ -156,34 +187,34 @@ namespace GithubService.Services
         {
             foreach (var codeFragment in fragments.CodeFragments)
             {
-                switch (codeFragment.Key)
+                switch (codeFragment.Language)
                 {
-                    case CodeFragmentLanguage.CUrl:
-                        codeSamples.Curl = codeFragment.Value;
+                    case CodeFragmentLanguage.Curl:
+                        codeSamples.Curl = codeFragment.Content;
                         break;
-                    case CodeFragmentLanguage.CSharp:
-                        codeSamples.CSharp = codeFragment.Value;
+                    case CodeFragmentLanguage.Net:
+                        codeSamples.CSharp = codeFragment.Content;
                         break;
                     case CodeFragmentLanguage.JavaScript:
-                        codeSamples.JavaScript = codeFragment.Value;
+                        codeSamples.JavaScript = codeFragment.Content;
                         break;
                     case CodeFragmentLanguage.TypeScript:
-                        codeSamples.TypeScript = codeFragment.Value;
+                        codeSamples.TypeScript = codeFragment.Content;
                         break;
                     case CodeFragmentLanguage.Java:
-                        codeSamples.Java = codeFragment.Value;
+                        codeSamples.Java = codeFragment.Content;
                         break;
                     case CodeFragmentLanguage.JavaRx:
-                        codeSamples.JavaRx = codeFragment.Value;
+                        codeSamples.JavaRx = codeFragment.Content;
                         break;
-                    case CodeFragmentLanguage.PHP:
-                        codeSamples.PHP = codeFragment.Value;
+                    case CodeFragmentLanguage.Php:
+                        codeSamples.PHP = codeFragment.Content;
                         break;
                     case CodeFragmentLanguage.Swift:
-                        codeSamples.Swift = codeFragment.Value;
+                        codeSamples.Swift = codeFragment.Content;
                         break;
                     case CodeFragmentLanguage.Ruby:
-                        codeSamples.Ruby = codeFragment.Value;
+                        codeSamples.Ruby = codeFragment.Content;
                         break;
                 }
             }

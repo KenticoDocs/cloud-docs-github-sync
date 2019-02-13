@@ -6,7 +6,7 @@
 
         public string Content { get; set; }
 
-        public CodeFragmentLanguage Language { get; set; }
+        public string Language { get; set; }
 
         public CodeFragmentType Type { get; set; }
 

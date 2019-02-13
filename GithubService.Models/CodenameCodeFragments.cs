@@ -6,6 +6,6 @@ namespace GithubService.Models
     {
         public string Codename { get; set; }
 
-        public Dictionary<CodeFragmentLanguage, string> CodeFragments { get; set; }
+        public List<CodeFragment> CodeFragments { get; set; }
     }
 }

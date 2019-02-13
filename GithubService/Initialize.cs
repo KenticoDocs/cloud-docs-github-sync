@@ -10,6 +10,7 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using System.Linq;
 using System.Threading.Tasks;
+using GithubService.Shared;
 
 namespace GithubService
 {
@@ -44,7 +45,6 @@ namespace GithubService
             }
 
             var codeConverter = new CodeConverter();
-            var fragmentsByCodename = codeConverter.ConvertToCodenameCodeFragments(codeFiles.SelectMany(file => file.CodeFragments));
 
             // Create/update appropriate KC items
             var kenticoCloudClient = new KenticoCloudClient(
@@ -54,10 +54,13 @@ namespace GithubService
 
             var kenticoCloudService = new KenticoCloudService(kenticoCloudClient, codeConverter);
 
-            foreach (var fragments in fragmentsByCodename)
-            {
-                await kenticoCloudService.UpsertCodeFragmentsAsync(fragments);
-            }
+            var fragmentsToUpsert = codeFiles.SelectMany(file => file.CodeFragments);
+
+            await KenticoCloudUtils.ExecuteCodeFragmentChanges(
+                kenticoCloudService.UpsertCodeFragmentsAsync,
+                kenticoCloudService.UpsertCodeFragmentAsync,
+                fragmentsToUpsert
+            );
 
             return new OkObjectResult("Initialized.");
         }

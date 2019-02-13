@@ -2,6 +2,7 @@
 using NUnit.Framework.Constraints;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace GithubService.Services.Tests.Utils
 {
@@ -27,8 +28,8 @@ namespace GithubService.Services.Tests.Utils
 
                 foreach (var codeSample in x.CodeFragments)
                 {
-                    var secondSample = y.CodeFragments[codeSample.Key];
-                    codeSamplesEqual = codeSamplesEqual && codeSample.Value == secondSample;
+                    var secondSample = y.CodeFragments.First(fragment => fragment.Language == codeSample.Language).Content;
+                    codeSamplesEqual = codeSamplesEqual && codeSample.Content == secondSample;
                 }
 
                 return string.Equals(x.Codename, y.Codename) && codeSamplesEqual;

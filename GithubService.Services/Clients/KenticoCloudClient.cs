@@ -1,5 +1,4 @@
-﻿using GithubService.Models.KenticoCloud;
-using GithubService.Services.Interfaces;
+﻿using GithubService.Services.Interfaces;
 using KenticoCloud.ContentManagement;
 using KenticoCloud.ContentManagement.Models.Items;
 using System.Threading.Tasks;
@@ -28,17 +27,17 @@ namespace GithubService.Services.Clients
         public async Task<ContentItemModel> CreateContentItemAsync(ContentItemCreateModel contentItem)
             => await _contentManagementClient.CreateContentItemAsync(contentItem);
         
-        public async Task<CodeSamples> GetCodeSamplesVariantAsync(ContentItemModel contentItem)
+        public async Task<T> GetVariantAsync<T>(ContentItemModel contentItem) where T : new()
         {
             var identifier = new ContentItemVariantIdentifier(ContentItemIdentifier.ById(contentItem.Id), LanguageIdentifier.DEFAULT_LANGUAGE);
-            var response = await _contentManagementClient.GetContentItemVariantAsync<CodeSamples>(identifier);
+            var response = await _contentManagementClient.GetContentItemVariantAsync<T>(identifier);
             return response.Elements;
         }
 
-        public async Task<CodeSamples> UpsertCodeSamplesVariantAsync(ContentItemModel contentItem, CodeSamples codeSamples)
+        public async Task<T> UpsertVariantAsync<T>(ContentItemModel contentItem, T variant) where T : new()
         {
             var identifier = new ContentItemVariantIdentifier(ContentItemIdentifier.ById(contentItem.Id), LanguageIdentifier.DEFAULT_LANGUAGE);
-            var response = await _contentManagementClient.UpsertContentItemVariantAsync(identifier, codeSamples);
+            var response = await _contentManagementClient.UpsertContentItemVariantAsync(identifier, variant);
             return response.Elements;
         }
 
