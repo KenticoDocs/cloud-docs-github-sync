@@ -17,7 +17,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using GithubService.Shared;
+using GithubService.Utils;
 
 namespace GithubService
 {

@@ -10,7 +10,7 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using System.Linq;
 using System.Threading.Tasks;
-using GithubService.Shared;
+using GithubService.Utils;
 
 namespace GithubService
 {

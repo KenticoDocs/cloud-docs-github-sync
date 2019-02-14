@@ -12,7 +12,7 @@ namespace GithubService.Models.KenticoCloud
     {
         [JsonProperty("curl")]
         public string Curl { get; set; }
-        [JsonProperty("csharp")]
+        [JsonProperty("_net")]
         public string CSharp { get; set; }
         [JsonProperty("javascript")]
         public string JavaScript { get; set; }

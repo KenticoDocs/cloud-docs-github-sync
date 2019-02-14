@@ -13,8 +13,8 @@ namespace GithubService.Repository
 {
     public class CodeFileRepository : ICodeFileRepository
     {
-        private static readonly string TableName = "CodeFile";
-        private static readonly string EntityRowKey = "cf";
+        private const string TableName = "CodeFile";
+        private const string EntityRowKey = "cf";
 
         private readonly CloudTable _codeFileTable;
 

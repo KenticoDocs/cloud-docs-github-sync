@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using GithubService.Models;
 using GithubService.Services.Converters;
 
-namespace GithubService.Shared
+namespace GithubService.Utils
 {
     internal static class KenticoCloudUtils
     {
