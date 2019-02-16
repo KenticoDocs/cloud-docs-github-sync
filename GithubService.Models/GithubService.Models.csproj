@@ -2,8 +2,9 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
+	 <!-- SonarQube needs this -->
+	<ProjectGuid>{22924534-5d04-4591-be51-baa389ea5064}</ProjectGuid>
   </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="KenticoCloud.ContentManagement" Version="1.5.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />

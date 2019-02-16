@@ -5,26 +5,43 @@ dist: trusty
 
 solution: KenticoCloudDocsGithubService.sln
 
-cache:
-  directories:
-    - '$HOME/.nuget/packages'
-    - '$HOME/.local/share/NuGet/Cache'
-    - '$HOME/.sonar/cache'
+git:
+  depth: false
+
+env:  
+  global:
+    - SONAR_CONFIG_PATH="$TRAVIS_BUILD_DIR/sonar-cloud.xml"
 
 jobs:
   include:
-    - stage: "Tests"
+    - stage: "Build and Tests"
+
+      before_install:
+        - chmod +rx .travis/sonar-configurator.sh
+
       install:
+        - .travis/sonar-configurator.sh "$SONAR_CONFIG_PATH"
         - dotnet tool install --global dotnet-sonarscanner
-        - dotnet restore
-      before_script:
         - export PATH="$PATH:$HOME/.dotnet/tools"
+        - dotnet restore
+      
       script:
-        - dotnet sonarscanner begin /k:"kentico-cloud-docs-github-sync" /n:"GitHub Sync" /v:"1.0.0" /o:"kentico-cloud-docs" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="$SONAR_TOKEN" /d:sonar.language="cs" /d:sonar.branch.name="$TRAVIS_BRANCH" /d:sonar.exclusions="**/bin/**/*,**/obj/**/*" /d:sonar.cs.opencover.reportsPaths="lcov.opencover.xml" || true
+        - dotnet sonarscanner begin /k:"Kentico_kentico-cloud-docs-github-sync" /d:sonar.login="$SONAR_TOKEN" /s:"$SONAR_CONFIG_PATH"
         - dotnet build
         - dotnet test GithubService.Services.Tests/GithubService.Services.Tests.csproj "--logger:trx;LogFileName=results.trx"
-        - dotnet sonarscanner end /d:sonar.login="$SONAR_TOKEN" || true
+        - dotnet sonarscanner end /d:sonar.login="$SONAR_TOKEN"
+    
     - stage: "Deployment"
       if: type != pull_request AND (branch = master OR branch = develop)
-      before_install: chmod +rx .travis/deploy.sh
-      script: .travis/deploy.sh
+
+      before_script: 
+        - chmod +rx .travis/deploy.sh
+
+      script: 
+        - .travis/deploy.sh
+
+cache:
+  directories:
+    - "$HOME/.nuget/packages"
+    - "$HOME/.local/share/NuGet/Cache"
+    - "$HOME/.sonar/cache"
