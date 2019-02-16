@@ -1,6 +1,7 @@
 | [master](https://github.com/Kentico/kentico-cloud-docs-github-sync/tree/master) | [develop](https://github.com/Kentico/kentico-cloud-docs-github-sync/tree/develop) |
 |:---:|:---:|
-| [![Build Status](https://travis-ci.org/Kentico/kentico-cloud-docs-github-sync.svg?branch=master)](https://travis-ci.org/Kentico/kentico-cloud-docs-github-sync/branches) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=kentico-cloud-docs-github-sync&metric=alert_status)](https://sonarcloud.io/dashboard?id=kentico-cloud-docs-github-sync) | [![Build Status](https://travis-ci.org/Kentico/kentico-cloud-docs-github-sync.svg?branch=develop)](https://travis-ci.org/Kentico/kentico-cloud-docs-github-sync/branches) |
+| [![Build Status](https://travis-ci.com/Kentico/kentico-cloud-docs-github-sync.svg?branch=master)](https://travis-ci.com/Kentico/kentico-cloud-docs-github-sync/branches) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?branch=master&project=Kentico_kentico-cloud-docs-github-sync&metric=alert_status)](https://sonarcloud.io/dashboard?id=Kentico_kentico-cloud-docs-github-sync&branch=master) | [![Build Status](https://travis-ci.com/Kentico/kentico-cloud-docs-github-sync.svg?branch=develop)](https://travis-ci.com/Kentico/kentico-cloud-docs-github-sync/branches) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?branch=develop&project=Kentico_kentico-cloud-docs-github-sync&metric=alert_status)](https://sonarcloud.io/dashboard?id=Kentico_kentico-cloud-docs-github-sync&branch=develop) |
+
 
 # Kentico Cloud Documentation - GitHub Sync
 
