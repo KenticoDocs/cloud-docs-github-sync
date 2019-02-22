@@ -25,6 +25,6 @@ jobs:
         - dotnet test GithubService.Services.Tests/GithubService.Services.Tests.csproj "--logger:trx;LogFileName=results.trx"
         - dotnet sonarscanner end /d:sonar.login="$SONAR_TOKEN" || true
     - stage: "Deployment"
-      if: branch = master OR branch = develop
+      if: type != pull_request AND (branch = master OR branch = develop)
       before_install: chmod +rx .travis/deploy.sh
       script: .travis/deploy.sh
