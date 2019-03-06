@@ -17,7 +17,7 @@ namespace GithubService.Services.Tests.Parsers
         public void ParseContent_ParsesFileWithOneCodeSample(string language, string filePath)
         {
             var comment = language.GetCommentPrefix();
-            var sampleFile = $"{comment} DocSection: multiple_hello\nanything \n{comment} EndDocSection";
+            var sampleFile = $"{comment} DocSection: hello\nanything \n{comment} EndDocSection";
             var expectedOutput = new CodeFile
             {
                 CodeFragments = new List<CodeFragment>
@@ -25,8 +25,7 @@ namespace GithubService.Services.Tests.Parsers
                     new CodeFragment
                     {
                         Language = language,
-                        Codename = "hello",
-                        Type = CodeFragmentType.Multiple,
+                        Codename = "hello" + "_" + language.GetLanguageCodenameTag(),
                         Content = "anything"
                     }
                 },
@@ -44,71 +43,26 @@ namespace GithubService.Services.Tests.Parsers
         {
             var comment = language.GetCommentPrefix();
             var sampleFile =
-$@"{comment} DocSection: multiple_hello_world
+$@"{comment} DocSection: hello_world
 console.log(""Hello Kentico Cloud"");
 {comment} EndDocSection
-{comment} DocSection: single_create-integer-long-codename123
+{comment} DocSection: create-integer-long-codename123
 int abcd = 12345;
 {comment} EndDocSection
-{comment} DocSection: single_create-integer
+{comment} DocSection: create-integer
 int i = 1000;
 {comment} EndDocSection
-{comment} DocSection: multiple_create-integer
+{comment} DocSection: create-integer
 int i = 10;
 int j = 14;
 {comment} EndDocSection
-{comment} DocSection: single_create-integer-variable
+{comment} DocSection: create-integer-variable
 import com.kenticocloud.delivery;
 DeliveryClient client = new DeliveryClient(""<YOUR_PROJECT_ID>"", ""<YOUR_PREVIEW_API_KEY>"");
 {comment} EndDocSection
   ";
 
-            var expectedOutput = new CodeFile
-            {
-                CodeFragments = new List<CodeFragment>
-                {
-                    new CodeFragment
-                    {
-                        Language = language,
-                        Codename = "hello_world",
-                        Type = CodeFragmentType.Multiple,
-                        Content = "console.log(\"Hello Kentico Cloud\");"
-                    },
-                    new CodeFragment
-                    {
-                        Language = language,
-                        Codename = "create-integer-long-codename123",
-                        Type = CodeFragmentType.Single,
-                        Content = "int abcd = 12345;"
-                    },
-                    new CodeFragment
-                    {
-                        Language = language,
-                        Codename = "create-integer",
-                        Type = CodeFragmentType.Single,
-                        Content = "int i = 1000;"
-                    },
-                    new CodeFragment
-                    {
-                        Language = language,
-                        Codename = "create-integer",
-                        Type = CodeFragmentType.Multiple,
-                        Content = $"int i = 10;{Environment.NewLine}int j = 14;"
-                    },
-                    new CodeFragment
-                    {
-                        Language = language,
-                        Codename = "create-integer-variable",
-                        Type = CodeFragmentType.Single,
-                        Content = $"import com.kenticocloud.delivery;{Environment.NewLine}DeliveryClient client = new DeliveryClient(\"<YOUR_PROJECT_ID>\", \"<YOUR_PREVIEW_API_KEY>\");"
-                    }
-                },
-                FilePath = filePath
-            };
-
-            var actualOutput = _parser.ParseContent(filePath, sampleFile);
-
-            Assert.That(actualOutput, Is.EqualTo(expectedOutput).UsingCodeSampleFileComparer());
+            Assert.Throws<ArgumentException>(() => _parser.ParseContent(filePath, sampleFile));
         }
 
         [TestCase(CodeFragmentLanguage.JavaScript, "js/file.js")]
@@ -117,7 +71,7 @@ DeliveryClient client = new DeliveryClient(""<YOUR_PROJECT_ID>"", ""<YOUR_PREVIE
         {
             var comment = language.GetCommentPrefix();
             var sampleFile =
-$@"   {comment} DocSection: multiple_special_
+$@"   {comment} DocSection: special_
 ;0123456789.*?()<>@/'
 
 	\|%$&:+-;~`!#^_{{}}[], //
@@ -130,8 +84,7 @@ $@"   {comment} DocSection: multiple_special_
                     new CodeFragment
                     {
                         Language = language,
-                        Codename = "special_",
-                        Type = CodeFragmentType.Multiple,
+                        Codename = "special_" + "_" + language.GetLanguageCodenameTag(),
                         Content = $";0123456789.*?()<>@/'{Environment.NewLine}{Environment.NewLine}\t\a\b\f\v\\|%$&:+-;~`!#^_{{}}[], //"
                     }
                 },
@@ -153,8 +106,7 @@ $@"   {comment} DocSection: multiple_special_
                     new CodeFragment
                     {
                         Language = CodeFragmentLanguage.JavaRx,
-                        Codename = "content_unpublishing",
-                        Type = CodeFragmentType.Multiple,
+                        Codename = "content_unpublishing"  + "_" + CodeFragmentLanguage.JavaRx,
                         Content = ComplexCodeSample,
                     }
                 },
@@ -213,18 +165,16 @@ $@"   {comment} DocSection: multiple_special_
 
         [TestCase(null)]
         [TestCase("")]
-        public void ParseContent_InvalidFilePath_ThrowsArgumentException(string filePath)
-        {
-            Assert.Throws<ArgumentException>(() => _parser.ParseContent(filePath, "some content"));
-        }
+        public void ParseContent_InvalidFilePath_ThrowsArgumentException(string filePath) 
+            => Assert.Throws<ArgumentException>(() => _parser.ParseContent(filePath, "some content"));
 
         [Test]
         public void ParseContent_NestedSamples_ThrowsArgumentException()
         {
             const string fileContent =
-@"// DocSection: multiple_hello-world
+@"// DocSection: hello-world
 console.log(""Hello Kentico Cloud, from Javascript"");
-// DocSection: multiple_create-integer
+// DocSection: create-integer
 int i = 10;
 int j = 14;
 // EndDocSection
@@ -238,9 +188,9 @@ int j = 14;
         public void ParseContent_IntersectedSamples_ThrowsArgumentException()
         {
             const string fileContent =
-@"// DocSection: multiple_hello-world
+@"// DocSection: hello-world
 console.log(""Hello Kentico Cloud, from Javascript"");
-// DocSection: multiple_create-integer
+// DocSection: create-integer
 int i = 10;
 int j = 14;
 // EndDocSection
@@ -250,19 +200,6 @@ int j = 14;
             Assert.Throws<ArgumentException>(() => _parser.ParseContent("js/file.js", fileContent));
         }
 
-        [Test]
-        public void ParseContent_InvalidSampleType_ThrowsArgumentException()
-        {
-            const string fileContent =
-@"// DocSection: invalid_hello-world
-console.log(""Hello Kentico Cloud, from Javascript"");
-int i = 10;
-int j = 14;
-// EndDocSection
-";
-
-            Assert.Throws<ArgumentException>(() => _parser.ParseContent("js/file.js", fileContent));
-        }
 
         [Test]
         public void ParseContent_ThrowsIfMarkingIsNotProperlyClosed()
@@ -273,7 +210,7 @@ int j = 14;
         }
 
         private const string ComplexSampleFile =
-@"// DocSection: multiple_content_unpublishing
+@"// DocSection: content_unpublishing
 
 import com.kenticocloud.delivery_core.*;
     import com.kenticocloud.delivery_rx.*;

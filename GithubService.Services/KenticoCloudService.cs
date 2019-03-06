@@ -3,6 +3,7 @@ using GithubService.Models.KenticoCloud;
 using GithubService.Services.Interfaces;
 using KenticoCloud.ContentManagement.Exceptions;
 using KenticoCloud.ContentManagement.Models.Items;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -19,13 +20,6 @@ namespace GithubService.Services
             _codeConverter = codeConverter;
         }
 
-        public async Task<CodeSamples> UpsertCodeFragmentsAsync(CodenameCodeFragments fragments)
-        {
-            var contentItem = await EnsureItemAsync(fragments.Codename, "code_samples");
-
-            return await EnsureCodeSamplesVariantAsync(contentItem, fragments);
-        }
-
         public async Task<CodeSample> UpsertCodeFragmentAsync(CodeFragment fragment)
         {
             var contentItem = await EnsureItemAsync(fragment.Codename, "code_sample");
@@ -33,64 +27,22 @@ namespace GithubService.Services
             return await EnsureCodeSampleVariantAsync(contentItem, fragment);
         }
 
-        public async Task<CodeSamples> RemoveCodeFragmentsAsync(CodenameCodeFragments fragments)
+        public async Task<CodeSamples> UpsertCodenameCodeFragmentsAsync(CodenameCodeFragments fragments)
         {
-            var contentItem = await _kcClient.GetContentItemAsync(fragments.Codename);
-            var codeSamples = await _kcClient.GetVariantAsync<CodeSamples>(contentItem);
-
-            foreach (var codeFragment in fragments.CodeFragments)
-            {
-                switch (codeFragment.Language)
-                {
-                    case CodeFragmentLanguage.Curl:
-                        codeSamples.Curl = string.Empty;
-                        break;
-                    case CodeFragmentLanguage.Net:
-                        codeSamples.CSharp = string.Empty;
-                        break;
-                    case CodeFragmentLanguage.JavaScript:
-                        codeSamples.JavaScript = string.Empty;
-                        break;
-                    case CodeFragmentLanguage.TypeScript:
-                        codeSamples.TypeScript = string.Empty;
-                        break;
-                    case CodeFragmentLanguage.Java:
-                        codeSamples.Java = string.Empty;
-                        break;
-                    case CodeFragmentLanguage.JavaRx:
-                        codeSamples.JavaRx = string.Empty;
-                        break;
-                    case CodeFragmentLanguage.Php:
-                        codeSamples.PHP = string.Empty;
-                        break;
-                    case CodeFragmentLanguage.Swift:
-                        codeSamples.Swift = string.Empty;
-                        break;
-                    case CodeFragmentLanguage.Ruby:
-                        codeSamples.Ruby = string.Empty;
-                        break;
-                }
-            }
-
-            var updatedCodeSamples = await EnsureVariantAsync(contentItem, codeSamples);
-
-            if (IsReadyToUnpublish(updatedCodeSamples))
-            {
-                // TODO: Send to new workflow step, once it's defined
-            }
-
-            return updatedCodeSamples;
+            var contentItem = await EnsureItemAsync(fragments.Codename, "code_samples");
+            
+            return await EnsureCodeSamplesVariantAsync(contentItem, fragments.CodeFragments);
         }
 
         public async Task<CodeSample> RemoveCodeFragmentAsync(CodeFragment fragment)
-        {
+        { 
             var contentItem = await _kcClient.GetContentItemAsync(fragment.Codename);
             var codeSample = await _kcClient.GetVariantAsync<CodeSample>(contentItem);
             codeSample.Code = string.Empty;
 
             var updatedCodeSample = await EnsureVariantAsync(contentItem, codeSample);
 
-            // TODO: Send to new workflow step, once it's defined
+            // TODO: Send to new workflow step, once it's defined	
 
             return updatedCodeSample;
         }
@@ -117,27 +69,33 @@ namespace GithubService.Services
             }
         }
 
-        private async Task<CodeSamples> EnsureCodeSamplesVariantAsync(ContentItemModel contentItem, CodenameCodeFragments fragments)
+        private async Task<CodeSamples> EnsureCodeSamplesVariantAsync(ContentItemModel contentItem, List<CodeFragment> fragments)
         {
-            CodeSamples existingCodeSamples;
-            CodeSamples newCodeSamples;
+            var cloudCodeSamples = new List<ContentItemIdentifier>();
+            var linkedCodeSamples = new List<ContentItemIdentifier>();
 
             try
             {
-                // Try to get the variant from KC
-                existingCodeSamples = await _kcClient.GetVariantAsync<CodeSamples>(contentItem);
+                var retrievedCodeSample = await _kcClient.GetVariantAsync<CodeSamples>(contentItem);
+                cloudCodeSamples.AddRange(retrievedCodeSample.Samples);
             }
             catch (ContentManagementException exception)
             {
                 if (exception.StatusCode != HttpStatusCode.NotFound)
                     throw;
-
-                // Content variant doesn't exist -> create in KC
-                newCodeSamples = _codeConverter.ConvertToCodeSamples(fragments);
-                return await _kcClient.UpsertVariantAsync(contentItem, newCodeSamples);
             }
 
-            newCodeSamples = UpdateValuesInCodeSamples(existingCodeSamples, fragments);
+            foreach(var fragment in fragments)
+            {
+                linkedCodeSamples.Add(ContentItemIdentifier.ByCodename(fragment.Codename));
+            }
+
+            linkedCodeSamples.AddRange(cloudCodeSamples);
+
+            var newCodeSamples = new CodeSamples
+            {
+                Samples = linkedCodeSamples
+            };
 
             return await EnsureVariantAsync(contentItem, newCodeSamples);
         }
@@ -171,55 +129,6 @@ namespace GithubService.Services
                 // The content variant should be updated correctly now
                 return await _kcClient.UpsertVariantAsync(contentItem, variant);
             }
-        }
-
-        private bool IsReadyToUnpublish(CodeSamples codeSamples)
-            => string.IsNullOrEmpty(codeSamples.Curl) &&
-               string.IsNullOrEmpty(codeSamples.CSharp) &&
-               string.IsNullOrEmpty(codeSamples.Java) &&
-               string.IsNullOrEmpty(codeSamples.JavaRx) &&
-               string.IsNullOrEmpty(codeSamples.JavaScript) &&
-               string.IsNullOrEmpty(codeSamples.PHP) &&
-               string.IsNullOrEmpty(codeSamples.Ruby) &&
-               string.IsNullOrEmpty(codeSamples.TypeScript);
-
-        private CodeSamples UpdateValuesInCodeSamples(CodeSamples codeSamples, CodenameCodeFragments fragments)
-        {
-            foreach (var codeFragment in fragments.CodeFragments)
-            {
-                switch (codeFragment.Language)
-                {
-                    case CodeFragmentLanguage.Curl:
-                        codeSamples.Curl = codeFragment.Content;
-                        break;
-                    case CodeFragmentLanguage.Net:
-                        codeSamples.CSharp = codeFragment.Content;
-                        break;
-                    case CodeFragmentLanguage.JavaScript:
-                        codeSamples.JavaScript = codeFragment.Content;
-                        break;
-                    case CodeFragmentLanguage.TypeScript:
-                        codeSamples.TypeScript = codeFragment.Content;
-                        break;
-                    case CodeFragmentLanguage.Java:
-                        codeSamples.Java = codeFragment.Content;
-                        break;
-                    case CodeFragmentLanguage.JavaRx:
-                        codeSamples.JavaRx = codeFragment.Content;
-                        break;
-                    case CodeFragmentLanguage.Php:
-                        codeSamples.PHP = codeFragment.Content;
-                        break;
-                    case CodeFragmentLanguage.Swift:
-                        codeSamples.Swift = codeFragment.Content;
-                        break;
-                    case CodeFragmentLanguage.Ruby:
-                        codeSamples.Ruby = codeFragment.Content;
-                        break;
-                }
-            }
-
-            return codeSamples;
         }
     }
 }

@@ -37,6 +37,11 @@ namespace GithubService.Services.Parsers
                 return codeFile;
             }
 
+            if(sampleIdentifiers.Count != sampleIdentifiers.Distinct().ToList().Count)
+            {
+                throw new ArgumentException($"Duplicated code name in the file {filePath}");
+            }
+
             ExtractCodeSamples(content, sampleIdentifiers, language, codeFile);
 
             if (sampleIdentifiers.Count != codeFile.CodeFragments.Count)
@@ -107,7 +112,7 @@ namespace GithubService.Services.Parsers
             var matchedGroupIndex = 1;
             for (var index = 0; index < codeSamplesFileMatches.Count; index++)
             {
-                var sampleIdentifier = sampleIdentifiers[index];
+                var sampleCodename = sampleIdentifiers[index];
                 var matchedContent = codeSamplesFileMatches[index]
                     .Groups[matchedGroupIndex]
                     .Value
@@ -120,11 +125,9 @@ namespace GithubService.Services.Parsers
 
                 matchedGroupIndex += 2;
 
-                var (sampleType, sampleCodename) = ExtractCodenameAndTypeFromIdentifier(sampleIdentifier);
                 codeFile.CodeFragments.Add(new CodeFragment
                     {
-                        Codename = sampleCodename,
-                        Type = sampleType,
+                        Codename = sampleCodename + "_" + language.GetLanguageCodenameTag(),
                         Content = matchedContent,
                         Language = language
                     }
@@ -142,33 +145,6 @@ namespace GithubService.Services.Parsers
                 : codeSamplesExtractor;
 
             return new Regex(codeSamplesExtractor, RegexOptions.Compiled);
-        }
-
-        private static (CodeFragmentType sampleType, string sampleCodename) ExtractCodenameAndTypeFromIdentifier(string sampleIdentifier)
-        {
-            var index = sampleIdentifier.IndexOf('_');
-            if (index <= 0)
-            {
-                throw new ArgumentException($"Unrecognized sample type in sample identifier {sampleIdentifier}.");
-            }
-
-            var type = sampleIdentifier.Substring(0, index);
-            var codename = sampleIdentifier.Substring(index + 1, sampleIdentifier.Length - index - 1);
-
-            return (GetSampleType(type), codename);
-        }
-
-        private static CodeFragmentType GetSampleType(string type)
-        {
-            switch (type)
-            {
-                case "single":
-                    return CodeFragmentType.Single;
-                case "multiple":
-                    return CodeFragmentType.Multiple;
-                default:
-                    throw new ArgumentException($"Unsupported sample type {type}.");
-            }
         }
     }
 }

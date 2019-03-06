@@ -57,8 +57,8 @@ namespace GithubService
             var fragmentsToUpsert = codeFiles.SelectMany(file => file.CodeFragments);
 
             await KenticoCloudUtils.ExecuteCodeFragmentChanges(
-                kenticoCloudService.UpsertCodeFragmentsAsync,
                 kenticoCloudService.UpsertCodeFragmentAsync,
+                kenticoCloudService.UpsertCodenameCodeFragmentsAsync,
                 fragmentsToUpsert
             );
 

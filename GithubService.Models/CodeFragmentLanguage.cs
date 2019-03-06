@@ -29,5 +29,23 @@
 
             return "//";
         }
+
+        public static string GetLanguageCodenameTag(this string language)
+        {
+            switch(language)
+            {
+                case CodeFragmentLanguage.JavaScript:
+                    return "js";
+
+                case CodeFragmentLanguage.TypeScript:
+                    return "ts";
+
+                case CodeFragmentLanguage.Net:
+                    return "net";
+
+                default:
+                    return language;
+            }
+        }
     }
 }

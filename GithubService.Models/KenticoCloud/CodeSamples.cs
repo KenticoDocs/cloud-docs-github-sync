@@ -4,29 +4,15 @@
 // Changes to this file may cause incorrect behavior and will be lost if the code is regenerated. 
 // For further modifications of the class, create a separate file with the partial class.
 
+using System.Collections.Generic;
 using Newtonsoft.Json;
+using KenticoCloud.ContentManagement.Models.Items;
 
 namespace GithubService.Models.KenticoCloud
 {
-    public class CodeSamples
+    public partial class CodeSamples
     {
-        [JsonProperty("curl")]
-        public string Curl { get; set; }
-        [JsonProperty("_net")]
-        public string CSharp { get; set; }
-        [JsonProperty("javascript")]
-        public string JavaScript { get; set; }
-        [JsonProperty("typescript")]
-        public string TypeScript { get; set; }
-        [JsonProperty("java")]
-        public string Java { get; set; }
-        [JsonProperty("javarx")]
-        public string JavaRx { get; set; }
-        [JsonProperty("php")]
-        public string PHP { get; set; }
-        [JsonProperty("swift")]
-        public string Swift { get; set; }
-        [JsonProperty("ruby")]
-        public string Ruby { get; set; }
+        [JsonProperty("code_samples")]
+        public IEnumerable<ContentItemIdentifier> Samples { get; set; }
     }
 }

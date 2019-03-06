@@ -93,8 +93,8 @@ namespace GithubService
             var fragmentsToUpsert = codeFiles.SelectMany(file => file.CodeFragments);
 
             await KenticoCloudUtils.ExecuteCodeFragmentChanges(
-                kenticoCloudService.UpsertCodeFragmentsAsync,
                 kenticoCloudService.UpsertCodeFragmentAsync,
+                kenticoCloudService.UpsertCodenameCodeFragmentsAsync,
                 fragmentsToUpsert);
         }
 
@@ -136,13 +136,12 @@ namespace GithubService
             }
 
             await KenticoCloudUtils.ExecuteCodeFragmentChanges(
-                kenticoCloudService.RemoveCodeFragmentsAsync,
                 kenticoCloudService.RemoveCodeFragmentAsync,
                 fragmentsToRemove);
 
             await KenticoCloudUtils.ExecuteCodeFragmentChanges(
-                kenticoCloudService.UpsertCodeFragmentsAsync,
                 kenticoCloudService.UpsertCodeFragmentAsync,
+                kenticoCloudService.UpsertCodenameCodeFragmentsAsync,
                 fragmentsToUpsert);
         }
 
@@ -168,7 +167,6 @@ namespace GithubService
             var fragmentsToRemove = codeFiles.SelectMany(file => file.CodeFragments);
 
             await KenticoCloudUtils.ExecuteCodeFragmentChanges(
-                kenticoCloudService.RemoveCodeFragmentsAsync,
                 kenticoCloudService.RemoveCodeFragmentAsync,
                 fragmentsToRemove);
         }

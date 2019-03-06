@@ -13,16 +13,19 @@ namespace GithubService.Utils
         private static readonly CodeConverter CodeConverter = LazyCodeConverter.Value;
 
         internal static async Task ExecuteCodeFragmentChanges(
-            Func<CodenameCodeFragments, Task> actionSelectorForMultipleFragments,
             Func<CodeFragment, Task> actionSelectorForSingleFragment,
+            Func<CodenameCodeFragments, Task> actionSelectorForCodeSamples,
             IEnumerable<CodeFragment> fragments)
         {
-            var multipleCodeFragments = fragments.Where(codeFragment => codeFragment.Type == CodeFragmentType.Multiple);
-            var singleCodeFragment = fragments.Where(codeFragment => codeFragment.Type == CodeFragmentType.Single);
-            var multipleCodeFragmentsByCodename = CodeConverter.ConvertToCodenameCodeFragments(multipleCodeFragments);
+            var fragmentsByCodenameRoot = CodeConverter.ConvertToCodeSamples(fragments);
 
-            await Task.WhenAll(multipleCodeFragmentsByCodename.Select(actionSelectorForMultipleFragments));
-            await Task.WhenAll(singleCodeFragment.Select(actionSelectorForSingleFragment));
+            await Task.WhenAll(fragments.Select(actionSelectorForSingleFragment));
+            await Task.WhenAll(fragmentsByCodenameRoot.Select(actionSelectorForCodeSamples));
         }
+
+        internal static async Task ExecuteCodeFragmentChanges(
+            Func<CodeFragment, Task> actionSelectorForSingleFragment,
+            IEnumerable<CodeFragment> fragments) 
+            => await Task.WhenAll(fragments.Select(actionSelectorForSingleFragment));
     }
 }

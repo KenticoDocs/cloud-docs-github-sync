@@ -8,9 +8,7 @@
 
         public string Language { get; set; }
 
-        public CodeFragmentType Type { get; set; }
-
         public override string ToString() 
-            => $"Codename: {Codename}, Type: {Type}, Content: {Content}, Language: {Language}";
+            => $"Codename: {Codename}, Content: {Content}, Language: {Language}";
     }
 }

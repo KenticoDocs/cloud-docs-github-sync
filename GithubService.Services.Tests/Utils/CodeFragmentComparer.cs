@@ -14,7 +14,7 @@ namespace GithubService.Services.Tests.Utils
             if (ReferenceEquals(y, null)) return false;
             if (x.GetType() != y.GetType()) return false;
 
-            return string.Equals(x.Codename, y.Codename) && string.Equals(x.Content, y.Content) && x.Language == y.Language && x.Type == y.Type;
+            return string.Equals(x.Codename, y.Codename) && string.Equals(x.Content, y.Content) && x.Language == y.Language;
         }
 
         public int GetHashCode(CodeFragment obj)
