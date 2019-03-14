@@ -8,25 +8,21 @@ namespace GithubService.Services.Converters
 {
     public class CodeConverter : ICodeConverter
     {
-        public IEnumerable<CodenameCodeFragments> ConvertToCodeSamples(IEnumerable<CodeFragment> fragments)
+        public IEnumerable<CodenameCodeFragments> ConvertToCodenameCodeFragments(IEnumerable<CodeFragment> fragments)
         {
             var codenameCodeFragments = new Dictionary<string, CodenameCodeFragments>();
 
             foreach (var codeFragment in fragments)
             {
-                var codenameRootPartLastIndex = codeFragment.Codename.LastIndexOf("_");
-
-                var codenameRoot = codeFragment.Codename.Substring(0, codenameRootPartLastIndex);
-
-                if (codenameCodeFragments.ContainsKey(codenameRoot))
+                if (codenameCodeFragments.ContainsKey(codeFragment.Identifier))
                 {
-                    codenameCodeFragments[codenameRoot].CodeFragments.Add(codeFragment);
+                    codenameCodeFragments[codeFragment.Identifier].CodeFragments.Add(codeFragment);
                 }
                 else
                 {
-                    codenameCodeFragments.Add(codenameRoot, new CodenameCodeFragments
+                    codenameCodeFragments.Add(codeFragment.Identifier, new CodenameCodeFragments
                     {
-                        Codename = codenameRoot,
+                        Codename = codeFragment.Identifier,
                         CodeFragments = new List<CodeFragment> { codeFragment }
                     });
                 }
@@ -84,7 +80,7 @@ namespace GithubService.Services.Converters
         }
 
         private static bool CompareCodeFragments(CodeFragment first, CodeFragment second)
-            => first.Codename == second.Codename &&
+            => first.Identifier == second.Identifier &&
                first.Language == second.Language;
     }
 }

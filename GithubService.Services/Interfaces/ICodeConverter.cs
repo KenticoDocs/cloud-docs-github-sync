@@ -5,7 +5,7 @@ namespace GithubService.Services.Interfaces
 {
     public interface ICodeConverter
     {
-        IEnumerable<CodenameCodeFragments> ConvertToCodeSamples(IEnumerable<CodeFragment> fragments);
+        IEnumerable<CodenameCodeFragments> ConvertToCodenameCodeFragments(IEnumerable<CodeFragment> fragments);
 
         (List<CodeFragment> newFragments, List<CodeFragment> modifiedFragments, List<CodeFragment> removedFragments) CompareFragmentLists(List<CodeFragment> oldFragmentList, List<CodeFragment> newFragmentList);
 

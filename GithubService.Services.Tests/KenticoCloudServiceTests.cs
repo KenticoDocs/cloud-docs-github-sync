@@ -11,7 +11,6 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using System.Collections;
 using GithubService.Services.Tests.Utils;
 
 namespace GithubService.Services.Tests
@@ -22,7 +21,7 @@ namespace GithubService.Services.Tests
 
         private static readonly CodeFragment CodeFragment = new CodeFragment
         {
-            Codename = CodeSampleGuid.ToString(),
+            Identifier = CodeSampleGuid.ToString(),
             Content = "var the_answer = 42;",
             Language = CodeFragmentLanguage.Net
         };
@@ -30,7 +29,7 @@ namespace GithubService.Services.Tests
         private static readonly CodenameCodeFragments CodenameCodeFragments =
             new CodenameCodeFragments
             {
-                Codename = CodeFragment.Codename,
+                Codename = CodeFragment.Identifier,
                 CodeFragments = new List<CodeFragment>
                 {
                     CodeFragment
@@ -116,7 +115,7 @@ namespace GithubService.Services.Tests
             var createNewVersionCalled = 0;
 
             var kcClient = Substitute.For<IKenticoCloudClient>();
-            kcClient.GetContentItemAsync(CodenameCodeFragments.Codename)
+            kcClient.GetContentItemAsync(CodeFragment.Codename)
                 .Returns(ContentItem);
             kcClient.GetVariantAsync<CodeSample>(Arg.Any<ContentItemModel>())
                 .Returns(new CodeSample());

@@ -39,7 +39,7 @@ namespace GithubService.Services.Parsers
 
             if(sampleIdentifiers.Count != sampleIdentifiers.Distinct().ToList().Count)
             {
-                throw new ArgumentException($"Duplicated code name in the file {filePath}");
+                throw new ArgumentException($"Duplicate code name in the file {filePath}");
             }
 
             ExtractCodeSamples(content, sampleIdentifiers, language, codeFile);
@@ -112,7 +112,7 @@ namespace GithubService.Services.Parsers
             var matchedGroupIndex = 1;
             for (var index = 0; index < codeSamplesFileMatches.Count; index++)
             {
-                var sampleCodename = sampleIdentifiers[index];
+                var sampleIdentifier = sampleIdentifiers[index];
                 var matchedContent = codeSamplesFileMatches[index]
                     .Groups[matchedGroupIndex]
                     .Value
@@ -127,9 +127,9 @@ namespace GithubService.Services.Parsers
 
                 codeFile.CodeFragments.Add(new CodeFragment
                     {
-                        Codename = sampleCodename + "_" + language.GetLanguageCodenameTag(),
+                        Identifier = sampleIdentifier,
                         Content = matchedContent,
-                        Language = language
+                        Language = language,
                     }
                 );
             }

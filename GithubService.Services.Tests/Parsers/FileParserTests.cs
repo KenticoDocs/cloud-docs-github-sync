@@ -25,7 +25,7 @@ namespace GithubService.Services.Tests.Parsers
                     new CodeFragment
                     {
                         Language = language,
-                        Codename = "hello" + "_" + language.GetLanguageCodenameTag(),
+                        Identifier = "hello",
                         Content = "anything"
                     }
                 },
@@ -35,6 +35,24 @@ namespace GithubService.Services.Tests.Parsers
             var actualOutput = _parser.ParseContent(filePath, sampleFile);
 
             Assert.That(actualOutput, Is.EqualTo(expectedOutput).UsingCodeSampleFileComparer());
+        }
+
+        [TestCase(CodeFragmentLanguage.JavaScript, "js/file.js")]
+        [TestCase(CodeFragmentLanguage.Php, "php/file.php")]
+        public void ParseContent_ParsesFileWithMultipleCodeSamplesWithSameIdentifier(string language, string filePath)
+        {
+            var comment = language.GetCommentPrefix();
+            var sampleFile =
+$@"{comment} DocSection: create-integer
+int i = 1000;
+{comment} EndDocSection
+{comment} DocSection: create-integer
+int i = 10;
+int j = 14;
+{comment} EndDocSection
+  ";
+
+            Assert.Throws<ArgumentException>(() => _parser.ParseContent(filePath, sampleFile));
         }
 
         [TestCase(CodeFragmentLanguage.JavaScript, "js/file.js")]
@@ -52,17 +70,47 @@ int abcd = 12345;
 {comment} DocSection: create-integer
 int i = 1000;
 {comment} EndDocSection
-{comment} DocSection: create-integer
-int i = 10;
-int j = 14;
-{comment} EndDocSection
 {comment} DocSection: create-integer-variable
 import com.kenticocloud.delivery;
 DeliveryClient client = new DeliveryClient(""<YOUR_PROJECT_ID>"", ""<YOUR_PREVIEW_API_KEY>"");
 {comment} EndDocSection
   ";
 
-            Assert.Throws<ArgumentException>(() => _parser.ParseContent(filePath, sampleFile));
+            var expectedOutput = new CodeFile
+            {
+                CodeFragments = new List<CodeFragment>
+                {
+                    new CodeFragment
+                    {
+                        Identifier = "hello_world",
+                        Language = language,
+                        Content = "console.log(\"Hello Kentico Cloud\");"
+                    },
+                    new CodeFragment
+                    {
+                        Identifier = "create-integer-long-codename123",
+                        Language = language,
+                        Content = "int abcd = 12345;"
+                    },
+                    new CodeFragment
+                    {
+                        Identifier = "create-integer",
+                        Language = language,
+                        Content = "int i = 1000;"
+                    },
+                    new CodeFragment
+                    {
+                        Identifier = "create-integer-variable",
+                        Language = language,
+                        Content = $"import com.kenticocloud.delivery;{Environment.NewLine}DeliveryClient client = new DeliveryClient(\"<YOUR_PROJECT_ID>\", \"<YOUR_PREVIEW_API_KEY>\");"
+                    }
+                },
+                FilePath = filePath
+            };
+
+            var actualOutput = _parser.ParseContent(filePath, sampleFile);
+
+            Assert.That(actualOutput, Is.EqualTo(expectedOutput).UsingCodeSampleFileComparer());
         }
 
         [TestCase(CodeFragmentLanguage.JavaScript, "js/file.js")]
@@ -84,7 +132,7 @@ $@"   {comment} DocSection: special_
                     new CodeFragment
                     {
                         Language = language,
-                        Codename = "special_" + "_" + language.GetLanguageCodenameTag(),
+                        Identifier = "special_",
                         Content = $";0123456789.*?()<>@/'{Environment.NewLine}{Environment.NewLine}\t\a\b\f\v\\|%$&:+-;~`!#^_{{}}[], //"
                     }
                 },
@@ -106,7 +154,7 @@ $@"   {comment} DocSection: special_
                     new CodeFragment
                     {
                         Language = CodeFragmentLanguage.JavaRx,
-                        Codename = "content_unpublishing"  + "_" + CodeFragmentLanguage.JavaRx,
+                        Identifier = "content_unpublishing",
                         Content = ComplexCodeSample,
                     }
                 },

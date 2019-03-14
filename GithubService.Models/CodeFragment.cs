@@ -2,13 +2,16 @@
 {
     public class CodeFragment
     {
-        public string Codename { get; set; }
+        public string Identifier { get; set; }
 
         public string Content { get; set; }
 
         public string Language { get; set; }
 
+        public string Codename
+            => $"{Identifier}_{Language.GetLanguageCodenameTag()}";
+
         public override string ToString() 
-            => $"Codename: {Codename}, Content: {Content}, Language: {Language}";
+            => $"Identifier: {Identifier}, Content: {Content}, Language: {Language}";
     }
 }

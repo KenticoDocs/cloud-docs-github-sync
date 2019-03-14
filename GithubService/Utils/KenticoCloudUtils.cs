@@ -17,7 +17,7 @@ namespace GithubService.Utils
             Func<CodenameCodeFragments, Task> actionSelectorForCodeSamples,
             IEnumerable<CodeFragment> fragments)
         {
-            var fragmentsByCodenameRoot = CodeConverter.ConvertToCodeSamples(fragments);
+            var fragmentsByCodenameRoot = CodeConverter.ConvertToCodenameCodeFragments(fragments);
 
             await Task.WhenAll(fragments.Select(actionSelectorForSingleFragment));
             await Task.WhenAll(fragmentsByCodenameRoot.Select(actionSelectorForCodeSamples));

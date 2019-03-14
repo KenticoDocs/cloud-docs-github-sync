@@ -18,7 +18,7 @@ namespace GithubService.Services.Tests.Converters
             var expectedOutput = new List<CodenameCodeFragments>();
 
             var actualOutput =
-                _codeConverter.ConvertToCodeSamples(new List<CodeFragment>());
+                _codeConverter.ConvertToCodenameCodeFragments(new List<CodeFragment>());
 
             Assert.That(actualOutput.ToList(), Is.EqualTo(expectedOutput));
         }
@@ -28,21 +28,21 @@ namespace GithubService.Services.Tests.Converters
         {
             var javascriptFragment = new CodeFragment
             {
-                Codename = "hello-world_javascript",
+                Identifier = "hello-world",
                 Content = "console.log('Hello Kentico Cloud');",
                 Language = CodeFragmentLanguage.JavaScript
             };
 
             var netFragment = new CodeFragment
             {
-                Codename = "hello-world_net",
+                Identifier = "hello-world",
                 Content = "System.out.println('Hello Kentico Cloud');",
                 Language = CodeFragmentLanguage.Net
             };
 
             var javaFragment = new CodeFragment
             {
-                Codename = "hello-world_java",
+                Identifier = "hello-world",
                 Content = "int i += 3",
                 Language = CodeFragmentLanguage.Java
             };
@@ -68,7 +68,7 @@ namespace GithubService.Services.Tests.Converters
                 },
             };
 
-            var actualOutput = _codeConverter.ConvertToCodeSamples(codeFragments);
+            var actualOutput = _codeConverter.ConvertToCodenameCodeFragments(codeFragments);
 
             Assert.That(actualOutput, Is.EqualTo(expectedOutput).UsingCodenameCodeFragmentsComparer());
         }
@@ -80,7 +80,7 @@ namespace GithubService.Services.Tests.Converters
             {
                 new CodeFragment
                 {
-                    Codename = "hello-world",
+                    Identifier = "hello-world",
                     Content = "console.log('Hello Kentico Cloud');",
                     Language = CodeFragmentLanguage.JavaScript
                 }
@@ -90,13 +90,13 @@ namespace GithubService.Services.Tests.Converters
             {
                 new CodeFragment
                 {
-                    Codename = "hello-world",
+                    Identifier = "hello-world",
                     Content = "console.log('Hello Kentico Cloud');",
                     Language = CodeFragmentLanguage.JavaScript
                 },
                 new CodeFragment
                 {
-                    Codename = "hello-world",
+                    Identifier = "hello-world",
                     Content = "Console.WriteLine(\"Hello World!\");",
                     Language = CodeFragmentLanguage.Net
                 }
@@ -104,7 +104,7 @@ namespace GithubService.Services.Tests.Converters
 
             var expectedFragment = new CodeFragment
             {
-                Codename = "hello-world",
+                Identifier = "hello-world",
                 Content = "Console.WriteLine(\"Hello World!\");",
                 Language = CodeFragmentLanguage.Net
             };
@@ -123,7 +123,7 @@ namespace GithubService.Services.Tests.Converters
             {
                 new CodeFragment
                 {
-                    Codename = "hello-world",
+                    Identifier = "hello-world",
                     Content = "console.log('Hello Kentico Cloud');",
                     Language = CodeFragmentLanguage.JavaScript
                 }
@@ -133,7 +133,7 @@ namespace GithubService.Services.Tests.Converters
             {
                 new CodeFragment
                 {
-                    Codename = "hello-world",
+                    Identifier = "hello-world",
                     Content = "console.log('Hello Awesome Kentico Cloud');",
                     Language = CodeFragmentLanguage.JavaScript
                 }
@@ -141,7 +141,7 @@ namespace GithubService.Services.Tests.Converters
 
             var expectedFragment = new CodeFragment
             {
-                Codename = "hello-world",
+                Identifier = "hello-world",
                 Content = "console.log('Hello Awesome Kentico Cloud');",
                 Language = CodeFragmentLanguage.JavaScript
             };
@@ -160,13 +160,13 @@ namespace GithubService.Services.Tests.Converters
             {
                 new CodeFragment
                 {
-                    Codename = "hello-world",
+                    Identifier = "hello-world",
                     Content = "console.log('Hello Kentico Cloud');",
                     Language = CodeFragmentLanguage.JavaScript
                 },
                 new CodeFragment
                 {
-                    Codename = "hello-world",
+                    Identifier = "hello-world",
                     Content = "Console.WriteLine(\"Hello World!\");",
                     Language = CodeFragmentLanguage.Net
                 }
@@ -176,7 +176,7 @@ namespace GithubService.Services.Tests.Converters
             {
                 new CodeFragment
                 {
-                    Codename = "hello-world",
+                    Identifier = "hello-world",
                     Content = "console.log('Hello Kentico Cloud');",
                     Language = CodeFragmentLanguage.JavaScript
                 }
@@ -184,7 +184,7 @@ namespace GithubService.Services.Tests.Converters
 
             var expectedFragment = new CodeFragment
             {
-                Codename = "hello-world",
+                Identifier = "hello-world",
                 Content = "Console.WriteLine(\"Hello World!\");",
                 Language = CodeFragmentLanguage.Net
             };
