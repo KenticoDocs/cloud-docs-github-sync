@@ -247,7 +247,7 @@ namespace GithubService.Services.Tests
         }
 
         [Test]
-        public async Task UpsertCodenameCodeFragmentsAsync_NoItem_CreatesCodenameCodeSamples()
+        public async Task UpsertCodenameCodeFragmentsAsync_NoItem_CreatesCodeSamples()
         {
             // Arrange
             var notFoundException = new ContentManagementException(new HttpResponseMessage(HttpStatusCode.NotFound), string.Empty);
@@ -271,7 +271,7 @@ namespace GithubService.Services.Tests
         }
 
         [Test]
-        public async Task UpsertCodenameCodeFragmentsAsync_NoLinkedItemsInCloud_AddLinkedCodeSample()
+        public async Task UpsertCodenameCodeFragmentsAsync_NoCodeSamplesVariant_AddsCodeSamples()
         {
             // Arrange
             var notFoundException = new ContentManagementException(new HttpResponseMessage(HttpStatusCode.NotFound), string.Empty);
@@ -293,7 +293,7 @@ namespace GithubService.Services.Tests
         }
 
         [Test]
-        public async Task UpsertCodenameCodeFragmentsAsync_LinkedItemsInCloud_UpdateLinkedCodeSample()
+        public async Task UpsertCodenameCodeFragmentsAsync_CodeSamplesVariantInCloud_UpdatesCodeSamples()
         {
             // Arrange
             var notFoundException = new ContentManagementException(new HttpResponseMessage(HttpStatusCode.NotFound), string.Empty);

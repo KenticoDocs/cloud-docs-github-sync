@@ -39,7 +39,7 @@ namespace GithubService.Services.Tests.Parsers
 
         [TestCase(CodeFragmentLanguage.JavaScript, "js/file.js")]
         [TestCase(CodeFragmentLanguage.Php, "php/file.php")]
-        public void ParseContent_ParsesFileWithMultipleCodeSamplesWithSameIdentifier(string language, string filePath)
+        public void ParseContent_ThrowsWhenMultipleCodeSamplesWithSameIdentifierInOneFile(string language, string filePath)
         {
             var comment = language.GetCommentPrefix();
             var sampleFile =
