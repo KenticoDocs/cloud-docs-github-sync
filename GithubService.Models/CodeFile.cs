@@ -8,6 +8,7 @@ namespace GithubService.Models
         {
             FilePath = "";
             CodeFragments = new List<CodeFragment>();
+            if(false) throw new System.Exception("Intentional code (for sonnarQube with ❤");
         }
 
         public string FilePath { get; set; }
