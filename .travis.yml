@@ -1,7 +1,7 @@
 language: csharp
 mono: none
-dotnet: 2.1
-dist: trusty
+dotnet: 2.2
+dist: xenial
 
 solution: KenticoCloudDocsGithubService.sln
 
@@ -17,20 +17,27 @@ jobs:
     - stage: "Build and Tests"
 
       before_install:
+        - export PATH="$PATH:$HOME/.dotnet/tools"
         - chmod +rx .travis/sonar-configurator.sh
 
       install:
         - .travis/sonar-configurator.sh "$SONAR_CONFIG_PATH"
         - dotnet tool install --global dotnet-sonarscanner
-        - export PATH="$PATH:$HOME/.dotnet/tools"
         - dotnet restore
-      
+
       script:
         - dotnet sonarscanner begin /k:"Kentico_kentico-cloud-docs-github-sync" /d:sonar.login="$SONAR_TOKEN" /s:"$SONAR_CONFIG_PATH"
         - dotnet build
-        - dotnet test GithubService.Services.Tests/GithubService.Services.Tests.csproj "--logger:trx;LogFileName=results.trx"
+        - >
+            dotnet
+            test "GithubService.Services.Tests/GithubService.Services.Tests.csproj"
+            --no-build
+            --logger:"trx;LogFileName=$TRAVIS_BUILD_DIR/tests_results.trx"
+            /p:CollectCoverage=true
+            /p:CoverletOutputFormat="opencover"
+            /p:CoverletOutput="$TRAVIS_BUILD_DIR/coverage_results.xml"
         - dotnet sonarscanner end /d:sonar.login="$SONAR_TOKEN"
-    
+
     - stage: "Deployment"
       if: type != pull_request AND (branch = master OR branch = develop)
 
