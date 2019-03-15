@@ -68,7 +68,8 @@ fi
 cat >> "$FILENAME" << EOL
   <!-- C# solution -->
   <Property Name="sonar.exclusions">**/bin/**/*,**/obj/**/*</Property>
-  <Property Name="sonar.cs.vstest.reportsPaths">GithubService.Services.Tests/tests_results.trx</Property>
+  <Property Name="sonar.cs.vstest.reportsPaths">tests_results.trx</Property>
+  <Property Name="sonar.cs.opencover.reportsPaths">coverage_results.xml</Property>
 </SonarQubeAnalysisProperties>
 EOL
 
