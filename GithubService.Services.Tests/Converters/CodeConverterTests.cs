@@ -30,21 +30,24 @@ namespace GithubService.Services.Tests.Converters
             {
                 Identifier = "hello-world",
                 Content = "console.log('Hello Kentico Cloud');",
-                Language = CodeFragmentLanguage.JavaScript
+                Language = CodeFragmentLanguage.JavaScript,
+                Platform = CodeFragmentPlatform.JavaScript
             };
 
             var netFragment = new CodeFragment
             {
                 Identifier = "hello-world",
                 Content = "System.out.println('Hello Kentico Cloud');",
-                Language = CodeFragmentLanguage.Net
+                Language = CodeFragmentLanguage.CSharp,
+                Platform = CodeFragmentPlatform.Net
             };
 
             var javaFragment = new CodeFragment
             {
                 Identifier = "hello-world",
                 Content = "int i += 3",
-                Language = CodeFragmentLanguage.Java
+                Language = CodeFragmentLanguage.Java,
+                Platform = CodeFragmentPlatform.Java
             };
 
             var codeFragments = new List<CodeFragment>
@@ -82,7 +85,8 @@ namespace GithubService.Services.Tests.Converters
                 {
                     Identifier = "hello-world",
                     Content = "console.log('Hello Kentico Cloud');",
-                    Language = CodeFragmentLanguage.JavaScript
+                    Language = CodeFragmentLanguage.JavaScript,
+                    Platform = CodeFragmentPlatform.JavaScript
                 }
             };
 
@@ -92,13 +96,15 @@ namespace GithubService.Services.Tests.Converters
                 {
                     Identifier = "hello-world",
                     Content = "console.log('Hello Kentico Cloud');",
-                    Language = CodeFragmentLanguage.JavaScript
+                    Language = CodeFragmentLanguage.JavaScript,
+                    Platform = CodeFragmentPlatform.JavaScript
                 },
                 new CodeFragment
                 {
                     Identifier = "hello-world",
                     Content = "Console.WriteLine(\"Hello World!\");",
-                    Language = CodeFragmentLanguage.Net
+                    Language = CodeFragmentLanguage.CSharp,
+                    Platform = CodeFragmentPlatform.Net
                 }
             };
 
@@ -106,7 +112,8 @@ namespace GithubService.Services.Tests.Converters
             {
                 Identifier = "hello-world",
                 Content = "Console.WriteLine(\"Hello World!\");",
-                Language = CodeFragmentLanguage.Net
+                Language = CodeFragmentLanguage.CSharp,
+                Platform = CodeFragmentPlatform.Net
             };
 
             var (newFragments, modifiedFragments, removedFragments) = _codeConverter.CompareFragmentLists(oldList, newList);
@@ -125,7 +132,8 @@ namespace GithubService.Services.Tests.Converters
                 {
                     Identifier = "hello-world",
                     Content = "console.log('Hello Kentico Cloud');",
-                    Language = CodeFragmentLanguage.JavaScript
+                    Language = CodeFragmentLanguage.JavaScript,
+                    Platform = CodeFragmentPlatform.JavaScript
                 }
             };
 
@@ -135,7 +143,8 @@ namespace GithubService.Services.Tests.Converters
                 {
                     Identifier = "hello-world",
                     Content = "console.log('Hello Awesome Kentico Cloud');",
-                    Language = CodeFragmentLanguage.JavaScript
+                    Language = CodeFragmentLanguage.JavaScript,
+                    Platform = CodeFragmentPlatform.JavaScript
                 }
             };
 
@@ -143,7 +152,8 @@ namespace GithubService.Services.Tests.Converters
             {
                 Identifier = "hello-world",
                 Content = "console.log('Hello Awesome Kentico Cloud');",
-                Language = CodeFragmentLanguage.JavaScript
+                Language = CodeFragmentLanguage.JavaScript,
+                Platform = CodeFragmentPlatform.JavaScript
             };
 
             var (newFragments, modifiedFragments, removedFragments) = _codeConverter.CompareFragmentLists(oldList, newList);
@@ -162,13 +172,15 @@ namespace GithubService.Services.Tests.Converters
                 {
                     Identifier = "hello-world",
                     Content = "console.log('Hello Kentico Cloud');",
-                    Language = CodeFragmentLanguage.JavaScript
+                    Language = CodeFragmentLanguage.JavaScript,
+                    Platform = CodeFragmentPlatform.JavaScript
                 },
                 new CodeFragment
                 {
                     Identifier = "hello-world",
                     Content = "Console.WriteLine(\"Hello World!\");",
-                    Language = CodeFragmentLanguage.Net
+                    Language = CodeFragmentLanguage.CSharp,
+                    Platform = CodeFragmentPlatform.Net
                 }
             };
 
@@ -178,7 +190,8 @@ namespace GithubService.Services.Tests.Converters
                 {
                     Identifier = "hello-world",
                     Content = "console.log('Hello Kentico Cloud');",
-                    Language = CodeFragmentLanguage.JavaScript
+                    Language = CodeFragmentLanguage.JavaScript,
+                    Platform = CodeFragmentPlatform.JavaScript
                 }
             };
 
@@ -186,7 +199,8 @@ namespace GithubService.Services.Tests.Converters
             {
                 Identifier = "hello-world",
                 Content = "Console.WriteLine(\"Hello World!\");",
-                Language = CodeFragmentLanguage.Net
+                Language = CodeFragmentLanguage.CSharp,
+                Platform = CodeFragmentPlatform.Net
             };
 
             var (newFragments, modifiedFragments, removedFragments) = _codeConverter.CompareFragmentLists(oldList, newList);

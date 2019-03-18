@@ -104,8 +104,9 @@ namespace GithubService.Services
         {
             var newCodeSample = new CodeSample
             {
-                ProgrammingLanguage = new [] { TaxonomyTermIdentifier.ByCodename(fragment.Language) },
-                Code = fragment.Content
+                Platform = new [] { TaxonomyTermIdentifier.ByCodename(fragment.Platform) },
+                Code = fragment.Content,
+                ProgrammingLanguage = new [] {TaxonomyTermIdentifier.ByCodename(fragment.Language) }
             };
 
             return await EnsureVariantAsync(contentItem, newCodeSample);

@@ -12,9 +12,9 @@ namespace GithubService.Services.Tests.Parsers
     {
         private readonly IFileParser _parser = new FileParser();
 
-        [TestCase(CodeFragmentLanguage.JavaScript, "js/file.js")]
-        [TestCase(CodeFragmentLanguage.Php, "php/file.php")]
-        public void ParseContent_ParsesFileWithOneCodeSample(string language, string filePath)
+        [TestCase(CodeFragmentLanguage.JavaScript, "js/file.js", CodeFragmentPlatform.JavaScript)]
+        [TestCase(CodeFragmentLanguage.Css, "php/file.css", CodeFragmentPlatform.Php)]
+        public void ParseContent_ParsesFileWithOneCodeSample(string language, string filePath, string platform)
         {
             var comment = language.GetCommentPrefix();
             var sampleFile = $"{comment} DocSection: hello\nanything \n{comment} EndDocSection";
@@ -26,7 +26,8 @@ namespace GithubService.Services.Tests.Parsers
                     {
                         Language = language,
                         Identifier = "hello",
-                        Content = "anything"
+                        Content = "anything",
+                        Platform = platform,
                     }
                 },
                 FilePath = filePath
@@ -37,9 +38,9 @@ namespace GithubService.Services.Tests.Parsers
             Assert.That(actualOutput, Is.EqualTo(expectedOutput).UsingCodeSampleFileComparer());
         }
 
-        [TestCase(CodeFragmentLanguage.JavaScript, "js/file.js")]
-        [TestCase(CodeFragmentLanguage.Php, "php/file.php")]
-        public void ParseContent_ThrowsWhenMultipleCodeSamplesWithSameIdentifierInOneFile(string language, string filePath)
+        [TestCase(CodeFragmentLanguage.Css, "js/file.css", CodeFragmentPlatform.JavaScript)]
+        [TestCase(CodeFragmentLanguage.Php, "php/file.php", CodeFragmentPlatform.Php)]
+        public void ParseContent_ThrowsWhenMultipleCodeSamplesWithSameIdentifierInOneFile(string language, string filePath, string platform)
         {
             var comment = language.GetCommentPrefix();
             var sampleFile =
@@ -55,9 +56,9 @@ int j = 14;
             Assert.Throws<ArgumentException>(() => _parser.ParseContent(filePath, sampleFile));
         }
 
-        [TestCase(CodeFragmentLanguage.JavaScript, "js/file.js")]
-        [TestCase(CodeFragmentLanguage.Php, "php/file.php")]
-        public void ParseContent_ParsesFileWithMultipleCodeSamples(string language, string filePath)
+        [TestCase(CodeFragmentLanguage.Css, "js/file.css", CodeFragmentPlatform.JavaScript)]
+        [TestCase(CodeFragmentLanguage.Php, "php/file.php", CodeFragmentPlatform.Php)]
+        public void ParseContent_ParsesFileWithMultipleCodeSamples(string language, string filePath, string platform)
         {
             var comment = language.GetCommentPrefix();
             var sampleFile =
@@ -84,25 +85,29 @@ DeliveryClient client = new DeliveryClient(""<YOUR_PROJECT_ID>"", ""<YOUR_PREVIE
                     {
                         Identifier = "hello_world",
                         Language = language,
-                        Content = "console.log(\"Hello Kentico Cloud\");"
+                        Content = "console.log(\"Hello Kentico Cloud\");",
+                        Platform = platform
                     },
                     new CodeFragment
                     {
                         Identifier = "create-integer-long-codename123",
                         Language = language,
-                        Content = "int abcd = 12345;"
+                        Content = "int abcd = 12345;",
+                        Platform = platform
                     },
                     new CodeFragment
                     {
                         Identifier = "create-integer",
                         Language = language,
-                        Content = "int i = 1000;"
+                        Content = "int i = 1000;",
+                        Platform = platform
                     },
                     new CodeFragment
                     {
                         Identifier = "create-integer-variable",
                         Language = language,
-                        Content = $"import com.kenticocloud.delivery;{Environment.NewLine}DeliveryClient client = new DeliveryClient(\"<YOUR_PROJECT_ID>\", \"<YOUR_PREVIEW_API_KEY>\");"
+                        Content = $"import com.kenticocloud.delivery;{Environment.NewLine}DeliveryClient client = new DeliveryClient(\"<YOUR_PROJECT_ID>\", \"<YOUR_PREVIEW_API_KEY>\");",
+                        Platform = platform
                     }
                 },
                 FilePath = filePath
@@ -113,9 +118,9 @@ DeliveryClient client = new DeliveryClient(""<YOUR_PROJECT_ID>"", ""<YOUR_PREVIE
             Assert.That(actualOutput, Is.EqualTo(expectedOutput).UsingCodeSampleFileComparer());
         }
 
-        [TestCase(CodeFragmentLanguage.JavaScript, "js/file.js")]
-        [TestCase(CodeFragmentLanguage.Php, "php/file.php")]
-        public void ParseContent_ParsesCodeSampleWithSpecialCharacters(string language, string filePath)
+        [TestCase(CodeFragmentLanguage.Css, "js/file.css", CodeFragmentPlatform.JavaScript)]
+        [TestCase(CodeFragmentLanguage.Php, "php/file.php", CodeFragmentPlatform.Php)]
+        public void ParseContent_ParsesCodeSampleWithSpecialCharacters(string language, string filePath, string platform)
         {
             var comment = language.GetCommentPrefix();
             var sampleFile =
@@ -133,7 +138,8 @@ $@"   {comment} DocSection: special_
                     {
                         Language = language,
                         Identifier = "special_",
-                        Content = $";0123456789.*?()<>@/'{Environment.NewLine}{Environment.NewLine}\t\a\b\f\v\\|%$&:+-;~`!#^_{{}}[], //"
+                        Content = $";0123456789.*?()<>@/'{Environment.NewLine}{Environment.NewLine}\t\a\b\f\v\\|%$&:+-;~`!#^_{{}}[], //",
+                        Platform = platform
                     }
                 },
                 FilePath = filePath
@@ -153,15 +159,16 @@ $@"   {comment} DocSection: special_
                 {
                     new CodeFragment
                     {
-                        Language = CodeFragmentLanguage.JavaRx,
+                        Language = CodeFragmentLanguage.Java,
                         Identifier = "content_unpublishing",
                         Content = ComplexCodeSample,
+                        Platform = CodeFragmentPlatform.Java
                     }
                 },
-                FilePath = "javarx/unpublishing.java"
+                FilePath = "java/unpublishing.java"
             };
 
-            var actualOutput = _parser.ParseContent("javarx/unpublishing.java", ComplexSampleFile);
+            var actualOutput = _parser.ParseContent("java/unpublishing.java", ComplexSampleFile);
 
             Assert.That(actualOutput, Is.EqualTo(expectedOutput).UsingCodeSampleFileComparer());
         }

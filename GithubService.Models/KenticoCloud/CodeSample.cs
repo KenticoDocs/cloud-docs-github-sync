@@ -12,6 +12,8 @@ namespace GithubService.Models.KenticoCloud
 {
     public partial class CodeSample
     {
+        [JsonProperty("platform")]
+        public IEnumerable<TaxonomyTermIdentifier> Platform { get; set; }
         [JsonProperty("code")]
         public string Code { get; set; }
         [JsonProperty("programming_language")]

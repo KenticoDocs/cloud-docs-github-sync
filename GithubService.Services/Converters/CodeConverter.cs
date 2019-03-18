@@ -81,6 +81,7 @@ namespace GithubService.Services.Converters
 
         private static bool CompareCodeFragments(CodeFragment first, CodeFragment second)
             => first.Identifier == second.Identifier &&
-               first.Language == second.Language;
+               first.Language == second.Language &&
+               first.Platform == second.Platform;
     }
 }

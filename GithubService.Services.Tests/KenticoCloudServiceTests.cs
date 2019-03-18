@@ -23,7 +23,8 @@ namespace GithubService.Services.Tests
         {
             Identifier = CodeSampleGuid.ToString(),
             Content = "var the_answer = 42;",
-            Language = CodeFragmentLanguage.Net
+            Language = CodeFragmentLanguage.CSharp,
+            Platform = CodeFragmentPlatform.Net
         };
 
         private static readonly CodenameCodeFragments CodenameCodeFragments =
@@ -303,6 +304,7 @@ namespace GithubService.Services.Tests
             {
                 Code = "console.log(Hello World);",
                 ProgrammingLanguage = new[] {TaxonomyTermIdentifier.ByCodename(CodeFragmentLanguage.JavaScript)},
+                Platform = new[] {TaxonomyTermIdentifier.ByCodename(CodeFragmentPlatform.JavaScript)}
             };
 
             var cloudCodeSamples = new CodeSamples

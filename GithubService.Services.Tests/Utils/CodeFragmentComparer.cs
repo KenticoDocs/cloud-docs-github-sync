@@ -14,7 +14,10 @@ namespace GithubService.Services.Tests.Utils
             if (ReferenceEquals(y, null)) return false;
             if (x.GetType() != y.GetType()) return false;
 
-            return string.Equals(x.Identifier, y.Identifier) && string.Equals(x.Content, y.Content) && x.Language == y.Language;
+            return string.Equals(x.Identifier, y.Identifier) && 
+                string.Equals(x.Content, y.Content) && 
+                x.Language == y.Language && 
+                x.Platform == y.Platform;
         }
 
         public int GetHashCode(CodeFragment obj)
@@ -24,6 +27,7 @@ namespace GithubService.Services.Tests.Utils
                 var hashCode = (obj.Identifier != null ? obj.Identifier.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (obj.Content != null ? obj.Content.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (obj.Language != null ? obj.Language.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (obj.Platform != null ? obj.Platform.GetHashCode() : 0);
 
                 return hashCode;
             }

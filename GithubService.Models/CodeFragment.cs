@@ -8,6 +8,8 @@
 
         public string Language { get; set; }
 
+        public string Platform { get; set; }
+
         public string Codename
             => $"{Identifier}_{Language.GetLanguageCodenameTag()}";
 

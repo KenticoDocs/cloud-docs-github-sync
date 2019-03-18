@@ -31,6 +31,12 @@ namespace GithubService.Services.Parsers
                 return codeFile;
             }
 
+            var platform = GetPlatform(filePath);
+            if (platform == null)
+            {
+                return codeFile;
+            }
+
             var sampleIdentifiers = ExtractSampleIdentifiers(content, language);
             if (sampleIdentifiers.Count == 0)
             {
@@ -42,7 +48,7 @@ namespace GithubService.Services.Parsers
                 throw new ArgumentException($"Duplicate code name in the file {filePath}");
             }
 
-            ExtractCodeSamples(content, sampleIdentifiers, language, codeFile);
+            ExtractCodeSamples(content, sampleIdentifiers, language, codeFile, platform);
 
             if (sampleIdentifiers.Count != codeFile.CodeFragments.Count)
             {
@@ -52,34 +58,62 @@ namespace GithubService.Services.Parsers
             return codeFile;
         }
 
+        private static string GetPlatform(string filepath)
+        {
+            var platformIdentifier = filepath.Split('/')[0];
+
+            switch (platformIdentifier)
+            {
+                case "rest":
+                    return CodeFragmentPlatform.Rest;
+                case "net":
+                    return CodeFragmentPlatform.Net;
+                case "js":
+                    return CodeFragmentPlatform.JavaScript;
+                case "ts":
+                    return CodeFragmentPlatform.TypeScript;
+                case "java":
+                    return CodeFragmentPlatform.Java;
+                case "android":
+                    return CodeFragmentPlatform.Android;
+                case "ios":
+                    return CodeFragmentPlatform.iOS;
+                case "php":
+                    return CodeFragmentPlatform.Php;
+                case "ruby":
+                    return CodeFragmentPlatform.Ruby;
+                default:
+                    return null;
+            }
+        }
+
         private static string GetLanguage(string filepath)
         {
-            var languageIdentifier = filepath.Split('/')[0];
+            var splittedFilePath = filepath.Split('.');
+            var platformIdentifier = splittedFilePath[splittedFilePath.Length - 1];
 
-            switch (languageIdentifier)
+            switch (platformIdentifier)
             {
-                case "cUrl":
-                    return CodeFragmentLanguage.Curl;
-                case "c#":
-                    return CodeFragmentLanguage.Net;
-                case "js":
-                    return CodeFragmentLanguage.JavaScript;
-                case "ts":
-                    return CodeFragmentLanguage.TypeScript;
+                case "cs":
+                    return CodeFragmentLanguage.CSharp;
+                case "css":
+                    return CodeFragmentLanguage.Css;
+                case "html":
+                    return CodeFragmentLanguage.HTML;
                 case "java":
                     return CodeFragmentLanguage.Java;
-                case "javarx":
-                    return CodeFragmentLanguage.JavaRx;
+                case "js":
+                    return CodeFragmentLanguage.JavaScript;
                 case "php":
                     return CodeFragmentLanguage.Php;
+                case "py":
+                    return CodeFragmentLanguage.Python;
+                case "rb":
+                    return CodeFragmentLanguage.Ruby;
                 case "swift":
                     return CodeFragmentLanguage.Swift;
-                case "ruby":
-                    return CodeFragmentLanguage.Ruby;
-                case "python":
-                    return CodeFragmentLanguage.Python;
-                case "shell":
-                    return CodeFragmentLanguage.Shell;
+                case "ts":
+                    return CodeFragmentLanguage.TypeScript;
                 default:
                     return null;
             }
@@ -104,7 +138,8 @@ namespace GithubService.Services.Parsers
             string content,
             IReadOnlyList<string> sampleIdentifiers,
             string language,
-            CodeFile codeFile)
+            CodeFile codeFile,
+            string platform)
         {
             var codeSamplesExtractor = GetCodeSamplesExtractor(sampleIdentifiers, language);
             var codeSamplesFileMatches = codeSamplesExtractor.Matches(content);
@@ -130,6 +165,7 @@ namespace GithubService.Services.Parsers
                         Identifier = sampleIdentifier,
                         Content = matchedContent,
                         Language = language,
+                        Platform = platform
                     }
                 );
             }
