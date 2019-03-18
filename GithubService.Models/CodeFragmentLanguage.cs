@@ -17,7 +17,7 @@
         public const string TypeScript = "typescript";
     }
 
-    public static class StringExtensions
+    public static class CodeFragmentLanguageExtensions
     {
         public static string GetCommentPrefix(this string language)
         {
@@ -30,24 +30,6 @@
             }
             
             return "//";
-        }
-
-        public static string GetLanguageCodenameTag(this string language)
-        {
-            switch(language)
-            {
-                case CodeFragmentLanguage.JavaScript:
-                    return "js";
-
-                case CodeFragmentLanguage.TypeScript:
-                    return "ts";
-
-                case CodeFragmentLanguage.CSharp:
-                    return "CSharp";
-
-                default:
-                    return language;
-            }
         }
     }
 }

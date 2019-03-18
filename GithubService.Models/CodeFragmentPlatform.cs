@@ -12,4 +12,25 @@
         public const string Php = "php";
         public const string Ruby = "ruby";
     }
+
+    public static class CodeFragmentPlatformExtensions
+    {
+        public static string GetPlatformCodenameTag(this string platform)
+        {
+            switch (platform)
+            {
+                case CodeFragmentPlatform.JavaScript:
+                    return "js";
+
+                case CodeFragmentPlatform.TypeScript:
+                    return "ts";
+
+                case CodeFragmentPlatform.Net:
+                    return "net";
+
+                default:
+                    return platform;
+            }
+        }
+    }
 }
