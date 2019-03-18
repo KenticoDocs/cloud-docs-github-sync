@@ -49,8 +49,7 @@ namespace GithubService
             // Create/update appropriate KC items
             var kenticoCloudClient = new KenticoCloudClient(
                 configuration.KenticoCloudProjectId,
-                configuration.KenticoCloudContentManagementApiKy,
-                configuration.KenticoCloudInternalApiKey);
+                configuration.KenticoCloudContentManagementApiKey);
 
             var kenticoCloudService = new KenticoCloudService(kenticoCloudClient, codeConverter);
 

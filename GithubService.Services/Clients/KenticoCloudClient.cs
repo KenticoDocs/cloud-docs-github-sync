@@ -1,6 +1,11 @@
 ﻿using GithubService.Services.Interfaces;
 using KenticoCloud.ContentManagement;
 using KenticoCloud.ContentManagement.Models.Items;
+using System;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace GithubService.Services.Clients
@@ -8,9 +13,10 @@ namespace GithubService.Services.Clients
     public class KenticoCloudClient : IKenticoCloudClient
     {
         private readonly ContentManagementClient _contentManagementClient;
-        private readonly IKenticoCloudInternalClient _internalApiClient;
+        private readonly HttpClient _httpClient;
+        private readonly string _apiEndpoint;
 
-        public KenticoCloudClient(string projectId, string contentManagementApiKey, string internalApiKey)
+        public KenticoCloudClient(string projectId, string contentManagementApiKey)
         {
             var options = new ContentManagementOptions
             {
@@ -18,7 +24,12 @@ namespace GithubService.Services.Clients
                 ProjectId = projectId
             };
             _contentManagementClient = new ContentManagementClient(options);
-            _internalApiClient = new KenticoCloudInternalClient(projectId, internalApiKey);
+
+            _httpClient = new HttpClient();
+            _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", contentManagementApiKey);
+
+            _apiEndpoint = $"https://manage.kenticocloud.com/v2/projects/{projectId}/items";
         }
 
         public async Task<ContentItemModel> GetContentItemAsync(string codename)
@@ -42,6 +53,17 @@ namespace GithubService.Services.Clients
         }
 
         public async Task CreateNewVersionOfDefaultVariantAsync(ContentItemModel contentItem)
-            => await _internalApiClient.CreateNewVersionOfDefaultVariantAsync(contentItem.Id);
+            => await CreateNewVersionOfDefaultVariantAsync(contentItem.Id);
+
+        private async Task CreateNewVersionOfDefaultVariantAsync(Guid contentItemId)
+        {
+            var url = $"{_apiEndpoint}/{contentItemId}/variants/00000000-0000-0000-0000-000000000000/new-version";
+
+            var response = await _httpClient.PutAsync(url, new StringContent(string.Empty, Encoding.UTF8, "application/json"));
+            var contentResult = await response.Content.ReadAsStringAsync();
+
+            if (response.StatusCode != HttpStatusCode.NoContent)
+                throw new Exception(contentResult);
+        }
     }
 }
