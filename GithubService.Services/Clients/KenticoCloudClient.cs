@@ -53,11 +53,8 @@ namespace GithubService.Services.Clients
         }
 
         public async Task CreateNewVersionOfDefaultVariantAsync(ContentItemModel contentItem)
-            => await CreateNewVersionOfDefaultVariantAsync(contentItem.Id);
-
-        private async Task CreateNewVersionOfDefaultVariantAsync(Guid contentItemId)
         {
-            var url = $"{_apiEndpoint}/{contentItemId}/variants/00000000-0000-0000-0000-000000000000/new-version";
+            var url = $"{_apiEndpoint}/{contentItem.Id}/variants/00000000-0000-0000-0000-000000000000/new-version";
 
             var response = await _httpClient.PutAsync(url, new StringContent(string.Empty, Encoding.UTF8, "application/json"));
             var contentResult = await response.Content.ReadAsStringAsync();

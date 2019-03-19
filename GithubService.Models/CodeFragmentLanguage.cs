@@ -7,7 +7,6 @@
         public const string Curl = "curl";
         public const string HTML = "html";
         public const string Java = "java";
-        public const string JavaRx = "javarx";
         public const string JavaScript = "javascript";
         public const string Php = "php";
         public const string Python = "python";

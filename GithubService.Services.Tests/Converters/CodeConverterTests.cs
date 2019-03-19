@@ -13,7 +13,7 @@ namespace GithubService.Services.Tests.Converters
         private readonly ICodeConverter _codeConverter = new CodeConverter();
 
         [Test]
-        public void ConvertToCodeSamples_OnEmptyCodeFragments_ReturnsEmptyList()
+        public void ConvertToCodenameCodeFragments_OnEmptyCodeFragments_ReturnsEmptyList()
         {
             var expectedOutput = new List<CodenameCodeFragments>();
 
@@ -24,7 +24,7 @@ namespace GithubService.Services.Tests.Converters
         }
 
         [Test]
-        public void ConvertToCodeSamples_HandlesOneCodeSampleInMultipleLanguages()
+        public void ConvertToCodenameCodeFragments_HandlesOneCodeSampleInMultipleLanguages()
         {
             var javascriptFragment = new CodeFragment
             {

@@ -12,9 +12,9 @@ namespace GithubService.Services.Tests.Parsers
     {
         private readonly IFileParser _parser = new FileParser();
 
-        [TestCase(CodeFragmentLanguage.JavaScript, "js/file.js", CodeFragmentPlatform.JavaScript)]
-        [TestCase(CodeFragmentLanguage.Css, "php/file.css", CodeFragmentPlatform.Php)]
-        public void ParseContent_ParsesFileWithOneCodeSample(string language, string filePath, string platform)
+        [TestCase("js/file.js", CodeFragmentPlatform.JavaScript, CodeFragmentLanguage.JavaScript)]
+        [TestCase("php/file.css", CodeFragmentPlatform.Php, CodeFragmentLanguage.Css)]
+        public void ParseContent_ParsesFileWithOneCodeSample(string filePath, string platform, string language)
         {
             var comment = language.GetCommentPrefix();
             var sampleFile = $"{comment} DocSection: hello\nanything \n{comment} EndDocSection";
@@ -38,9 +38,9 @@ namespace GithubService.Services.Tests.Parsers
             Assert.That(actualOutput, Is.EqualTo(expectedOutput).UsingCodeSampleFileComparer());
         }
 
-        [TestCase(CodeFragmentLanguage.Css, "js/file.css", CodeFragmentPlatform.JavaScript)]
-        [TestCase(CodeFragmentLanguage.Php, "php/file.php", CodeFragmentPlatform.Php)]
-        public void ParseContent_ThrowsWhenMultipleCodeSamplesWithSameIdentifierInOneFile(string language, string filePath, string platform)
+        [TestCase("js/file.css", CodeFragmentPlatform.JavaScript, CodeFragmentLanguage.Css)]
+        [TestCase("php/file.php", CodeFragmentPlatform.Php, CodeFragmentLanguage.Php)]
+        public void ParseContent_ThrowsWhenMultipleCodeSamplesWithSameIdentifierInOneFile(string filePath, string platform, string language)
         {
             var comment = language.GetCommentPrefix();
             var sampleFile =
@@ -56,9 +56,9 @@ int j = 14;
             Assert.Throws<ArgumentException>(() => _parser.ParseContent(filePath, sampleFile));
         }
 
-        [TestCase(CodeFragmentLanguage.Css, "js/file.css", CodeFragmentPlatform.JavaScript)]
-        [TestCase(CodeFragmentLanguage.Php, "php/file.php", CodeFragmentPlatform.Php)]
-        public void ParseContent_ParsesFileWithMultipleCodeSamples(string language, string filePath, string platform)
+        [TestCase("js/file.css", CodeFragmentPlatform.JavaScript, CodeFragmentLanguage.Css)]
+        [TestCase("php/file.php", CodeFragmentPlatform.Php, CodeFragmentLanguage.Php)]
+        public void ParseContent_ParsesFileWithMultipleCodeSamples(string filePath, string platform, string language)
         {
             var comment = language.GetCommentPrefix();
             var sampleFile =
@@ -118,9 +118,9 @@ DeliveryClient client = new DeliveryClient(""<YOUR_PROJECT_ID>"", ""<YOUR_PREVIE
             Assert.That(actualOutput, Is.EqualTo(expectedOutput).UsingCodeSampleFileComparer());
         }
 
-        [TestCase(CodeFragmentLanguage.Css, "js/file.css", CodeFragmentPlatform.JavaScript)]
-        [TestCase(CodeFragmentLanguage.Php, "php/file.php", CodeFragmentPlatform.Php)]
-        public void ParseContent_ParsesCodeSampleWithSpecialCharacters(string language, string filePath, string platform)
+        [TestCase("js/file.css", CodeFragmentPlatform.JavaScript, CodeFragmentLanguage.Css)]
+        [TestCase("php/file.php", CodeFragmentPlatform.Php, CodeFragmentLanguage.Php)]
+        public void ParseContent_ParsesCodeSampleWithSpecialCharacters(string filePath, string platform, string language)
         {
             var comment = language.GetCommentPrefix();
             var sampleFile =
