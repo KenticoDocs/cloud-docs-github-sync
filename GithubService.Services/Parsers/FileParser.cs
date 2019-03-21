@@ -162,7 +162,7 @@ namespace GithubService.Services.Parsers
 
                 codeFile.CodeFragments.Add(new CodeFragment
                     {
-                        Identifier = sampleIdentifier,
+                        Identifier = sampleIdentifier.ToLower(),
                         Content = matchedContent,
                         Language = language,
                         Platform = platform

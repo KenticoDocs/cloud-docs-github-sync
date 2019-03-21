@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using GithubService.Models;
 using GithubService.Services.Converters;
@@ -19,13 +18,28 @@ namespace GithubService.Utils
         {
             var fragmentsByCodenameRoot = CodeConverter.ConvertToCodenameCodeFragments(fragments);
 
-            await Task.WhenAll(fragments.Select(actionSelectorForSingleFragment));
-            await Task.WhenAll(fragmentsByCodenameRoot.Select(actionSelectorForCodeSamples));
+            foreach (var codeFragment in fragments)
+            {
+                await actionSelectorForSingleFragment(codeFragment);
+            }
+
+            foreach (var fragmentByCodename in fragmentsByCodenameRoot)
+            {
+                if (fragmentByCodename.CodeFragments.Count > 1)
+                {
+                    await actionSelectorForCodeSamples(fragmentByCodename);
+                }
+            }
         }
 
         internal static async Task ExecuteCodeFragmentChanges(
             Func<CodeFragment, Task> actionSelectorForSingleFragment,
-            IEnumerable<CodeFragment> fragments) 
-            => await Task.WhenAll(fragments.Select(actionSelectorForSingleFragment));
+            IEnumerable<CodeFragment> fragments)
+        {
+            foreach (var fragment in fragments)
+            {
+                await actionSelectorForSingleFragment(fragment);
+            }
+        }
     }
 }
