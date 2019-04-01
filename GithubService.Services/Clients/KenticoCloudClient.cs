@@ -60,7 +60,7 @@ namespace GithubService.Services.Clients
             var contentResult = await response.Content.ReadAsStringAsync();
 
             if (response.StatusCode != HttpStatusCode.NoContent)
-                throw new Exception(contentResult);
+                throw new UnsuccessfulRequestException(contentResult);
         }
     }
 }
