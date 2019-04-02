@@ -58,6 +58,12 @@ int j = 14;
 
         [TestCase("js/file.css", CodeFragmentPlatform.JavaScript, CodeFragmentLanguage.Css)]
         [TestCase("php/file.php", CodeFragmentPlatform.Php, CodeFragmentLanguage.Php)]
+        [TestCase("android/file.java", CodeFragmentPlatform.Android, CodeFragmentLanguage.Java)]
+        [TestCase("ruby/file.rb", CodeFragmentPlatform.Ruby, CodeFragmentLanguage.Ruby)]
+        [TestCase("ios/file.swift", CodeFragmentPlatform.iOS, CodeFragmentLanguage.Swift)]
+        [TestCase("net/file.cs", CodeFragmentPlatform.Net, CodeFragmentLanguage.CSharp)]
+        [TestCase("ts/file.ts", CodeFragmentPlatform.TypeScript, CodeFragmentLanguage.TypeScript)]
+        [TestCase("js/file.html", CodeFragmentPlatform.JavaScript, CodeFragmentLanguage.HTML)]
         public void ParseContent_ParsesFileWithMultipleCodeSamples(string filePath, string platform, string language)
         {
             var comment = language.GetCommentPrefix();
@@ -120,6 +126,12 @@ DeliveryClient client = new DeliveryClient(""<YOUR_PROJECT_ID>"", ""<YOUR_PREVIE
 
         [TestCase("js/file.css", CodeFragmentPlatform.JavaScript, CodeFragmentLanguage.Css)]
         [TestCase("php/file.php", CodeFragmentPlatform.Php, CodeFragmentLanguage.Php)]
+        [TestCase("android/file.java", CodeFragmentPlatform.Android, CodeFragmentLanguage.Java)]
+        [TestCase("ruby/file.rb", CodeFragmentPlatform.Ruby, CodeFragmentLanguage.Ruby)]
+        [TestCase("ios/file.swift", CodeFragmentPlatform.iOS, CodeFragmentLanguage.Swift)]
+        [TestCase("net/file.cs", CodeFragmentPlatform.Net, CodeFragmentLanguage.CSharp)]
+        [TestCase("ts/file.ts", CodeFragmentPlatform.TypeScript, CodeFragmentLanguage.TypeScript)]
+        [TestCase("js/file.html", CodeFragmentPlatform.JavaScript, CodeFragmentLanguage.HTML)]
         public void ParseContent_ParsesCodeSampleWithSpecialCharacters(string filePath, string platform, string language)
         {
             var comment = language.GetCommentPrefix();

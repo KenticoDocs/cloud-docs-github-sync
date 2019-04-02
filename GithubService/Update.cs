@@ -1,7 +1,6 @@
 using GithubService.Models;
 using GithubService.Models.Webhooks;
 using GithubService.Repository;
-using GithubService.Services;
 using GithubService.Services.Clients;
 using GithubService.Services.Converters;
 using GithubService.Services.Interfaces;
@@ -17,7 +16,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using GithubService.Utils;
+using GithubService.Services;
 
 namespace GithubService
 {
@@ -25,7 +24,8 @@ namespace GithubService
     {
         [FunctionName("kcd-github-service-update")]
         public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "post", Route = "kcd-github-service-update/{testAttribute?}")] HttpRequest request,
+            [HttpTrigger(AuthorizationLevel.Function, "post", Route = "kcd-github-service-update/{testAttribute?}")]
+            HttpRequest request,
             string testAttribute,
             ILogger logger)
         {
@@ -56,28 +56,41 @@ namespace GithubService
             var connectionString = configuration.RepositoryConnectionString;
             var codeFileRepository = await CodeFileRepository.CreateInstance(connectionString);
 
-            var codeConverter = new CodeConverter();
-            var kenticoCloudClient = new KenticoCloudClient(
-                configuration.KenticoCloudProjectId,
-                configuration.KenticoCloudContentManagementApiKey);
+            var addedFragmentsFromNewFiles = await ProcessAddedFiles(addedFiles, codeFileRepository, githubService);
+            var (addedFragmentsFromModifiedFiles, modifiedFragments, removedFragmentsFromModifiedFiles) = 
+                await ProcessModifiedFiles(modifiedFiles, codeFileRepository, githubService, logger);
+            var removedFragmentsFromDeletedFiles = await ProcessRemovedFiles(removedFiles, codeFileRepository);
 
-            var kenticoCloudService = new KenticoCloudService(kenticoCloudClient, codeConverter);
+            var allAddedFragments = new List<CodeFragment>()
+                .Concat(addedFragmentsFromNewFiles ?? Enumerable.Empty<CodeFragment>())
+                .Concat(addedFragmentsFromModifiedFiles ?? Enumerable.Empty<CodeFragment>());
+            var allModifiedFragments = new List<CodeFragment>()
+                .Concat(modifiedFragments ?? Enumerable.Empty<CodeFragment>());
+            var allRemovedFragments = new List<CodeFragment>()
+                .Concat(removedFragmentsFromModifiedFiles ?? Enumerable.Empty<CodeFragment>())
+                .Concat(removedFragmentsFromDeletedFiles ?? Enumerable.Empty<CodeFragment>());
 
-            await ProcessAddedFiles(addedFiles, codeFileRepository, githubService, kenticoCloudService);
-            await ProcessModifiedFiles(modifiedFiles, codeFileRepository, githubService, kenticoCloudService, logger);
-            await ProcessRemovedFiles(removedFiles, codeFileRepository, kenticoCloudService);
+            var eventDataRepository = await EventDataRepository.CreateInstance(connectionString);
+            var eventDataService = new EventDataService(eventDataRepository);
+
+            await eventDataService
+                .SaveCodeFragmentsAsync(
+                    FunctionMode.Update,
+                    allAddedFragments,
+                    allModifiedFragments,
+                    allRemovedFragments
+                );
 
             return new OkObjectResult("Updated.");
         }
 
-        private static async Task ProcessAddedFiles(
+        private static async Task<IEnumerable<CodeFragment>> ProcessAddedFiles(
             ICollection<string> addedFiles,
             ICodeFileRepository codeFileRepository,
-            IGithubService githubService,
-            IKenticoCloudService kenticoCloudService)
+            IGithubService githubService)
         {
             if (!addedFiles.Any())
-                return;
+                return null;
 
             var codeFiles = new List<CodeFile>();
 
@@ -91,24 +104,23 @@ namespace GithubService
 
             var fragmentsToUpsert = codeFiles.SelectMany(file => file.CodeFragments);
 
-            await KenticoCloudUtils.ExecuteCodeFragmentChanges(
-                kenticoCloudService.UpsertCodeFragmentAsync,
-                kenticoCloudService.UpsertCodenameCodeFragmentsAsync,
-                fragmentsToUpsert);
+            return fragmentsToUpsert;
         }
 
-        private static async Task ProcessModifiedFiles(
-            ICollection<string> modifiedFiles,
-            ICodeFileRepository codeFileRepository,
-            IGithubService githubService,
-            IKenticoCloudService kenticoCloudService,
-            ILogger logger)
+        private static async Task<(IEnumerable<CodeFragment>, IEnumerable<CodeFragment>, IEnumerable<CodeFragment>)>
+            ProcessModifiedFiles(
+                ICollection<string> modifiedFiles,
+                ICodeFileRepository codeFileRepository,
+                IGithubService githubService,
+                ILogger logger)
         {
             if (!modifiedFiles.Any())
-                return;
+                return (null, null, null);
 
+            var fragmentsToAdd = new List<CodeFragment>();
+            var fragmentsToModify = new List<CodeFragment>();
             var fragmentsToRemove = new List<CodeFragment>();
-            var fragmentsToUpsert = new List<CodeFragment>();
+
 
             var codeConverter = new CodeConverter();
 
@@ -121,36 +133,32 @@ namespace GithubService
 
                 if (oldCodeFile == null)
                 {
-                    logger.LogWarning($"Trying to modify code file {filePath} might result in inconsistent content in KC because there is no known previous version of the code file.");
+                    logger.LogWarning(
+                        $"Trying to modify code file {filePath} might result in inconsistent content " +
+                        "in KC because there is no known previous version of the code file.");
 
-                    fragmentsToUpsert.AddRange(newCodeFile.CodeFragments);
+                    fragmentsToAdd.AddRange(newCodeFile.CodeFragments);
                 }
                 else
                 {
-                    var (newFragments, modifiedFragments, removedFragments) = codeConverter.CompareFragmentLists(oldCodeFile.CodeFragments, newCodeFile.CodeFragments);
-                    fragmentsToUpsert.AddRange(newFragments);
-                    fragmentsToUpsert.AddRange(modifiedFragments);
+                    var (newFragments, modifiedFragments, removedFragments) =
+                        codeConverter.CompareFragmentLists(oldCodeFile.CodeFragments, newCodeFile.CodeFragments);
+
+                    fragmentsToAdd.AddRange(newFragments);
+                    fragmentsToModify.AddRange(modifiedFragments);
                     fragmentsToRemove.AddRange(removedFragments);
                 }
             }
 
-            await KenticoCloudUtils.ExecuteCodeFragmentChanges(
-                kenticoCloudService.RemoveCodeFragmentAsync,
-                fragmentsToRemove);
-
-            await KenticoCloudUtils.ExecuteCodeFragmentChanges(
-                kenticoCloudService.UpsertCodeFragmentAsync,
-                kenticoCloudService.UpsertCodenameCodeFragmentsAsync,
-                fragmentsToUpsert);
+            return (fragmentsToAdd, fragmentsToModify, fragmentsToRemove);
         }
 
-        private static async Task ProcessRemovedFiles(
+        private static async Task<IEnumerable<CodeFragment>> ProcessRemovedFiles(
             ICollection<string> removedFiles,
-            ICodeFileRepository codeFileRepository,
-            IKenticoCloudService kenticoCloudService)
+            ICodeFileRepository codeFileRepository)
         {
             if (!removedFiles.Any())
-                return;
+                return null;
 
             var codeFiles = new List<CodeFile>();
 
@@ -163,11 +171,10 @@ namespace GithubService
                     codeFiles.Add(archivedFile);
                 }
             }
+
             var fragmentsToRemove = codeFiles.SelectMany(file => file.CodeFragments);
 
-            await KenticoCloudUtils.ExecuteCodeFragmentChanges(
-                kenticoCloudService.RemoveCodeFragmentAsync,
-                fragmentsToRemove);
+            return fragmentsToRemove;
         }
     }
 }

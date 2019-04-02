@@ -8,10 +8,6 @@
 
         string GithubAccessToken { get; }
 
-        string KenticoCloudProjectId { get; }
-
-        string KenticoCloudContentManagementApiKey { get; }
-
         string RepositoryConnectionString { get; }
     }
 }

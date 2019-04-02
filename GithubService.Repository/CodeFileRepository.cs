@@ -8,6 +8,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using CodeFragment = GithubService.Models.CodeFragment;
 
 namespace GithubService.Repository
 {

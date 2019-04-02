@@ -23,12 +23,6 @@ namespace GithubService.Configuration
         public string GithubAccessToken
             => Environment.GetEnvironmentVariable($"Github.AccessToken{_testSuffix}");
 
-        public string KenticoCloudProjectId
-            => Environment.GetEnvironmentVariable($"KenticoCloud.ProjectId{_testSuffix}");
-
-        public string KenticoCloudContentManagementApiKey
-            => Environment.GetEnvironmentVariable($"KenticoCloud.ContentManagementApiKey{_testSuffix}");
-
         public string RepositoryConnectionString
             => Environment.GetEnvironmentVariable($"Repository.ConnectionString{_testSuffix}");
     }

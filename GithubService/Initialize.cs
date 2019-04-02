@@ -1,16 +1,16 @@
+using System.Collections.Generic;
+using System.Linq;
 using GithubService.Repository;
 using GithubService.Services;
 using GithubService.Services.Clients;
-using GithubService.Services.Converters;
 using GithubService.Services.Parsers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
-using System.Linq;
 using System.Threading.Tasks;
-using GithubService.Utils;
+using GithubService.Models;
 
 namespace GithubService
 {
@@ -18,7 +18,8 @@ namespace GithubService
     {
         [FunctionName("kcd-github-service-initialize")]
         public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "post", Route = "kcd-github-service-initialize/{testAttribute?}")] HttpRequest request,
+            [HttpTrigger(AuthorizationLevel.Function, "post", Route = "kcd-github-service-initialize/{testAttribute?}")]
+            HttpRequest request,
             string testAttribute,
             ILogger logger)
         {
@@ -38,28 +39,22 @@ namespace GithubService
             // Persist all code sample files
             var connectionString = configuration.RepositoryConnectionString;
             var codeFileRepository = await CodeFileRepository.CreateInstance(connectionString);
+            var fragmentsToUpsert = new List<CodeFragment>();
 
             foreach (var codeFile in codeFiles)
             {
                 await codeFileRepository.StoreAsync(codeFile);
+                fragmentsToUpsert.AddRange(codeFile.CodeFragments);
             }
 
-            var codeConverter = new CodeConverter();
-
-            // Create/update appropriate KC items
-            var kenticoCloudClient = new KenticoCloudClient(
-                configuration.KenticoCloudProjectId,
-                configuration.KenticoCloudContentManagementApiKey);
-
-            var kenticoCloudService = new KenticoCloudService(kenticoCloudClient, codeConverter);
-
-            var fragmentsToUpsert = codeFiles.SelectMany(file => file.CodeFragments);
-
-            await KenticoCloudUtils.ExecuteCodeFragmentChanges(
-                kenticoCloudService.UpsertCodeFragmentAsync,
-                kenticoCloudService.UpsertCodenameCodeFragmentsAsync,
-                fragmentsToUpsert
-            );
+            var eventDataRepository = await EventDataRepository.CreateInstance(connectionString);
+            await new EventDataService(eventDataRepository)
+                .SaveCodeFragmentsAsync(
+                    FunctionMode.Initialize,
+                    fragmentsToUpsert,
+                    Enumerable.Empty<CodeFragment>(),
+                    Enumerable.Empty<CodeFragment>()
+                );
 
             return new OkObjectResult("Initialized.");
         }
