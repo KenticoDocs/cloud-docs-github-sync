@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\GithubService.Repository\GithubService.Repository.csproj" />
     <ProjectReference Include="..\GithubService.Services\GithubService.Services.csproj" />
   </ItemGroup>
 

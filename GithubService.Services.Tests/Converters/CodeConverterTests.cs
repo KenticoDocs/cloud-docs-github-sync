@@ -24,35 +24,37 @@ namespace GithubService.Services.Tests.Converters
         }
 
         [Test]
-        public void ConvertToCodenameCodeFragments_HandlesMultipleCodeFragmentsInOneFile()
+        public void ConvertToCodenameCodeFragments_HandlesOneCodeSampleInMultipleLanguages()
         {
+            var javascriptFragment = new CodeFragment
+            {
+                Identifier = "hello-world",
+                Content = "console.log('Hello Kentico Cloud');",
+                Language = CodeFragmentLanguage.JavaScript,
+                Platform = CodeFragmentPlatform.JavaScript
+            };
+
+            var netFragment = new CodeFragment
+            {
+                Identifier = "hello-world",
+                Content = "System.out.println('Hello Kentico Cloud');",
+                Language = CodeFragmentLanguage.CSharp,
+                Platform = CodeFragmentPlatform.Net
+            };
+
+            var javaFragment = new CodeFragment
+            {
+                Identifier = "hello-world",
+                Content = "int i += 3",
+                Language = CodeFragmentLanguage.Java,
+                Platform = CodeFragmentPlatform.Java
+            };
+
             var codeFragments = new List<CodeFragment>
             {
-                new CodeFragment
-                {
-                    Codename = "hello-world",
-                    Content = "console.log('Hello Kentico Cloud');",
-                    Language = CodeFragmentLanguage.JavaScript
-                },
-                new CodeFragment
-                {
-                    Codename = "one-two-three",
-                    Content = "int i += 3",
-                    Language = CodeFragmentLanguage.JavaScript
-                },
-                new CodeFragment
-                {
-                    Codename = "let_s_begin",
-                    Content =
-                        "const client = new DeliveryClient({ projectId: 'a0a9d198-e604-007a-50c9-fecbb46046d1' });",
-                    Language = CodeFragmentLanguage.JavaScript
-                },
-                new CodeFragment
-                {
-                    Codename = "byebye",
-                    Content = "export default ArticleListing;",
-                    Language = CodeFragmentLanguage.JavaScript
-                }
+                javaFragment,
+                javascriptFragment,
+                netFragment
             };
 
             var expectedOutput = new List<CodenameCodeFragments>
@@ -62,99 +64,11 @@ namespace GithubService.Services.Tests.Converters
                     Codename = "hello-world",
                     CodeFragments = new List<CodeFragment>
                     {
-                        new CodeFragment
-                        {
-                            Codename = "hello-world",
-                            Content = "console.log('Hello Kentico Cloud');",
-                            Language = CodeFragmentLanguage.JavaScript
-                        }
+                        javaFragment,
+                        javascriptFragment,
+                        netFragment
                     }
                 },
-                new CodenameCodeFragments
-                {
-                    Codename = "one-two-three",
-                    CodeFragments = new List<CodeFragment>
-                    {
-                        new CodeFragment
-                        {
-                            Codename = "one-two-three",
-                            Content = "int i += 3",
-                            Language = CodeFragmentLanguage.JavaScript
-                        }
-                    }
-                },
-                new CodenameCodeFragments
-                {
-                    Codename = "let_s_begin",
-                    CodeFragments = new List<CodeFragment>
-                    {
-                        new CodeFragment
-                        {
-                            Codename = "let_s_begin",
-                            Content =
-                                "const client = new DeliveryClient({ projectId: 'a0a9d198-e604-007a-50c9-fecbb46046d1' });",
-                            Language = CodeFragmentLanguage.JavaScript
-                        }
-                    }
-                },
-                new CodenameCodeFragments
-                {
-                    Codename = "byebye",
-                    CodeFragments = new List<CodeFragment>
-                    {
-                        new CodeFragment
-                        {
-                            Codename = "byebye",
-                            Content = "export default ArticleListing;",
-                            Language = CodeFragmentLanguage.JavaScript
-                        }
-                    }
-                }
-            };
-
-            var actualOutput = _codeConverter.ConvertToCodenameCodeFragments(codeFragments);
-
-            Assert.That(actualOutput, Is.EqualTo(expectedOutput).UsingCodenameCodeFragmentsComparer());
-        }
-
-        [Test]
-        public void ConvertToCodenameCodeFragments_ComposesFragmentsFromMultipleFilesIntoOneObject()
-        {
-            var codeFragments = new List<CodeFragment>
-            {
-                new CodeFragment
-                {
-                    Codename = "hello-world",
-                    Content = "console.log('Hello Kentico Cloud');",
-                    Language = CodeFragmentLanguage.JavaScript
-                },
-                new CodeFragment
-                {
-                    Codename = "hello-world",
-                    Content = "Console.WriteLine(\"Hello World!\");",
-                    Language = CodeFragmentLanguage.Net
-                },
-                new CodeFragment
-                {
-                    Codename = "hello-world",
-                    Content = "print(\"Hello, World!\")",
-                    Language = CodeFragmentLanguage.Php
-                },
-                new CodeFragment
-                {
-                    Codename = "hello-world",
-                    Content = "System.out.println(\"Hello, World\");",
-                    Language = CodeFragmentLanguage.Java
-                }
-            };
-
-            var expectedOutput = new List<CodenameCodeFragments>
-            {
-                new CodenameCodeFragments
-                {
-                    Codename = "hello-world",
-                    CodeFragments = codeFragments
-                }
             };
 
             var actualOutput = _codeConverter.ConvertToCodenameCodeFragments(codeFragments);
@@ -169,9 +83,10 @@ namespace GithubService.Services.Tests.Converters
             {
                 new CodeFragment
                 {
-                    Codename = "hello-world",
+                    Identifier = "hello-world",
                     Content = "console.log('Hello Kentico Cloud');",
-                    Language = CodeFragmentLanguage.JavaScript
+                    Language = CodeFragmentLanguage.JavaScript,
+                    Platform = CodeFragmentPlatform.JavaScript
                 }
             };
 
@@ -179,23 +94,26 @@ namespace GithubService.Services.Tests.Converters
             {
                 new CodeFragment
                 {
-                    Codename = "hello-world",
+                    Identifier = "hello-world",
                     Content = "console.log('Hello Kentico Cloud');",
-                    Language = CodeFragmentLanguage.JavaScript
+                    Language = CodeFragmentLanguage.JavaScript,
+                    Platform = CodeFragmentPlatform.JavaScript
                 },
                 new CodeFragment
                 {
-                    Codename = "hello-world",
+                    Identifier = "hello-world",
                     Content = "Console.WriteLine(\"Hello World!\");",
-                    Language = CodeFragmentLanguage.Net
+                    Language = CodeFragmentLanguage.CSharp,
+                    Platform = CodeFragmentPlatform.Net
                 }
             };
 
             var expectedFragment = new CodeFragment
             {
-                Codename = "hello-world",
+                Identifier = "hello-world",
                 Content = "Console.WriteLine(\"Hello World!\");",
-                Language = CodeFragmentLanguage.Net
+                Language = CodeFragmentLanguage.CSharp,
+                Platform = CodeFragmentPlatform.Net
             };
 
             var (newFragments, modifiedFragments, removedFragments) = _codeConverter.CompareFragmentLists(oldList, newList);
@@ -212,9 +130,10 @@ namespace GithubService.Services.Tests.Converters
             {
                 new CodeFragment
                 {
-                    Codename = "hello-world",
+                    Identifier = "hello-world",
                     Content = "console.log('Hello Kentico Cloud');",
-                    Language = CodeFragmentLanguage.JavaScript
+                    Language = CodeFragmentLanguage.JavaScript,
+                    Platform = CodeFragmentPlatform.JavaScript
                 }
             };
 
@@ -222,17 +141,19 @@ namespace GithubService.Services.Tests.Converters
             {
                 new CodeFragment
                 {
-                    Codename = "hello-world",
+                    Identifier = "hello-world",
                     Content = "console.log('Hello Awesome Kentico Cloud');",
-                    Language = CodeFragmentLanguage.JavaScript
+                    Language = CodeFragmentLanguage.JavaScript,
+                    Platform = CodeFragmentPlatform.JavaScript
                 }
             };
 
             var expectedFragment = new CodeFragment
             {
-                Codename = "hello-world",
+                Identifier = "hello-world",
                 Content = "console.log('Hello Awesome Kentico Cloud');",
-                Language = CodeFragmentLanguage.JavaScript
+                Language = CodeFragmentLanguage.JavaScript,
+                Platform = CodeFragmentPlatform.JavaScript
             };
 
             var (newFragments, modifiedFragments, removedFragments) = _codeConverter.CompareFragmentLists(oldList, newList);
@@ -249,15 +170,17 @@ namespace GithubService.Services.Tests.Converters
             {
                 new CodeFragment
                 {
-                    Codename = "hello-world",
+                    Identifier = "hello-world",
                     Content = "console.log('Hello Kentico Cloud');",
-                    Language = CodeFragmentLanguage.JavaScript
+                    Language = CodeFragmentLanguage.JavaScript,
+                    Platform = CodeFragmentPlatform.JavaScript
                 },
                 new CodeFragment
                 {
-                    Codename = "hello-world",
+                    Identifier = "hello-world",
                     Content = "Console.WriteLine(\"Hello World!\");",
-                    Language = CodeFragmentLanguage.Net
+                    Language = CodeFragmentLanguage.CSharp,
+                    Platform = CodeFragmentPlatform.Net
                 }
             };
 
@@ -265,17 +188,19 @@ namespace GithubService.Services.Tests.Converters
             {
                 new CodeFragment
                 {
-                    Codename = "hello-world",
+                    Identifier = "hello-world",
                     Content = "console.log('Hello Kentico Cloud');",
-                    Language = CodeFragmentLanguage.JavaScript
+                    Language = CodeFragmentLanguage.JavaScript,
+                    Platform = CodeFragmentPlatform.JavaScript
                 }
             };
 
             var expectedFragment = new CodeFragment
             {
-                Codename = "hello-world",
+                Identifier = "hello-world",
                 Content = "Console.WriteLine(\"Hello World!\");",
-                Language = CodeFragmentLanguage.Net
+                Language = CodeFragmentLanguage.CSharp,
+                Platform = CodeFragmentPlatform.Net
             };
 
             var (newFragments, modifiedFragments, removedFragments) = _codeConverter.CompareFragmentLists(oldList, newList);

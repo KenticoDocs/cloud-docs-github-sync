@@ -1,5 +1,4 @@
 ﻿using GithubService.Models;
-using GithubService.Models.KenticoCloud;
 using GithubService.Services.Interfaces;
 using System.Collections.Generic;
 using System.Globalization;
@@ -15,17 +14,15 @@ namespace GithubService.Services.Converters
 
             foreach (var codeFragment in fragments)
             {
-                var codename = codeFragment.Codename;
-
-                if (codenameCodeFragments.ContainsKey(codename))
+                if (codenameCodeFragments.ContainsKey(codeFragment.Identifier))
                 {
-                    codenameCodeFragments[codename].CodeFragments.Add(codeFragment);
+                    codenameCodeFragments[codeFragment.Identifier].CodeFragments.Add(codeFragment);
                 }
                 else
                 {
-                    codenameCodeFragments.Add(codename, new CodenameCodeFragments
+                    codenameCodeFragments.Add(codeFragment.Identifier, new CodenameCodeFragments
                     {
-                        Codename = codename,
+                        Codename = codeFragment.Identifier,
                         CodeFragments = new List<CodeFragment> { codeFragment }
                     });
                 }
@@ -33,19 +30,6 @@ namespace GithubService.Services.Converters
 
             return codenameCodeFragments.Values;
         }
-
-        public CodeSamples ConvertToCodeSamples(CodenameCodeFragments codenameCodeFragments) => new CodeSamples
-        {
-            Curl = GetLanguageContent(CodeFragmentLanguage.Curl, codenameCodeFragments),
-            CSharp = GetLanguageContent(CodeFragmentLanguage.Net, codenameCodeFragments),
-            JavaScript = GetLanguageContent(CodeFragmentLanguage.JavaScript, codenameCodeFragments),
-            TypeScript = GetLanguageContent(CodeFragmentLanguage.TypeScript, codenameCodeFragments),
-            Java = GetLanguageContent(CodeFragmentLanguage.Java, codenameCodeFragments),
-            JavaRx = GetLanguageContent(CodeFragmentLanguage.JavaRx, codenameCodeFragments),
-            PHP = GetLanguageContent(CodeFragmentLanguage.Php, codenameCodeFragments),
-            Swift = GetLanguageContent(CodeFragmentLanguage.Swift, codenameCodeFragments),
-            Ruby = GetLanguageContent(CodeFragmentLanguage.Ruby, codenameCodeFragments)
-        };
 
         public (List<CodeFragment> newFragments, List<CodeFragment> modifiedFragments, List<CodeFragment>
             removedFragments) CompareFragmentLists(List<CodeFragment> oldFragmentList,
@@ -95,12 +79,9 @@ namespace GithubService.Services.Converters
             return textInfo.ToTitleCase(codename.Replace('_', ' '));
         }
 
-        private static string GetLanguageContent(string language, CodenameCodeFragments codenameCodeFragments)
-            => codenameCodeFragments.CodeFragments.FirstOrDefault(codeFragment => codeFragment.Language == language)?.Content ?? string.Empty;
-
         private static bool CompareCodeFragments(CodeFragment first, CodeFragment second)
-            => first.Codename == second.Codename &&
+            => first.Identifier == second.Identifier &&
                first.Language == second.Language &&
-               first.Type == second.Type;
+               first.Platform == second.Platform;
     }
 }

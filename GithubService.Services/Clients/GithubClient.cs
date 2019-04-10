@@ -61,7 +61,7 @@ namespace GithubService.Services.Clients
             var response = await _httpClient.GetAsync(url);
             var responseContent = await response.Content.ReadAsStringAsync();
             if (!response.IsSuccessStatusCode)
-                throw new Exception(responseContent);
+                throw new UnsuccessfulRequestException(responseContent);
 
             return JObject.Parse(responseContent);
         }
