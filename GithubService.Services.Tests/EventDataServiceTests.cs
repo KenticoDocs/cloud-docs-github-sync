@@ -12,7 +12,7 @@ namespace GithubService.Services.Tests
     public class EventDataServiceTests
     {
         [Test]
-        public async Task SaveCodeFragmentsAsync_StoresFragmentsToRepository()
+        public async Task SaveCodeFragmentEventAsync_StoresFragmentEventToRepository()
         {
             var eventDataRepository = Substitute.For<IEventDataRepository>();
             var expectedCodeFraments = new List<RepositoryModels.CodeFragment>
@@ -49,14 +49,14 @@ namespace GithubService.Services.Tests
                     Status = CodeFragmentStatus.Removed
                 }
             };
-            var expectedCodeFragmentsEntity = new RepositoryModels.CodeFragmentsEntity
+            var expectedCodeFragmentEvent = new RepositoryModels.CodeFragmentEvent
             {
                 CodeFragments = expectedCodeFraments,
                 Mode = FunctionMode.Initialize
             };
             var eventDataService = new EventDataService(eventDataRepository);
 
-            await eventDataService.SaveCodeFragmentsAsync(
+            await eventDataService.SaveCodeFragmentEventAsync(
                 FunctionMode.Initialize,
                 addedCodeFragments: new[]
                 {
@@ -97,7 +97,24 @@ namespace GithubService.Services.Tests
 
             await eventDataRepository
                 .Received()
-                .StoreAsync(Arg.Is<RepositoryModels.CodeFragmentsEntity>(codeFragmentsEntity => codeFragmentsEntity.DoesEqual(expectedCodeFragmentsEntity)));
+                .StoreAsync(Arg.Is<RepositoryModels.CodeFragmentEvent>(codeFragmentEvent => codeFragmentEvent.DoesEqual(expectedCodeFragmentEvent)));
+        }
+
+        [Test]
+        public async Task SaveCodeFragmentEventAsync_NoFragments_DoesNotStoreFragmentEventToRepository()
+        {
+            var eventDataRepository = Substitute.For<IEventDataRepository>();
+            var eventDataService = new EventDataService(eventDataRepository);
+
+            await eventDataService.SaveCodeFragmentEventAsync(
+                FunctionMode.Initialize,
+                addedCodeFragments: new CodeFragment[0],
+                modifiedCodeFragments: new CodeFragment[0],
+                removedCodeFragments: new CodeFragment[0]);
+
+            await eventDataRepository
+                .DidNotReceive()
+                .StoreAsync(Arg.Any<RepositoryModels.CodeFragmentEvent>());
         }
     }
 }

@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace GithubService.Repository.Models
 {
-    public class CodeFragmentsEntity
+    public class CodeFragmentEvent
     {
         [JsonProperty(PropertyName = "codeFragments")]
         public IEnumerable<CodeFragment> CodeFragments { get; set; }

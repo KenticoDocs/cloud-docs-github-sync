@@ -62,19 +62,18 @@ namespace GithubService
             var removedFragmentsFromDeletedFiles = await ProcessRemovedFiles(removedFiles, codeFileRepository);
 
             var allAddedFragments = new List<CodeFragment>()
-                .Concat(addedFragmentsFromNewFiles ?? Enumerable.Empty<CodeFragment>())
-                .Concat(addedFragmentsFromModifiedFiles ?? Enumerable.Empty<CodeFragment>());
+                .Concat(addedFragmentsFromNewFiles)
+                .Concat(addedFragmentsFromModifiedFiles);
             var allModifiedFragments = new List<CodeFragment>()
-                .Concat(modifiedFragments ?? Enumerable.Empty<CodeFragment>());
+                .Concat(modifiedFragments);
             var allRemovedFragments = new List<CodeFragment>()
-                .Concat(removedFragmentsFromModifiedFiles ?? Enumerable.Empty<CodeFragment>())
-                .Concat(removedFragmentsFromDeletedFiles ?? Enumerable.Empty<CodeFragment>());
+                .Concat(removedFragmentsFromModifiedFiles)
+                .Concat(removedFragmentsFromDeletedFiles);
 
+            // Store code fragment event
             var eventDataRepository = await EventDataRepository.CreateInstance(connectionString);
-            var eventDataService = new EventDataService(eventDataRepository);
-
-            await eventDataService
-                .SaveCodeFragmentsAsync(
+            await new EventDataService(eventDataRepository)
+                .SaveCodeFragmentEventAsync(
                     FunctionMode.Update,
                     allAddedFragments,
                     allModifiedFragments,
@@ -90,7 +89,7 @@ namespace GithubService
             IGithubService githubService)
         {
             if (!addedFiles.Any())
-                return null;
+                return Enumerable.Empty<CodeFragment>();
 
             var codeFiles = new List<CodeFile>();
 
@@ -102,9 +101,7 @@ namespace GithubService
                 codeFiles.Add(codeFile);
             }
 
-            var fragmentsToUpsert = codeFiles.SelectMany(file => file.CodeFragments);
-
-            return fragmentsToUpsert;
+            return codeFiles.SelectMany(file => file.CodeFragments);
         }
 
         private static async Task<(IEnumerable<CodeFragment>, IEnumerable<CodeFragment>, IEnumerable<CodeFragment>)>
@@ -115,12 +112,11 @@ namespace GithubService
                 ILogger logger)
         {
             if (!modifiedFiles.Any())
-                return (null, null, null);
+                return (Enumerable.Empty<CodeFragment>(), Enumerable.Empty<CodeFragment>(), Enumerable.Empty<CodeFragment>());
 
             var fragmentsToAdd = new List<CodeFragment>();
             var fragmentsToModify = new List<CodeFragment>();
             var fragmentsToRemove = new List<CodeFragment>();
-
 
             var codeConverter = new CodeConverter();
 
@@ -158,7 +154,7 @@ namespace GithubService
             ICodeFileRepository codeFileRepository)
         {
             if (!removedFiles.Any())
-                return null;
+                return Enumerable.Empty<CodeFragment>();
 
             var codeFiles = new List<CodeFile>();
 
@@ -172,9 +168,7 @@ namespace GithubService
                 }
             }
 
-            var fragmentsToRemove = codeFiles.SelectMany(file => file.CodeFragments);
-
-            return fragmentsToRemove;
+            return codeFiles.SelectMany(file => file.CodeFragments);
         }
     }
 }

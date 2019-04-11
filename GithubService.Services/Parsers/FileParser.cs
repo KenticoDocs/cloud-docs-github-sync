@@ -43,9 +43,9 @@ namespace GithubService.Services.Parsers
                 return codeFile;
             }
 
-            if(sampleIdentifiers.Count != sampleIdentifiers.Distinct().ToList().Count)
+            if (sampleIdentifiers.Count != sampleIdentifiers.Distinct().ToList().Count)
             {
-                throw new ArgumentException($"Duplicate code name in the file {filePath}");
+                throw new ArgumentException($"Duplicate codename in the file {filePath}");
             }
 
             ExtractCodeSamples(content, sampleIdentifiers, language, codeFile, platform);

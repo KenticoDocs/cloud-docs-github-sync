@@ -1,36 +1,12 @@
 ﻿using GithubService.Models;
 using GithubService.Services.Interfaces;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 
 namespace GithubService.Services.Converters
 {
     public class CodeConverter : ICodeConverter
     {
-        public IEnumerable<CodenameCodeFragments> ConvertToCodenameCodeFragments(IEnumerable<CodeFragment> fragments)
-        {
-            var codenameCodeFragments = new Dictionary<string, CodenameCodeFragments>();
-
-            foreach (var codeFragment in fragments)
-            {
-                if (codenameCodeFragments.ContainsKey(codeFragment.Identifier))
-                {
-                    codenameCodeFragments[codeFragment.Identifier].CodeFragments.Add(codeFragment);
-                }
-                else
-                {
-                    codenameCodeFragments.Add(codeFragment.Identifier, new CodenameCodeFragments
-                    {
-                        Codename = codeFragment.Identifier,
-                        CodeFragments = new List<CodeFragment> { codeFragment }
-                    });
-                }
-            }
-
-            return codenameCodeFragments.Values;
-        }
-
         public (List<CodeFragment> newFragments, List<CodeFragment> modifiedFragments, List<CodeFragment>
             removedFragments) CompareFragmentLists(List<CodeFragment> oldFragmentList,
                 List<CodeFragment> newFragmentList)
@@ -67,16 +43,6 @@ namespace GithubService.Services.Converters
             }
 
             return (newFragments, modifiedFragments, removedFragments);
-        }
-
-        public string ConvertCodenameToItemName(string codename)
-        {
-            if (string.IsNullOrEmpty(codename))
-                return codename;
-
-            var textInfo = new CultureInfo("en-US", false).TextInfo;
-
-            return textInfo.ToTitleCase(codename.Replace('_', ' '));
         }
 
         private static bool CompareCodeFragments(CodeFragment first, CodeFragment second)

@@ -5,6 +5,6 @@ namespace GithubService.Repository
 {
     public interface IEventDataRepository
     {
-        Task StoreAsync(CodeFragmentsEntity codeFragments);
+        Task StoreAsync(CodeFragmentEvent codeFragmentEvent);
     }
 }

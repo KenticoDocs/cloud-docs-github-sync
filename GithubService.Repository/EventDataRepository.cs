@@ -20,23 +20,16 @@ namespace GithubService.Repository
             var cloudStorageAccount = CloudStorageAccount.Parse(connectionString);
             var cloudBlobClient = cloudStorageAccount.CreateCloudBlobClient();
             var cloudBlobContainer = cloudBlobClient.GetContainerReference("code-sample-fragments");
-            var permissions = new BlobContainerPermissions
-            {
-                PublicAccess = BlobContainerPublicAccessType.Blob
-            };
 
             await cloudBlobContainer.CreateIfNotExistsAsync();
-            await cloudBlobContainer.SetPermissionsAsync(permissions);
 
-            var instance = new EventDataRepository {CloudBlobContainer = cloudBlobContainer};
-
-            return instance;
+            return new EventDataRepository { CloudBlobContainer = cloudBlobContainer };
         }
 
-        public async Task StoreAsync(CodeFragmentsEntity codeFragments)
+        public async Task StoreAsync(CodeFragmentEvent codeFragmentEvent)
         {
             var cloudBlockBlob = CloudBlobContainer.GetBlockBlobReference(Guid.NewGuid().ToString());
-            var serializedCodeFragmentsEntity = JsonConvert.SerializeObject(codeFragments);
+            var serializedCodeFragmentsEntity = JsonConvert.SerializeObject(codeFragmentEvent);
 
             await cloudBlockBlob.UploadTextAsync(serializedCodeFragmentsEntity);
         }

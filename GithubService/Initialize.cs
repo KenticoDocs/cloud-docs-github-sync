@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using GithubService.Repository;
 using GithubService.Services;
 using GithubService.Services.Clients;
@@ -47,14 +46,10 @@ namespace GithubService
                 fragmentsToUpsert.AddRange(codeFile.CodeFragments);
             }
 
+            // Store code fragment event
             var eventDataRepository = await EventDataRepository.CreateInstance(connectionString);
             await new EventDataService(eventDataRepository)
-                .SaveCodeFragmentsAsync(
-                    FunctionMode.Initialize,
-                    fragmentsToUpsert,
-                    Enumerable.Empty<CodeFragment>(),
-                    Enumerable.Empty<CodeFragment>()
-                );
+                .SaveCodeFragmentEventAsync(FunctionMode.Initialize, fragmentsToUpsert);
 
             return new OkObjectResult("Initialized.");
         }

@@ -271,7 +271,7 @@ int j = 14;
         [Test]
         public void ParseContent_ThrowsIfMarkingIsNotProperlyClosed()
         {
-            const string sampleFile = "// DocSection: multiple_hello\nanything";
+            const string sampleFile = "// DocSection: hello\nanything";
 
             Assert.Throws<ArgumentException>(() => _parser.ParseContent("js/file.js", sampleFile));
         }

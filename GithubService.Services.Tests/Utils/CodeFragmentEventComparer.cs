@@ -4,9 +4,9 @@ using GithubService.Repository.Models;
 
 namespace GithubService.Services.Tests.Utils
 {
-    internal class CodeFragmentsEntityComparer : IEqualityComparer<CodeFragmentsEntity>
+    internal class CodeFragmentEventComparer : IEqualityComparer<CodeFragmentEvent>
     {
-        public bool Equals(CodeFragmentsEntity x, CodeFragmentsEntity y)
+        public bool Equals(CodeFragmentEvent x, CodeFragmentEvent y)
         {
             if (x == y) return true;
             if (x == null) return false;
@@ -17,7 +17,7 @@ namespace GithubService.Services.Tests.Utils
                    x.CodeFragments.SequenceEqual(y.CodeFragments);
         }
 
-        public int GetHashCode(CodeFragmentsEntity obj)
+        public int GetHashCode(CodeFragmentEvent obj)
         {
             unchecked
             {
@@ -29,13 +29,13 @@ namespace GithubService.Services.Tests.Utils
         }
     }
 
-    internal static class CodeFragmentsEntityComparerWrapper
+    internal static class CodeFragmentEventComparerWrapper
     {
-        private static Lazy<CodeFragmentsEntityComparer> Lazy => new Lazy<CodeFragmentsEntityComparer>();
+        private static Lazy<CodeFragmentEventComparer> Lazy => new Lazy<CodeFragmentEventComparer>();
 
-        private static CodeFragmentsEntityComparer Comparer => Lazy.Value;
+        private static CodeFragmentEventComparer Comparer => Lazy.Value;
 
-        public static bool DoesEqual(this CodeFragmentsEntity fragments, CodeFragmentsEntity fragments2) =>
-            Comparer.Equals(fragments, fragments2);
+        public static bool DoesEqual(this CodeFragmentEvent x, CodeFragmentEvent y) =>
+            Comparer.Equals(x, y);
     }
 }

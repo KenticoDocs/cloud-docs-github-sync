@@ -56,7 +56,7 @@ namespace GithubService.Services.Tests.Utils
 
         private static RepositoryCodeFragmentComparer Comparer => Lazy.Value;
 
-        public static bool SequenceEqual(this IEnumerable<RepositoryModels.CodeFragment> fragments, IEnumerable<RepositoryModels.CodeFragment> fragments2) =>
-            Comparer.SequenceEqual(fragments, fragments2);
+        public static bool SequenceEqual(this IEnumerable<RepositoryModels.CodeFragment> x, IEnumerable<RepositoryModels.CodeFragment> y) =>
+            Comparer.SequenceEqual(x, y);
     }
 }

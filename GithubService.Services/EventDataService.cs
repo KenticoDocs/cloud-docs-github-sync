@@ -16,12 +16,23 @@ namespace GithubService.Services
             _eventDataRepository = eventDataRepository;
         }
 
-        public async Task SaveCodeFragmentsAsync(
+        public async Task SaveCodeFragmentEventAsync(
+            string functionMode,
+            IEnumerable<CodeFragment> addedCodeFragments)
+        {
+            await SaveCodeFragmentEventAsync(
+                functionMode,
+                addedCodeFragments,
+                Enumerable.Empty<CodeFragment>(),
+                Enumerable.Empty<CodeFragment>()
+            );
+        }
+
+        public async Task SaveCodeFragmentEventAsync(
             string functionMode,
             IEnumerable<CodeFragment> addedCodeFragments,
             IEnumerable<CodeFragment> modifiedCodeFragments,
-            IEnumerable<CodeFragment> removedCodeFragments
-        )
+            IEnumerable<CodeFragment> removedCodeFragments)
         {
             var codeFragments = new List<RepositoryModels.CodeFragment>();
 
@@ -39,13 +50,13 @@ namespace GithubService.Services
 
             if (codeFragments.Count > 0)
             {
-                var codeFragmentsEntity = new RepositoryModels.CodeFragmentsEntity
+                var codeFragmentEvent = new RepositoryModels.CodeFragmentEvent
                 {
                     CodeFragments = codeFragments,
                     Mode = functionMode,
                 };
 
-                await _eventDataRepository.StoreAsync(codeFragmentsEntity);
+                await _eventDataRepository.StoreAsync(codeFragmentEvent);
             }
         }
 
