@@ -17,14 +17,13 @@ namespace GithubService
     {
         [FunctionName("kcd-github-service-initialize")]
         public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "post", Route = "kcd-github-service-initialize/{testAttribute?}")]
+            [HttpTrigger(AuthorizationLevel.Function, "post")]
             HttpRequest request,
-            string testAttribute,
             ILogger logger)
         {
             logger.LogInformation("Initialize called.");
 
-            var configuration = new Configuration.Configuration(testAttribute);
+            var configuration = new Configuration.Configuration();
             var fileParser = new FileParser();
 
             // Get all the files from GitHub

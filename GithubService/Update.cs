@@ -24,14 +24,13 @@ namespace GithubService
     {
         [FunctionName("kcd-github-service-update")]
         public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "post", Route = "kcd-github-service-update/{testAttribute?}")]
+            [HttpTrigger(AuthorizationLevel.Function, "post")]
             HttpRequest request,
-            string testAttribute,
             ILogger logger)
         {
             logger.LogInformation("Update called.");
 
-            var configuration = new Configuration.Configuration(testAttribute);
+            var configuration = new Configuration.Configuration();
             var fileParser = new FileParser();
 
             // Get all the files from GitHub
