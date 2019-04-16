@@ -7,7 +7,6 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
-using System.Web;
 
 namespace GithubService.Services.Clients
 {
@@ -43,7 +42,7 @@ namespace GithubService.Services.Clients
 
         public async Task<string> GetFileContentAsync(string filePath)
         {
-            var encodedFilePath = HttpUtility.UrlEncode(filePath);
+            var encodedFilePath = Uri.EscapeDataString(filePath);
             var dynamicContent = await GetContentAsync($"{_apiEndpoint}/contents/{encodedFilePath}?access_token={_accessToken}");
 
             return DecodeContent(dynamicContent);

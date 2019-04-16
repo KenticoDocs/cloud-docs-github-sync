@@ -60,13 +60,9 @@ namespace GithubService
                 await ProcessModifiedFiles(modifiedFiles, codeFileRepository, githubService, logger);
             var removedFragmentsFromDeletedFiles = await ProcessRemovedFiles(removedFiles, codeFileRepository);
 
-            var allAddedFragments = new List<CodeFragment>()
-                .Concat(addedFragmentsFromNewFiles)
+            var allAddedFragments = addedFragmentsFromNewFiles
                 .Concat(addedFragmentsFromModifiedFiles);
-            var allModifiedFragments = new List<CodeFragment>()
-                .Concat(modifiedFragments);
-            var allRemovedFragments = new List<CodeFragment>()
-                .Concat(removedFragmentsFromModifiedFiles)
+            var allRemovedFragments = removedFragmentsFromModifiedFiles
                 .Concat(removedFragmentsFromDeletedFiles);
 
             // Store code fragment event
@@ -75,7 +71,7 @@ namespace GithubService
                 .SaveCodeFragmentEventAsync(
                     FunctionMode.Update,
                     allAddedFragments,
-                    allModifiedFragments,
+                    modifiedFragments,
                     allRemovedFragments
                 );
 
