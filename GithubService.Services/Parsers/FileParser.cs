@@ -25,12 +25,17 @@ namespace GithubService.Services.Parsers
                 return codeFile;
             }
 
-            var extractedLanguage = GetLanguage(filePath);
-            if (extractedLanguage == null)
+            var language = GetLanguage(filePath);
+            if (language == null)
             {
                 return codeFile;
             }
-            var language = (CodeFragmentLanguage) extractedLanguage;
+
+            var platform = GetPlatform(filePath);
+            if (platform == null)
+            {
+                return codeFile;
+            }
 
             var sampleIdentifiers = ExtractSampleIdentifiers(content, language);
             if (sampleIdentifiers.Count == 0)
@@ -38,7 +43,12 @@ namespace GithubService.Services.Parsers
                 return codeFile;
             }
 
-            ExtractCodeSamples(content, sampleIdentifiers, language, codeFile);
+            if (sampleIdentifiers.Count != sampleIdentifiers.Distinct().ToList().Count)
+            {
+                throw new ArgumentException($"Duplicate codename in the file {filePath}");
+            }
+
+            ExtractCodeSamples(content, sampleIdentifiers, language, codeFile, platform);
 
             if (sampleIdentifiers.Count != codeFile.CodeFragments.Count)
             {
@@ -48,36 +58,68 @@ namespace GithubService.Services.Parsers
             return codeFile;
         }
 
-        private static CodeFragmentLanguage? GetLanguage(string filepath)
+        private static string GetPlatform(string filepath)
         {
-            var languageIdentifier = filepath.Split('/')[0];
+            var platformIdentifier = filepath.Split('/')[0];
 
-            switch (languageIdentifier)
+            switch (platformIdentifier)
             {
-                case "cUrl":
-                    return CodeFragmentLanguage.CUrl;
-                case "c#":
-                    return CodeFragmentLanguage.CSharp;
+                case "rest":
+                    return CodeFragmentPlatform.Rest;
+                case "net":
+                    return CodeFragmentPlatform.Net;
                 case "js":
-                    return CodeFragmentLanguage.JavaScript;
+                    return CodeFragmentPlatform.JavaScript;
                 case "ts":
-                    return CodeFragmentLanguage.TypeScript;
+                    return CodeFragmentPlatform.TypeScript;
                 case "java":
-                    return CodeFragmentLanguage.Java;
-                case "javarx":
-                    return CodeFragmentLanguage.JavaRx;
+                    return CodeFragmentPlatform.Java;
+                case "android":
+                    return CodeFragmentPlatform.Android;
+                case "ios":
+                    return CodeFragmentPlatform.iOS;
                 case "php":
-                    return CodeFragmentLanguage.PHP;
-                case "swift":
-                    return CodeFragmentLanguage.Swift;
+                    return CodeFragmentPlatform.Php;
                 case "ruby":
-                    return CodeFragmentLanguage.Ruby;
+                    return CodeFragmentPlatform.Ruby;
                 default:
                     return null;
             }
         }
 
-        private static List<string> ExtractSampleIdentifiers(string content, CodeFragmentLanguage language)
+        private static string GetLanguage(string filepath)
+        {
+            var splittedFilePath = filepath.Split('.');
+            var platformIdentifier = splittedFilePath[splittedFilePath.Length - 1];
+
+            switch (platformIdentifier)
+            {
+                case "cs":
+                    return CodeFragmentLanguage.CSharp;
+                case "css":
+                    return CodeFragmentLanguage.Css;
+                case "html":
+                    return CodeFragmentLanguage.HTML;
+                case "java":
+                    return CodeFragmentLanguage.Java;
+                case "js":
+                    return CodeFragmentLanguage.JavaScript;
+                case "php":
+                    return CodeFragmentLanguage.Php;
+                case "py":
+                    return CodeFragmentLanguage.Python;
+                case "rb":
+                    return CodeFragmentLanguage.Ruby;
+                case "swift":
+                    return CodeFragmentLanguage.Swift;
+                case "ts":
+                    return CodeFragmentLanguage.TypeScript;
+                default:
+                    return null;
+            }
+        }
+
+        private static List<string> ExtractSampleIdentifiers(string content, string language)
         {
             var sampleIdentifiersExtractor = new Regex($"{language.GetCommentPrefix()} DocSection: (.*?)\n", RegexOptions.Compiled);
             var sampleIdentifiers = new List<string>();
@@ -95,8 +137,9 @@ namespace GithubService.Services.Parsers
         private static void ExtractCodeSamples(
             string content,
             IReadOnlyList<string> sampleIdentifiers,
-            CodeFragmentLanguage language,
-            CodeFile codeFile)
+            string language,
+            CodeFile codeFile,
+            string platform)
         {
             var codeSamplesExtractor = GetCodeSamplesExtractor(sampleIdentifiers, language);
             var codeSamplesFileMatches = codeSamplesExtractor.Matches(content);
@@ -117,19 +160,18 @@ namespace GithubService.Services.Parsers
 
                 matchedGroupIndex += 2;
 
-                var (sampleType, sampleCodename) = ExtractCodenameAndTypeFromIdentifier(sampleIdentifier);
                 codeFile.CodeFragments.Add(new CodeFragment
                     {
-                        Codename = sampleCodename,
-                        Type = sampleType,
+                        Identifier = sampleIdentifier.ToLower(),
                         Content = matchedContent,
-                        Language = language
+                        Language = language,
+                        Platform = platform
                     }
                 );
             }
         }
 
-        private static Regex GetCodeSamplesExtractor(IEnumerable<string> sampleIdentifiers, CodeFragmentLanguage language)
+        private static Regex GetCodeSamplesExtractor(IEnumerable<string> sampleIdentifiers, string language)
         {
             var codeSamplesExtractor = sampleIdentifiers.Aggregate("",
                 (current, sampleIdentifier) => current + $"{language.GetCommentPrefix()} DocSection: {sampleIdentifier}\\s*?\n((.|\n)*?){language.GetCommentPrefix()} EndDocSection|");
@@ -139,33 +181,6 @@ namespace GithubService.Services.Parsers
                 : codeSamplesExtractor;
 
             return new Regex(codeSamplesExtractor, RegexOptions.Compiled);
-        }
-
-        private static (CodeFragmentType sampleType, string sampleCodename) ExtractCodenameAndTypeFromIdentifier(string sampleIdentifier)
-        {
-            var index = sampleIdentifier.IndexOf('_');
-            if (index <= 0)
-            {
-                throw new ArgumentException($"Unrecognized sample type in sample identifier {sampleIdentifier}.");
-            }
-
-            var type = sampleIdentifier.Substring(0, index);
-            var codename = sampleIdentifier.Substring(index + 1, sampleIdentifier.Length - index - 1);
-
-            return (GetSampleType(type), codename);
-        }
-
-        private static CodeFragmentType GetSampleType(string type)
-        {
-            switch (type)
-            {
-                case "single":
-                    return CodeFragmentType.Single;
-                case "multiple":
-                    return CodeFragmentType.Multiple;
-                default:
-                    throw new ArgumentException($"Unsupported sample type {type}.");
-            }
         }
     }
 }

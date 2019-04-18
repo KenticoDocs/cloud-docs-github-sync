@@ -36,6 +36,20 @@ namespace GithubService.Services.Clients
         public async Task<string> GetBlobContentAsync(string blobId)
         {
             var dynamicContent = await GetContentAsync($"{_apiEndpoint}/git/blobs/{blobId}?access_token={_accessToken}");
+
+            return DecodeContent(dynamicContent);
+        }
+
+        public async Task<string> GetFileContentAsync(string filePath)
+        {
+            var encodedFilePath = Uri.EscapeDataString(filePath);
+            var dynamicContent = await GetContentAsync($"{_apiEndpoint}/contents/{encodedFilePath}?access_token={_accessToken}");
+
+            return DecodeContent(dynamicContent);
+        }
+
+        private string DecodeContent(JObject dynamicContent)
+        {
             var content = Convert.FromBase64String(dynamicContent["content"].Value<string>());
 
             return Encoding.UTF8.GetString(content);
@@ -46,7 +60,7 @@ namespace GithubService.Services.Clients
             var response = await _httpClient.GetAsync(url);
             var responseContent = await response.Content.ReadAsStringAsync();
             if (!response.IsSuccessStatusCode)
-                throw new Exception(responseContent);
+                throw new UnsuccessfulRequestException(responseContent);
 
             return JObject.Parse(responseContent);
         }

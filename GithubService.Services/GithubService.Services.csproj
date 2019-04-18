@@ -2,15 +2,17 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
+	 <!-- SonarQube needs this -->
+	<ProjectGuid>{6f2f9e59-68ef-45f0-a204-83b02f82bd0d}</ProjectGuid>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="KenticoCloud.ContentManagement" Version="1.5.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\GithubService.Models\GithubService.Models.csproj" />
+    <ProjectReference Include="..\GithubService.Repository\GithubService.Repository.csproj" />
   </ItemGroup>
 
   <ItemGroup>

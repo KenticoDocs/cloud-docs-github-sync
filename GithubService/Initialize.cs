@@ -1,15 +1,15 @@
+using System.Collections.Generic;
+using GithubService.Repository;
 using GithubService.Services;
 using GithubService.Services.Clients;
-using GithubService.Services.Converters;
+using GithubService.Services.Parsers;
 using Microsoft.AspNetCore.Http;
-using System;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
-using GithubService.Repository;
-using GithubService.Services.Parsers;
+using GithubService.Models;
 
 namespace GithubService
 {
@@ -17,46 +17,38 @@ namespace GithubService
     {
         [FunctionName("kcd-github-service-initialize")]
         public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] HttpRequest request,
+            [HttpTrigger(AuthorizationLevel.Function, "post")]
+            HttpRequest request,
             ILogger logger)
         {
             logger.LogInformation("Initialize called.");
 
+            var configuration = new Configuration.Configuration();
             var fileParser = new FileParser();
 
             // Get all the files from GitHub
             var githubClient = new GithubClient(
-                Environment.GetEnvironmentVariable("Github.RepositoryName"),
-                Environment.GetEnvironmentVariable("Github.RepositoryOwner"),
-                Environment.GetEnvironmentVariable("Github.AccessToken"));
+                configuration.GithubRepositoryName,
+                configuration.GithubRepositoryOwner,
+                configuration.GithubAccessToken);
             var githubService = new Services.GithubService(githubClient, fileParser);
             var codeFiles = await githubService.GetCodeFilesAsync();
 
             // Persist all code sample files
-            var connectionString = Environment.GetEnvironmentVariable("Repository.ConnectionString");
+            var connectionString = configuration.RepositoryConnectionString;
             var codeFileRepository = await CodeFileRepository.CreateInstance(connectionString);
+            var fragmentsToUpsert = new List<CodeFragment>();
 
             foreach (var codeFile in codeFiles)
             {
                 await codeFileRepository.StoreAsync(codeFile);
+                fragmentsToUpsert.AddRange(codeFile.CodeFragments);
             }
 
-            var codeSamplesConverter = new CodeSamplesConverter();
-            var samplesByCodename = codeSamplesConverter.ConvertToCodenameCodeFragments(codeFiles);
-
-            // Create/update appropriate KC items
-            var kenticoCloudClient = new KenticoCloudClient(
-                Environment.GetEnvironmentVariable("KenticoCloud.ProjectId"),
-                Environment.GetEnvironmentVariable("KenticoCloud.ContentManagementApiKey"),
-                Environment.GetEnvironmentVariable("KenticoCloud.InternalApiKey")
-            );
-
-            var kenticoCloudService = new KenticoCloudService(kenticoCloudClient, codeSamplesConverter);
-
-            foreach (var codeSample in samplesByCodename)
-            {
-                await kenticoCloudService.UpsertCodeFragmentsAsync(codeSample);
-            }
+            // Store code fragment event
+            var eventDataRepository = await EventDataRepository.CreateInstance(connectionString);
+            await new EventDataService(eventDataRepository)
+                .SaveCodeFragmentEventAsync(FunctionMode.Initialize, fragmentsToUpsert);
 
             return new OkObjectResult("Initialized.");
         }
