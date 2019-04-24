@@ -11,6 +11,7 @@
         public const string iOS = "ios";
         public const string Php = "php";
         public const string Ruby = "ruby";
+        public const string React = "react";
     }
 
     public static class CodeFragmentPlatformExtensions

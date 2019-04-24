@@ -20,15 +20,21 @@
     {
         public static string GetCommentPrefix(this string language)
         {
-            if (language == CodeFragmentLanguage.Ruby ||
-                language == CodeFragmentLanguage.Curl ||
-                language == CodeFragmentLanguage.Shell ||
-                language == CodeFragmentLanguage.Python)
+            switch (language)
             {
-                return "#";
+                case CodeFragmentLanguage.Ruby:
+                case CodeFragmentLanguage.Curl:
+                case CodeFragmentLanguage.Shell:
+                case CodeFragmentLanguage.Python:
+                    return "#";
+                case CodeFragmentLanguage.HTML:
+                    return "<!--";
+                default:
+                    return "//";
             }
-
-            return "//";
         }
+
+        public static string GetCommentSuffix(this string language) 
+            => language == CodeFragmentLanguage.HTML ? " -->" : "";
     }
 }
