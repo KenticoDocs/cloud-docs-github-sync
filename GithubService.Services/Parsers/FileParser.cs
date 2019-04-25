@@ -82,6 +82,8 @@ namespace GithubService.Services.Parsers
                     return CodeFragmentPlatform.Php;
                 case "ruby":
                     return CodeFragmentPlatform.Ruby;
+                case "react":
+                    return CodeFragmentPlatform.React;
                 default:
                     return null;
             }
@@ -90,19 +92,21 @@ namespace GithubService.Services.Parsers
         private static string GetLanguage(string filepath)
         {
             var splittedFilePath = filepath.Split('.');
-            var platformIdentifier = splittedFilePath[splittedFilePath.Length - 1];
+            var languageIdentifier = splittedFilePath[splittedFilePath.Length - 1];
 
-            switch (platformIdentifier)
+            switch (languageIdentifier)
             {
                 case "cs":
                     return CodeFragmentLanguage.CSharp;
                 case "css":
                     return CodeFragmentLanguage.Css;
                 case "html":
+                case "cshtml":
                     return CodeFragmentLanguage.HTML;
                 case "java":
                     return CodeFragmentLanguage.Java;
                 case "js":
+                case "jsx":
                     return CodeFragmentLanguage.JavaScript;
                 case "php":
                     return CodeFragmentLanguage.Php;
@@ -113,6 +117,7 @@ namespace GithubService.Services.Parsers
                 case "swift":
                     return CodeFragmentLanguage.Swift;
                 case "ts":
+                case "tsx":
                     return CodeFragmentLanguage.TypeScript;
                 default:
                     return null;
@@ -121,10 +126,10 @@ namespace GithubService.Services.Parsers
 
         private static List<string> ExtractSampleIdentifiers(string content, string language)
         {
-            var sampleIdentifiersExtractor = new Regex($"{language.GetCommentPrefix()} DocSection: (.*?)\n", RegexOptions.Compiled);
+            var sampleIdentifiersExtractor = new Regex($"{language.GetCommentPrefix()} DocSection: ([\\w_]*)", RegexOptions.Compiled);
             var sampleIdentifiers = new List<string>();
 
-            var matches = sampleIdentifiersExtractor.Matches(content);
+            var matches = sampleIdentifiersExtractor.Matches(content.Trim());
 
             foreach (Match match in matches)
             {
@@ -174,7 +179,7 @@ namespace GithubService.Services.Parsers
         private static Regex GetCodeSamplesExtractor(IEnumerable<string> sampleIdentifiers, string language)
         {
             var codeSamplesExtractor = sampleIdentifiers.Aggregate("",
-                (current, sampleIdentifier) => current + $"{language.GetCommentPrefix()} DocSection: {sampleIdentifier}\\s*?\n((.|\n)*?){language.GetCommentPrefix()} EndDocSection|");
+                (current, sampleIdentifier) => current + $"{language.GetCommentPrefix()} DocSection: {sampleIdentifier}{language.GetCommentSuffix()}\\s*?\n((.|\n)*?){language.GetCommentPrefix()} EndDocSection{language.GetCommentSuffix()}|");
 
             codeSamplesExtractor = codeSamplesExtractor.Length > 0
                 ? codeSamplesExtractor.Remove(codeSamplesExtractor.Length - 1)

@@ -14,10 +14,14 @@ namespace GithubService.Services.Tests.Parsers
 
         [TestCase("js/file.js", CodeFragmentPlatform.JavaScript, CodeFragmentLanguage.JavaScript)]
         [TestCase("php/file.css", CodeFragmentPlatform.Php, CodeFragmentLanguage.Css)]
+        [TestCase("net/file.cshtml", CodeFragmentPlatform.Net, CodeFragmentLanguage.HTML)]
+        [TestCase("react/file.ts", CodeFragmentPlatform.React, CodeFragmentLanguage.TypeScript)]
+        [TestCase("react/file.jsx", CodeFragmentPlatform.React, CodeFragmentLanguage.JavaScript)]
         public void ParseContent_ParsesFileWithOneCodeSample(string filePath, string platform, string language)
         {
-            var comment = language.GetCommentPrefix();
-            var sampleFile = $"{comment} DocSection: hello\nanything \n{comment} EndDocSection";
+            var commentPrefix = language.GetCommentPrefix();
+            var commentSuffix = language.GetCommentSuffix();
+            var sampleFile = $"{commentPrefix} DocSection: hello{commentSuffix}\nanything \n{commentPrefix} EndDocSection{commentSuffix}";
             var expectedOutput = new CodeFile
             {
                 CodeFragments = new List<CodeFragment>
@@ -40,6 +44,7 @@ namespace GithubService.Services.Tests.Parsers
 
         [TestCase("js/file.css", CodeFragmentPlatform.JavaScript, CodeFragmentLanguage.Css)]
         [TestCase("php/file.php", CodeFragmentPlatform.Php, CodeFragmentLanguage.Php)]
+        [TestCase("react/file.jsx", CodeFragmentPlatform.React, CodeFragmentLanguage.JavaScript)]
         public void ParseContent_ThrowsWhenMultipleCodeSamplesWithSameIdentifierInOneFile(string filePath, string platform, string language)
         {
             var comment = language.GetCommentPrefix();
@@ -64,23 +69,25 @@ int j = 14;
         [TestCase("net/file.cs", CodeFragmentPlatform.Net, CodeFragmentLanguage.CSharp)]
         [TestCase("ts/file.ts", CodeFragmentPlatform.TypeScript, CodeFragmentLanguage.TypeScript)]
         [TestCase("js/file.html", CodeFragmentPlatform.JavaScript, CodeFragmentLanguage.HTML)]
+        [TestCase("react/file.jsx", CodeFragmentPlatform.React, CodeFragmentLanguage.JavaScript)]
         public void ParseContent_ParsesFileWithMultipleCodeSamples(string filePath, string platform, string language)
         {
-            var comment = language.GetCommentPrefix();
+            var commentPrefix = language.GetCommentPrefix();
+            var commentSuffix = language.GetCommentSuffix();
             var sampleFile =
-$@"{comment} DocSection: hello_world
+$@"{commentPrefix} DocSection: hello_world{commentSuffix}
 console.log(""Hello Kentico Cloud"");
-{comment} EndDocSection
-{comment} DocSection: create-integer-long-codename123
+{commentPrefix} EndDocSection{commentSuffix}
+{commentPrefix} DocSection: create_integer_long_codename123{commentSuffix}
 int abcd = 12345;
-{comment} EndDocSection
-{comment} DocSection: create-integer
+{commentPrefix} EndDocSection{commentSuffix}
+{commentPrefix} DocSection: create_integer{commentSuffix}
 int i = 1000;
-{comment} EndDocSection
-{comment} DocSection: create-integer-variable
+{commentPrefix} EndDocSection{commentSuffix}
+{commentPrefix} DocSection: create_integer_variable{commentSuffix}
 import com.kenticocloud.delivery;
 DeliveryClient client = new DeliveryClient(""<YOUR_PROJECT_ID>"", ""<YOUR_PREVIEW_API_KEY>"");
-{comment} EndDocSection
+{commentPrefix} EndDocSection{commentSuffix}
   ";
 
             var expectedOutput = new CodeFile
@@ -96,21 +103,21 @@ DeliveryClient client = new DeliveryClient(""<YOUR_PROJECT_ID>"", ""<YOUR_PREVIE
                     },
                     new CodeFragment
                     {
-                        Identifier = "create-integer-long-codename123",
+                        Identifier = "create_integer_long_codename123",
                         Language = language,
                         Content = "int abcd = 12345;",
                         Platform = platform
                     },
                     new CodeFragment
                     {
-                        Identifier = "create-integer",
+                        Identifier = "create_integer",
                         Language = language,
                         Content = "int i = 1000;",
                         Platform = platform
                     },
                     new CodeFragment
                     {
-                        Identifier = "create-integer-variable",
+                        Identifier = "create_integer_variable",
                         Language = language,
                         Content = $"import com.kenticocloud.delivery;{Environment.NewLine}DeliveryClient client = new DeliveryClient(\"<YOUR_PROJECT_ID>\", \"<YOUR_PREVIEW_API_KEY>\");",
                         Platform = platform
@@ -132,15 +139,18 @@ DeliveryClient client = new DeliveryClient(""<YOUR_PROJECT_ID>"", ""<YOUR_PREVIE
         [TestCase("net/file.cs", CodeFragmentPlatform.Net, CodeFragmentLanguage.CSharp)]
         [TestCase("ts/file.ts", CodeFragmentPlatform.TypeScript, CodeFragmentLanguage.TypeScript)]
         [TestCase("js/file.html", CodeFragmentPlatform.JavaScript, CodeFragmentLanguage.HTML)]
+        [TestCase("react/file.tsx", CodeFragmentPlatform.React, CodeFragmentLanguage.TypeScript)]
+        [TestCase("js/file.jsx", CodeFragmentPlatform.JavaScript, CodeFragmentLanguage.JavaScript)]
         public void ParseContent_ParsesCodeSampleWithSpecialCharacters(string filePath, string platform, string language)
         {
-            var comment = language.GetCommentPrefix();
+            var commentPrefix = language.GetCommentPrefix();
+            var commentSuffix = language.GetCommentSuffix();
             var sampleFile =
-$@"   {comment} DocSection: special_
+$@"   {commentPrefix} DocSection: special_{commentSuffix}
 ;0123456789.*?()<>@/'
 
 	\|%$&:+-;~`!#^_{{}}[], //
-{comment} EndDocSection";
+{commentPrefix} EndDocSection{commentSuffix}";
 
             var expectedOutput = new CodeFile
             {
