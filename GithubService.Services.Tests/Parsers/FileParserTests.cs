@@ -70,6 +70,8 @@ int j = 14;
         [TestCase("ts/file.ts", CodeFragmentPlatform.TypeScript, CodeFragmentLanguage.TypeScript)]
         [TestCase("js/file.html", CodeFragmentPlatform.JavaScript, CodeFragmentLanguage.HTML)]
         [TestCase("react/file.jsx", CodeFragmentPlatform.React, CodeFragmentLanguage.JavaScript)]
+        [TestCase("rest/file.curl", CodeFragmentPlatform.Rest, CodeFragmentLanguage.Curl)]
+        [TestCase("rest/file.sh", CodeFragmentPlatform.Rest, CodeFragmentLanguage.Shell)]
         public void ParseContent_ParsesFileWithMultipleCodeSamples(string filePath, string platform, string language)
         {
             var commentPrefix = language.GetCommentPrefix();
@@ -141,6 +143,8 @@ DeliveryClient client = new DeliveryClient(""<YOUR_PROJECT_ID>"", ""<YOUR_PREVIE
         [TestCase("js/file.html", CodeFragmentPlatform.JavaScript, CodeFragmentLanguage.HTML)]
         [TestCase("react/file.tsx", CodeFragmentPlatform.React, CodeFragmentLanguage.TypeScript)]
         [TestCase("js/file.jsx", CodeFragmentPlatform.JavaScript, CodeFragmentLanguage.JavaScript)]
+        [TestCase("rest/file.curl", CodeFragmentPlatform.Rest, CodeFragmentLanguage.Curl)]
+        [TestCase("rest/file.sh", CodeFragmentPlatform.Rest, CodeFragmentLanguage.Shell)]
         public void ParseContent_ParsesCodeSampleWithSpecialCharacters(string filePath, string platform, string language)
         {
             var commentPrefix = language.GetCommentPrefix();
@@ -242,7 +246,7 @@ $@"   {commentPrefix} DocSection: special_{commentSuffix}
 
         [TestCase(null)]
         [TestCase("")]
-        public void ParseContent_InvalidFilePath_ThrowsArgumentException(string filePath) 
+        public void ParseContent_InvalidFilePath_ThrowsArgumentException(string filePath)
             => Assert.Throws<ArgumentException>(() => _parser.ParseContent(filePath, "some content"));
 
         [Test]
