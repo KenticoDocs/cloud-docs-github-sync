@@ -119,6 +119,10 @@ namespace GithubService.Services.Parsers
                 case "ts":
                 case "tsx":
                     return CodeFragmentLanguage.TypeScript;
+                case "sh":
+                    return CodeFragmentLanguage.Shell;
+                case "curl":
+                    return CodeFragmentLanguage.Curl;
                 default:
                     return null;
             }
@@ -166,12 +170,12 @@ namespace GithubService.Services.Parsers
                 matchedGroupIndex += 2;
 
                 codeFile.CodeFragments.Add(new CodeFragment
-                    {
-                        Identifier = sampleIdentifier.ToLower(),
-                        Content = matchedContent,
-                        Language = language,
-                        Platform = platform
-                    }
+                {
+                    Identifier = sampleIdentifier.ToLower(),
+                    Content = matchedContent,
+                    Language = language,
+                    Platform = platform
+                }
                 );
             }
         }
