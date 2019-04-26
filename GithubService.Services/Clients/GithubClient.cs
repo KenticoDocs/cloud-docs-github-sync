@@ -16,9 +16,9 @@ namespace GithubService.Services.Clients
         private readonly string _apiEndpoint;
         private readonly string _accessToken;
 
-        public GithubClient(string repositoryName, string repositoryOwner, string accessToken)
+        public GithubClient(HttpClient httpClient, string repositoryName, string repositoryOwner, string accessToken)
         {
-            _httpClient = new HttpClient();
+            _httpClient = httpClient;
             _httpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("KenticoCloudDocsGithubService", "1.0.0"));
             _apiEndpoint = $"https://api.github.com/repos/{repositoryOwner}/{repositoryName}";
             _accessToken = accessToken;
