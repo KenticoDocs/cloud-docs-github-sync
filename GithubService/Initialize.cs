@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Net.Http;
 using GithubService.Repository;
 using GithubService.Services;
 using GithubService.Services.Clients;
@@ -28,6 +29,7 @@ namespace GithubService
 
             // Get all the files from GitHub
             var githubClient = new GithubClient(
+                new HttpClient(), 
                 configuration.GithubRepositoryName,
                 configuration.GithubRepositoryOwner,
                 configuration.GithubAccessToken);

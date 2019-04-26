@@ -14,6 +14,7 @@ using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using GithubService.Services;
@@ -35,6 +36,7 @@ namespace GithubService
 
             // Get all the files from GitHub
             var githubClient = new GithubClient(
+                new HttpClient(), 
                 configuration.GithubRepositoryName,
                 configuration.GithubRepositoryOwner,
                 configuration.GithubAccessToken);

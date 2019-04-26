@@ -15,7 +15,7 @@ namespace GithubService.Services.Tests
         public async Task SaveCodeFragmentEventAsync_StoresFragmentEventToRepository()
         {
             var eventDataRepository = Substitute.For<IEventDataRepository>();
-            var expectedCodeFraments = new List<RepositoryModels.CodeFragment>
+            var expectedCodeFragments = new List<RepositoryModels.CodeFragment>
             {
                 new RepositoryModels.CodeFragment
                 {
@@ -51,7 +51,7 @@ namespace GithubService.Services.Tests
             };
             var expectedCodeFragmentEvent = new RepositoryModels.CodeFragmentEvent
             {
-                CodeFragments = expectedCodeFraments,
+                CodeFragments = expectedCodeFragments,
                 Mode = FunctionMode.Initialize
             };
             var eventDataService = new EventDataService(eventDataRepository);
@@ -115,6 +115,63 @@ namespace GithubService.Services.Tests
             await eventDataRepository
                 .DidNotReceive()
                 .StoreAsync(Arg.Any<RepositoryModels.CodeFragmentEvent>());
+        }
+
+        [Test]
+        public async Task SaveCodeFragmentEventAsync_OnlyAddedFragments_StoresFragmentEventToRepository()
+        {
+            var eventDataRepository = Substitute.For<IEventDataRepository>();
+            var eventDataService = new EventDataService(eventDataRepository);
+            var expectedCodeFragments = new List<RepositoryModels.CodeFragment>
+            {
+                new RepositoryModels.CodeFragment
+                {
+                    Content = "using namespace System;",
+                    Identifier = "csharp_using",
+                    Language = CodeFragmentLanguage.CSharp,
+                    Platform = CodeFragmentPlatform.Net,
+                    Status = CodeFragmentStatus.Added
+                },
+                new RepositoryModels.CodeFragment
+                {
+                    Content = "import { axios } from 'axios';",
+                    Identifier = "javascript_import",
+                    Language = CodeFragmentLanguage.JavaScript,
+                    Platform = CodeFragmentPlatform.JavaScript,
+                    Status = CodeFragmentStatus.Added
+                }
+            };
+            var expectedCodeFragmentEvent = new RepositoryModels.CodeFragmentEvent
+            {
+                CodeFragments = expectedCodeFragments,
+                Mode = FunctionMode.Update
+            };
+
+            await eventDataService.SaveCodeFragmentEventAsync(
+                FunctionMode.Update,
+                new[]
+                {
+                    new CodeFragment
+                    {
+                        Content = "using namespace System;",
+                        Identifier = "csharp_using",
+                        Language = CodeFragmentLanguage.CSharp,
+                        Platform = CodeFragmentPlatform.Net
+                    },
+                    new CodeFragment
+                    {
+                        Content = "import { axios } from 'axios';",
+                        Identifier = "javascript_import",
+                        Language = CodeFragmentLanguage.JavaScript,
+                        Platform = CodeFragmentPlatform.JavaScript
+                    }
+                }
+            );
+
+            await eventDataRepository
+                .Received()
+                .StoreAsync(Arg.Is<RepositoryModels.CodeFragmentEvent>(codeFragmentEvent =>
+                    codeFragmentEvent.DoesEqual(expectedCodeFragmentEvent)));
         }
     }
 }
