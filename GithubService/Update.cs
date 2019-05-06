@@ -1,3 +1,4 @@
+using System;
 using GithubService.Models;
 using GithubService.Models.Webhooks;
 using GithubService.Repository;
@@ -14,6 +15,7 @@ using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using GithubService.Services;
@@ -30,52 +32,63 @@ namespace GithubService
         {
             logger.LogInformation("Update called.");
 
-            var configuration = new Configuration.Configuration();
-            var fileParser = new FileParser();
-
-            // Get all the files from GitHub
-            var githubClient = new GithubClient(
-                configuration.GithubRepositoryName,
-                configuration.GithubRepositoryOwner,
-                configuration.GithubAccessToken);
-            var githubService = new Services.GithubService(githubClient, fileParser);
-
-            // Read Webhook message from GitHub
-            WebhookMessage webhookMessage;
-            using (var streamReader = new StreamReader(request.Body, Encoding.UTF8))
+            try
             {
-                var requestBody = streamReader.ReadToEnd();
-                webhookMessage = JsonConvert.DeserializeObject<WebhookMessage>(requestBody);
+                var configuration = new Configuration.Configuration();
+                var fileParser = new FileParser();
+
+                // Get all the files from GitHub
+                var githubClient = new GithubClient(
+                    new HttpClient(),
+                    configuration.GithubRepositoryName,
+                    configuration.GithubRepositoryOwner,
+                    configuration.GithubAccessToken);
+                var githubService = new Services.GithubService(githubClient, fileParser);
+
+                // Read Webhook message from GitHub
+                WebhookMessage webhookMessage;
+                using (var streamReader = new StreamReader(request.Body, Encoding.UTF8))
+                {
+                    var requestBody = streamReader.ReadToEnd();
+                    webhookMessage = JsonConvert.DeserializeObject<WebhookMessage>(requestBody);
+                }
+
+                // Get paths to added/modified/deleted files
+                var parser = new WebhookParser();
+                var (addedFiles, modifiedFiles, removedFiles) = parser.ExtractFiles(webhookMessage);
+
+                var connectionString = configuration.RepositoryConnectionString;
+                var codeFileRepository = await CodeFileRepository.CreateInstance(connectionString);
+
+                var addedFragmentsFromNewFiles = await ProcessAddedFiles(addedFiles, codeFileRepository, githubService);
+                var (addedFragmentsFromModifiedFiles, modifiedFragments, removedFragmentsFromModifiedFiles) =
+                    await ProcessModifiedFiles(modifiedFiles, codeFileRepository, githubService, logger);
+                var removedFragmentsFromDeletedFiles = await ProcessRemovedFiles(removedFiles, codeFileRepository);
+
+                var allAddedFragments = addedFragmentsFromNewFiles
+                    .Concat(addedFragmentsFromModifiedFiles);
+                var allRemovedFragments = removedFragmentsFromModifiedFiles
+                    .Concat(removedFragmentsFromDeletedFiles);
+
+                // Store code fragment event
+                var eventDataRepository = await EventDataRepository.CreateInstance(connectionString);
+                await new EventDataService(eventDataRepository)
+                    .SaveCodeFragmentEventAsync(
+                        FunctionMode.Update,
+                        allAddedFragments,
+                        modifiedFragments,
+                        allRemovedFragments
+                    );
+
+                return new OkObjectResult("Updated.");
             }
+            catch (Exception exception)
+            {
+                // This try-catch is required for correct logging of exceptions in Azure
+                var message = $"Exception: {exception.Message}\nStack: {exception.StackTrace}";
 
-            // Get paths to added/modified/deleted files
-            var parser = new WebhookParser();
-            var (addedFiles, modifiedFiles, removedFiles) = parser.ExtractFiles(webhookMessage);
-
-            var connectionString = configuration.RepositoryConnectionString;
-            var codeFileRepository = await CodeFileRepository.CreateInstance(connectionString);
-
-            var addedFragmentsFromNewFiles = await ProcessAddedFiles(addedFiles, codeFileRepository, githubService);
-            var (addedFragmentsFromModifiedFiles, modifiedFragments, removedFragmentsFromModifiedFiles) = 
-                await ProcessModifiedFiles(modifiedFiles, codeFileRepository, githubService, logger);
-            var removedFragmentsFromDeletedFiles = await ProcessRemovedFiles(removedFiles, codeFileRepository);
-
-            var allAddedFragments = addedFragmentsFromNewFiles
-                .Concat(addedFragmentsFromModifiedFiles);
-            var allRemovedFragments = removedFragmentsFromModifiedFiles
-                .Concat(removedFragmentsFromDeletedFiles);
-
-            // Store code fragment event
-            var eventDataRepository = await EventDataRepository.CreateInstance(connectionString);
-            await new EventDataService(eventDataRepository)
-                .SaveCodeFragmentEventAsync(
-                    FunctionMode.Update,
-                    allAddedFragments,
-                    modifiedFragments,
-                    allRemovedFragments
-                );
-
-            return new OkObjectResult("Updated.");
+                throw new GithubServiceException(message);
+            }
         }
 
         private static async Task<IEnumerable<CodeFragment>> ProcessAddedFiles(
@@ -107,7 +120,10 @@ namespace GithubService
                 ILogger logger)
         {
             if (!modifiedFiles.Any())
-                return (Enumerable.Empty<CodeFragment>(), Enumerable.Empty<CodeFragment>(), Enumerable.Empty<CodeFragment>());
+                return (
+                    Enumerable.Empty<CodeFragment>(),
+                    Enumerable.Empty<CodeFragment>(),
+                    Enumerable.Empty<CodeFragment>());
 
             var fragmentsToAdd = new List<CodeFragment>();
             var fragmentsToModify = new List<CodeFragment>();

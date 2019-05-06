@@ -42,6 +42,16 @@ namespace GithubService.Services.Tests.Parsers
             Assert.That(actualOutput, Is.EqualTo(expectedOutput).UsingCodeSampleFileComparer());
         }
 
+        [Test]
+        public void ParseContent_ThrowsWhenDocSectionIncludesDocSection()
+        {
+            var commentPrefix = CodeFragmentLanguage.CSharp.GetCommentPrefix();
+            var commentSuffix = CodeFragmentLanguage.CSharp.GetCommentSuffix();
+            var sampleFile = $"{commentPrefix} DocSection: \nanything {commentPrefix} DocSection: hello{commentSuffix} \n{commentPrefix} EndDocSection{commentSuffix}";
+
+            Assert.Throws<ArgumentException>(() => _parser.ParseContent("net/file.cs", sampleFile));
+        }
+
         [TestCase("js/file.css", CodeFragmentPlatform.JavaScript, CodeFragmentLanguage.Css)]
         [TestCase("php/file.php", CodeFragmentPlatform.Php, CodeFragmentLanguage.Php)]
         [TestCase("react/file.jsx", CodeFragmentPlatform.React, CodeFragmentLanguage.JavaScript)]
@@ -142,7 +152,7 @@ DeliveryClient client = new DeliveryClient(""<YOUR_PROJECT_ID>"", ""<YOUR_PREVIE
         [TestCase("ts/file.ts", CodeFragmentPlatform.TypeScript, CodeFragmentLanguage.TypeScript)]
         [TestCase("js/file.html", CodeFragmentPlatform.JavaScript, CodeFragmentLanguage.HTML)]
         [TestCase("react/file.tsx", CodeFragmentPlatform.React, CodeFragmentLanguage.TypeScript)]
-        [TestCase("js/file.jsx", CodeFragmentPlatform.JavaScript, CodeFragmentLanguage.JavaScript)]
+        [TestCase("ts/file.tsx", CodeFragmentPlatform.TypeScript, CodeFragmentLanguage.TypeScript)]
         [TestCase("rest/file.curl", CodeFragmentPlatform.Rest, CodeFragmentLanguage.Curl)]
         [TestCase("rest/file.sh", CodeFragmentPlatform.Rest, CodeFragmentLanguage.Shell)]
         public void ParseContent_ParsesCodeSampleWithSpecialCharacters(string filePath, string platform, string language)
