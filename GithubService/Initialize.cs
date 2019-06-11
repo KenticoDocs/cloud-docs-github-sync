@@ -41,7 +41,7 @@ namespace GithubService
 
                 // Persist all code sample files
                 var connectionString = configuration.RepositoryConnectionString;
-                var codeFileRepository = await CodeFileRepository.CreateInstance(connectionString);
+                var codeFileRepository = await CodeFileRepositoryProvider.CreateCodeFileRepositoryInstance(connectionString);
                 var fragmentsToUpsert = new List<CodeFragment>();
 
                 foreach (var codeFile in codeFiles)

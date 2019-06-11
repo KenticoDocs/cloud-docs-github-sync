@@ -2,9 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
-    <IsPackable>false</IsPackable>
-	 <!-- SonarQube needs this -->
-	<ProjectGuid>{1baba323-76ed-4963-a296-cad8dca84999}</ProjectGuid>
   </PropertyGroup>
 
   <ItemGroup>
@@ -12,16 +9,14 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="NSubstitute" Version="4.2.0" />
-    <PackageReference Include="nunit" Version="3.12.0" />
-    <PackageReference Include="NUnit3TestAdapter" Version="3.13.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.1.0" />
-    <PackageReference Include="RichardSzalay.MockHttp" Version="5.0.0" />
+    <PackageReference Include="NSubstitute" Version="4.2.0" />
+    <PackageReference Include="NUnit" Version="3.12.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.13.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\GithubService.Repository\GithubService.Repository.csproj" />
-    <ProjectReference Include="..\GithubService.Services\GithubService.Services.csproj" />
     <ProjectReference Include="..\GithubService.Tests.Common\GithubService.Tests.Common.csproj" />
   </ItemGroup>
 

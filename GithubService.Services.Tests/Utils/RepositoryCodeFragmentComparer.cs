@@ -5,7 +5,7 @@ using RepositoryModels = GithubService.Repository.Models;
 
 namespace GithubService.Services.Tests.Utils
 {
-    internal class RepositoryCodeFragmentComparer : IEqualityComparer<RepositoryModels.CodeFragment>
+    public class RepositoryCodeFragmentComparer : IEqualityComparer<RepositoryModels.CodeFragment>
     {
         public bool Equals(RepositoryModels.CodeFragment x, RepositoryModels.CodeFragment y)
         {
@@ -21,8 +21,7 @@ namespace GithubService.Services.Tests.Utils
                    x.Status == y.Status;
         }
 
-        public bool SequenceEqual(IEnumerable<RepositoryModels.CodeFragment> x,
-            IEnumerable<RepositoryModels.CodeFragment> y)
+        public bool SequenceEqual(IEnumerable<RepositoryModels.CodeFragment> x, IEnumerable<RepositoryModels.CodeFragment> y)
         {
             if (ReferenceEquals(x, y)) return true;
             if (x == null) return false;
@@ -50,7 +49,7 @@ namespace GithubService.Services.Tests.Utils
         }
     }
 
-    internal static class RepositoryCodeFragmentComparerWrapper
+    public static class RepositoryCodeFragmentComparerWrapper
     {
         private static Lazy<RepositoryCodeFragmentComparer> Lazy => new Lazy<RepositoryCodeFragmentComparer>();
 

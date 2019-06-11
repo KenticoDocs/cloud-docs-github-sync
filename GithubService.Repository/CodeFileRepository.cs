@@ -1,6 +1,5 @@
 ﻿using GithubService.Models;
 using GithubService.Repository.Models;
-using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
 using Newtonsoft.Json;
 using System.Collections.Generic;
@@ -14,24 +13,13 @@ namespace GithubService.Repository
 {
     public class CodeFileRepository : ICodeFileRepository
     {
-        private const string TableName = "CodeFile";
         private const string EntityRowKey = "cf";
 
         private readonly CloudTable _codeFileTable;
 
-        public static async Task<CodeFileRepository> CreateInstance(string connectionString)
+        public CodeFileRepository(CloudTable codeFileTable)
         {
-            var instance = new CodeFileRepository(connectionString);
-            await instance._codeFileTable.CreateIfNotExistsAsync();
-            return instance;
-        }
-
-        private CodeFileRepository(string connectionString)
-        {
-            var cloudStorageAccount = CloudStorageAccount.Parse(connectionString);
-            var tableClient = cloudStorageAccount.CreateCloudTableClient();
-
-            _codeFileTable = tableClient.GetTableReference(TableName);
+            _codeFileTable = codeFileTable;
         }
 
         public async Task<CodeFile> GetAsync(string filePath)
@@ -59,8 +47,8 @@ namespace GithubService.Repository
                 Path = file.FilePath,
                 CodeFragments = JsonConvert.SerializeObject(file.CodeFragments)
             };
-
             var storedEntity = await StoreEntityAsync(entity);
+
             return new CodeFile
             {
                 FilePath = storedEntity.Path,
@@ -87,23 +75,24 @@ namespace GithubService.Repository
 
         private async Task<CodeFileEntity> GetEntityAsync(string filePath)
         {
-            var operation = TableOperation.Retrieve<CodeFileEntity>(ConstructPartitionKey(filePath), EntityRowKey);
-
+            var operation = TableOperation.Retrieve<CodeFileEntity>(ConstructPartitionKey(filePath), EntityRowKey); 
             var retrievedResult = await _codeFileTable.ExecuteAsync(operation);
+
             return (CodeFileEntity)retrievedResult.Result;
         }
 
         private async Task<CodeFileEntity> StoreEntityAsync(CodeFileEntity entity)
         {
             var operation = TableOperation.InsertOrReplace(entity);
-
             var result = await _codeFileTable.ExecuteAsync(operation);
+
             return (CodeFileEntity)result.Result;
         }
 
         private string ConstructPartitionKey(string filePath)
         {
             var hash = new SHA1Managed().ComputeHash(Encoding.UTF8.GetBytes(filePath));
+
             return string.Join("", hash.Select(b => b.ToString("x2")).ToArray());
         }
     }

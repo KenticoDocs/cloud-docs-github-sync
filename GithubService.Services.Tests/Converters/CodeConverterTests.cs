@@ -1,9 +1,9 @@
 ﻿using GithubService.Models;
 using GithubService.Services.Converters;
 using GithubService.Services.Interfaces;
-using GithubService.Services.Tests.Utils;
 using NUnit.Framework;
 using System.Collections.Generic;
+using GithubService.Tests.Common.Comparers;
 
 namespace GithubService.Services.Tests.Converters
 {
