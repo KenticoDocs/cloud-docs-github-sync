@@ -3,15 +3,19 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.168
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GithubService.Services", "GithubService.Services\GithubService.Services.csproj", "{6BBE7F7F-8CC6-402C-B6F4-08AACB137649}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GithubService.Services", "GithubService.Services\GithubService.Services.csproj", "{6F2F9E59-68EF-45F0-A204-83B02F82BD0D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GithubService.Repository", "GithubService.Repository\GithubService.Repository.csproj", "{6CE283A1-C93F-4D9F-9C6D-07D35F2465C9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GithubService.Repository", "GithubService.Repository\GithubService.Repository.csproj", "{9E7F2520-262F-4BD1-A08A-85A6B440EBCE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GithubService.Models", "GithubService.Models\GithubService.Models.csproj", "{9B920D95-8E93-42E0-83E5-F465323B8216}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GithubService.Models", "GithubService.Models\GithubService.Models.csproj", "{22924534-5D04-4591-BE51-BAA389EA5064}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GithubService", "GithubService\GithubService.csproj", "{F9CF9C72-BAE6-491A-AD28-65BA206F95DD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GithubService", "GithubService\GithubService.csproj", "{303D7997-44E7-4749-B776-C851EE5DDECD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GithubService.Services.Tests", "GithubService.Services.Tests\GithubService.Services.Tests.csproj", "{4B324D6C-1BB2-472A-B16D-9A35BD372374}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GithubService.Services.Tests", "GithubService.Services.Tests\GithubService.Services.Tests.csproj", "{1BABA323-76ED-4963-A296-CAD8DCA84999}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GithubService.Repository.Tests", "GithubService.Repository.Tests\GithubService.Repository.Tests.csproj", "{60FFAF7D-BFF1-40DF-ADB1-7D124EB26561}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GithubService.Tests.Common", "GithubService.Tests.Common\GithubService.Tests.Common.csproj", "{D287A642-E978-4912-86D8-5CD9A3561EB1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,26 +23,34 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{6BBE7F7F-8CC6-402C-B6F4-08AACB137649}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6BBE7F7F-8CC6-402C-B6F4-08AACB137649}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6BBE7F7F-8CC6-402C-B6F4-08AACB137649}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6BBE7F7F-8CC6-402C-B6F4-08AACB137649}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6CE283A1-C93F-4D9F-9C6D-07D35F2465C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6CE283A1-C93F-4D9F-9C6D-07D35F2465C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6CE283A1-C93F-4D9F-9C6D-07D35F2465C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6CE283A1-C93F-4D9F-9C6D-07D35F2465C9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9B920D95-8E93-42E0-83E5-F465323B8216}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9B920D95-8E93-42E0-83E5-F465323B8216}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9B920D95-8E93-42E0-83E5-F465323B8216}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9B920D95-8E93-42E0-83E5-F465323B8216}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F9CF9C72-BAE6-491A-AD28-65BA206F95DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F9CF9C72-BAE6-491A-AD28-65BA206F95DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F9CF9C72-BAE6-491A-AD28-65BA206F95DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F9CF9C72-BAE6-491A-AD28-65BA206F95DD}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4B324D6C-1BB2-472A-B16D-9A35BD372374}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4B324D6C-1BB2-472A-B16D-9A35BD372374}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4B324D6C-1BB2-472A-B16D-9A35BD372374}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4B324D6C-1BB2-472A-B16D-9A35BD372374}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6F2F9E59-68EF-45F0-A204-83B02F82BD0D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6F2F9E59-68EF-45F0-A204-83B02F82BD0D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6F2F9E59-68EF-45F0-A204-83B02F82BD0D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6F2F9E59-68EF-45F0-A204-83B02F82BD0D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9E7F2520-262F-4BD1-A08A-85A6B440EBCE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E7F2520-262F-4BD1-A08A-85A6B440EBCE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9E7F2520-262F-4BD1-A08A-85A6B440EBCE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9E7F2520-262F-4BD1-A08A-85A6B440EBCE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{22924534-5D04-4591-BE51-BAA389EA5064}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{22924534-5D04-4591-BE51-BAA389EA5064}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{22924534-5D04-4591-BE51-BAA389EA5064}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{22924534-5D04-4591-BE51-BAA389EA5064}.Release|Any CPU.Build.0 = Release|Any CPU
+		{303D7997-44E7-4749-B776-C851EE5DDECD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{303D7997-44E7-4749-B776-C851EE5DDECD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{303D7997-44E7-4749-B776-C851EE5DDECD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{303D7997-44E7-4749-B776-C851EE5DDECD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1BABA323-76ED-4963-A296-CAD8DCA84999}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1BABA323-76ED-4963-A296-CAD8DCA84999}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1BABA323-76ED-4963-A296-CAD8DCA84999}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1BABA323-76ED-4963-A296-CAD8DCA84999}.Release|Any CPU.Build.0 = Release|Any CPU
+		{60FFAF7D-BFF1-40DF-ADB1-7D124EB26561}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{60FFAF7D-BFF1-40DF-ADB1-7D124EB26561}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{60FFAF7D-BFF1-40DF-ADB1-7D124EB26561}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{60FFAF7D-BFF1-40DF-ADB1-7D124EB26561}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D287A642-E978-4912-86D8-5CD9A3561EB1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D287A642-E978-4912-86D8-5CD9A3561EB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D287A642-E978-4912-86D8-5CD9A3561EB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D287A642-E978-4912-86D8-5CD9A3561EB1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

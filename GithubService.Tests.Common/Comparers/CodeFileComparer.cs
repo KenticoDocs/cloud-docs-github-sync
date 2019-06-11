@@ -1,17 +1,17 @@
-﻿using GithubService.Models;
-using NUnit.Framework.Constraints;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using GithubService.Models;
+using NUnit.Framework.Constraints;
 
-namespace GithubService.Services.Tests.Utils
+namespace GithubService.Tests.Common.Comparers
 {
-    internal static class CodeFileComparerWrapper
+    public static class CodeFileComparerWrapper
     {
         private static Lazy<CodeFileComparer> Lazy => new Lazy<CodeFileComparer>();
 
         private static CodeFileComparer Comparer => Lazy.Value;
 
-        public static EqualConstraint UsingCodeSampleFileComparer(this EqualConstraint constraint) =>
+        public static EqualConstraint UsingCodeFileComparer(this EqualConstraint constraint) =>
             constraint.Using(Comparer);
 
         private sealed class CodeFileComparer : IEqualityComparer<CodeFile>
