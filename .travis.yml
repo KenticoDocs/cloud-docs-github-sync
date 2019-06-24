@@ -26,11 +26,10 @@ jobs:
         - dotnet restore
 
       script:
-        - dotnet sonarscanner begin /k:"Kentico_kentico-cloud-docs-github-sync" /d:sonar.login="$SONAR_TOKEN" /s:"$SONAR_CONFIG_PATH"
+        - dotnet sonarscanner begin /k:"cloud-docs-github-sync" /o:"kenticodocs" /d:sonar.login="$SONAR_TOKEN" /s:"$SONAR_CONFIG_PATH"
         - dotnet build
         - >
-            dotnet
-            test "GithubService.Services.Tests/GithubService.Services.Tests.csproj"
+            dotnet test 
             --no-build
             --logger:"trx;LogFileName=$TRAVIS_BUILD_DIR/tests_results.trx"
             /p:CollectCoverage=true
