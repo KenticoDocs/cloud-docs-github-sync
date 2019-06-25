@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using GithubService.Repository.Models;
+using GithubService.Tests.Common.Comparers;
 
 namespace GithubService.Services.Tests.Utils
-{
-    internal class CodeFragmentEventComparer : IEqualityComparer<CodeFragmentEvent>
+{ 
+    public class CodeFragmentEventComparer : IEqualityComparer<CodeFragmentEvent>
     {
         public bool Equals(CodeFragmentEvent x, CodeFragmentEvent y)
         {
@@ -29,7 +30,7 @@ namespace GithubService.Services.Tests.Utils
         }
     }
 
-    internal static class CodeFragmentEventComparerWrapper
+    public static class CodeFragmentEventComparerWrapper
     {
         private static Lazy<CodeFragmentEventComparer> Lazy => new Lazy<CodeFragmentEventComparer>();
 

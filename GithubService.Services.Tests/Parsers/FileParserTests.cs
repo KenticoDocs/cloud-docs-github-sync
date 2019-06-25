@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using GithubService.Models;
 using GithubService.Services.Interfaces;
 using GithubService.Services.Parsers;
-using GithubService.Services.Tests.Utils;
+using GithubService.Tests.Common.Comparers;
 using NUnit.Framework;
 
 namespace GithubService.Services.Tests.Parsers
@@ -39,7 +39,7 @@ namespace GithubService.Services.Tests.Parsers
 
             var actualOutput = _parser.ParseContent(filePath, sampleFile);
 
-            Assert.That(actualOutput, Is.EqualTo(expectedOutput).UsingCodeSampleFileComparer());
+            Assert.That(actualOutput, Is.EqualTo(expectedOutput).UsingCodeFileComparer());
         }
 
         [Test]
@@ -140,7 +140,7 @@ DeliveryClient client = new DeliveryClient(""<YOUR_PROJECT_ID>"", ""<YOUR_PREVIE
 
             var actualOutput = _parser.ParseContent(filePath, sampleFile);
 
-            Assert.That(actualOutput, Is.EqualTo(expectedOutput).UsingCodeSampleFileComparer());
+            Assert.That(actualOutput, Is.EqualTo(expectedOutput).UsingCodeFileComparer());
         }
 
         [TestCase("js/file.css", CodeFragmentPlatform.JavaScript, CodeFragmentLanguage.Css)]
@@ -183,7 +183,7 @@ $@"   {commentPrefix} DocSection: special_{commentSuffix}
 
             var actualOutput = _parser.ParseContent(filePath, sampleFile);
 
-            Assert.That(actualOutput, Is.EqualTo(expectedOutput).UsingCodeSampleFileComparer());
+            Assert.That(actualOutput, Is.EqualTo(expectedOutput).UsingCodeFileComparer());
         }
 
         [Test]
@@ -206,7 +206,7 @@ $@"   {commentPrefix} DocSection: special_{commentSuffix}
 
             var actualOutput = _parser.ParseContent("java/unpublishing.java", ComplexSampleFile);
 
-            Assert.That(actualOutput, Is.EqualTo(expectedOutput).UsingCodeSampleFileComparer());
+            Assert.That(actualOutput, Is.EqualTo(expectedOutput).UsingCodeFileComparer());
         }
 
         [TestCase("js/file.js")]
@@ -221,7 +221,7 @@ $@"   {commentPrefix} DocSection: special_{commentSuffix}
 
             var actualOutput = _parser.ParseContent(filePath, sampleFile);
 
-            Assert.That(actualOutput, Is.EqualTo(expectedOutput).UsingCodeSampleFileComparer());
+            Assert.That(actualOutput, Is.EqualTo(expectedOutput).UsingCodeFileComparer());
         }
 
         [TestCase("js/file.js")]
@@ -236,7 +236,7 @@ $@"   {commentPrefix} DocSection: special_{commentSuffix}
 
             var actualOutput = _parser.ParseContent(filePath, sampleFile);
 
-            Assert.That(actualOutput, Is.EqualTo(expectedOutput).UsingCodeSampleFileComparer());
+            Assert.That(actualOutput, Is.EqualTo(expectedOutput).UsingCodeFileComparer());
         }
 
         [Test]
@@ -251,7 +251,7 @@ $@"   {commentPrefix} DocSection: special_{commentSuffix}
 
             var actualOutput = _parser.ParseContent(filePath, sampleFile);
 
-            Assert.That(actualOutput, Is.EqualTo(expectedOutput).UsingCodeSampleFileComparer());
+            Assert.That(actualOutput, Is.EqualTo(expectedOutput).UsingCodeFileComparer());
         }
 
         [TestCase(null)]

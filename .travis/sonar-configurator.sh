@@ -38,15 +38,15 @@ cat > "$FILENAME" << EOL
   <!-- Connection -->
   <Property Name="sonar.host.url">https://sonarcloud.io</Property>
   <!-- Sonar project -->
-  <Property Name="sonar.organization">kentico</Property>
+  <Property Name="sonar.organization">KenticoDocs</Property>
   <Property Name="sonar.projectName">Kentico Cloud Docs – GitHub Sync</Property>
   <Property Name="sonar.projectVersion">1.$TRAVIS_JOB_NUMBER</Property>
   <Property Name="sonar.scm.provider">git</Property>
   <Property Name="sonar.scm.forceReloadAll">true</Property>
-  <Property Name="sonar.links.homepage">https://github.com/Kentico/kentico-cloud-docs-github-sync/</Property>
-  <Property Name="sonar.links.ci">https://travis-ci.com/Kentico/kentico-cloud-docs-github-sync/</Property>
-  <Property Name="sonar.links.scm">https://github.com/Kentico/kentico-cloud-docs-github-sync/</Property>
-  <Property Name="sonar.links.issue">https://github.com/Kentico/kentico-cloud-docs-github-sync/issues</Property>
+  <Property Name="sonar.links.homepage">https://github.com/KenticoDocs/cloud-docs-github-sync/</Property>
+  <Property Name="sonar.links.ci">https://travis-ci.com/KenticoDocs/cloud-docs-github-sync/</Property>
+  <Property Name="sonar.links.scm">https://github.com/KenticoDocs/cloud-docs-github-sync/</Property>
+  <Property Name="sonar.links.issue">https://github.com/KenticoDocs/cloud-docs-github-sync/issues</Property>
   <!-- Branching -->
 EOL
 
@@ -61,7 +61,7 @@ else
   <Property Name="sonar.pullrequest.key">$TRAVIS_PULL_REQUEST</Property>
   <Property Name="sonar.pullrequest.base">$BASE_BRANCH</Property>
   <Property Name="sonar.pullrequest.provider">github</Property>
-  <Property Name="sonar.pullrequest.github.repository">Kentico/kentico-cloud-docs-github-sync.git</Property>
+  <Property Name="sonar.pullrequest.github.repository">KenticoDocs/cloud-docs-github-sync.git</Property>
 EOL
 fi
 

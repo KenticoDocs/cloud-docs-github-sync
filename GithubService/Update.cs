@@ -58,7 +58,7 @@ namespace GithubService
                 var (addedFiles, modifiedFiles, removedFiles) = parser.ExtractFiles(webhookMessage);
 
                 var connectionString = configuration.RepositoryConnectionString;
-                var codeFileRepository = await CodeFileRepository.CreateInstance(connectionString);
+                var codeFileRepository = await CodeFileRepositoryProvider.CreateCodeFileRepositoryInstance(connectionString);
 
                 var addedFragmentsFromNewFiles = await ProcessAddedFiles(addedFiles, codeFileRepository, githubService);
                 var (addedFragmentsFromModifiedFiles, modifiedFragments, removedFragmentsFromModifiedFiles) =

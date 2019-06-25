@@ -1,11 +1,11 @@
-﻿using GithubService.Models;
-using NUnit.Framework.Constraints;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using GithubService.Models;
+using NUnit.Framework.Constraints;
 
-namespace GithubService.Services.Tests.Utils
+namespace GithubService.Tests.Common.Comparers
 {
-    internal class CodeFragmentComparer : IEqualityComparer<CodeFragment>
+    public class CodeFragmentComparer : IEqualityComparer<CodeFragment>
     {
         public bool Equals(CodeFragment x, CodeFragment y)
         {
@@ -34,7 +34,7 @@ namespace GithubService.Services.Tests.Utils
         }
     }
 
-    internal static class CodeFragmentComparerWrapper
+    public static class CodeFragmentComparerWrapper
     {
         private static Lazy<CodeFragmentComparer> Lazy => new Lazy<CodeFragmentComparer>();
 
