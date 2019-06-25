@@ -29,12 +29,13 @@ jobs:
         - dotnet sonarscanner begin /k:"cloud-docs-github-sync" /o:"kenticodocs" /d:sonar.login="$SONAR_TOKEN" /s:"$SONAR_CONFIG_PATH"
         - dotnet build
         - >
-            dotnet test 
+            dotnet test
             --no-build
             --logger:"trx;LogFileName=$TRAVIS_BUILD_DIR/tests_results.trx"
             /p:CollectCoverage=true
-            /p:CoverletOutputFormat="opencover"
-            /p:CoverletOutput="$TRAVIS_BUILD_DIR/coverage_results.xml"
+            /p:CoverletOutputFormat='json%2copencover'
+            /p:CoverletOutput="$TRAVIS_BUILD_DIR/coverage_results"
+            /p:MergeWith="$TRAVIS_BUILD_DIR/coverage_results.json"
         - dotnet sonarscanner end /d:sonar.login="$SONAR_TOKEN"
 
     - stage: "Deployment"
