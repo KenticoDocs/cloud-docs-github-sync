@@ -26,7 +26,7 @@ jobs:
         - dotnet restore
 
       script:
-        - dotnet sonarscanner begin /k:"kontent-docs-github-reader" /o:"kenticodocs" /d:sonar.login="$SONAR_TOKEN" /s:"$SONAR_CONFIG_PATH"
+        - dotnet sonarscanner begin /k:"KenticoDocs_kontent-docs-github-reader" /o:"kenticodocs" /d:sonar.login="$SONAR_TOKEN" /s:"$SONAR_CONFIG_PATH"
         - dotnet build
         - >
             dotnet test
