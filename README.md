@@ -1,6 +1,9 @@
 | [master](https://github.com/KenticoDocs/kontent-docs-github-reader/tree/master) | [develop](https://github.com/KenticoDocs/kontent-docs-github-reader/tree/develop) |
 |:---:|:---:|
-| [![Build Status](https://travis-ci.com/KenticoDocs/kontent-docs-github-reader.svg?branch=master)](https://travis-ci.com/KenticoDocs/kontent-docs-github-reader/branches) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?branch=master&project=KenticoDocs_kontent-docs-github-reader&metric=alert_status)](https://sonarcloud.io/dashboard?id=KenticoDocs_kontent-docs-github-reader&branch=master) | [![Build Status](https://travis-ci.com/KenticoDocs/kontent-docs-github-reader.svg?branch=develop)](https://travis-ci.com/KenticoDocs/kontent-docs-github-reader/branches) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?branch=develop&project=KenticoDocs_kontent-docs-github-reader&metric=alert_status)](https://sonarcloud.io/dashboard?id=KenticoDocs_kontent-docs-github-reader&branch=develop) |
+| ![master](https://github.com/KenticoDocs/kontent-docs-github-reader/actions/workflows/master_kcd-github-service-live-master.yml/badge.svg)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?branch=master&project=KenticoDocs_kontent-docs-github-reader&metric=alert_status)](https://sonarcloud.io/dashboard?id=KenticoDocs_kontent-docs-github-reader&branch=master) 
+| ![develop](https://github.com/KenticoDocs/kontent-docs-github-reader/actions/workflows/develop_kcd-github-service-live-dev.yml/badge.svg)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?branch=develop&project=KenticoDocs_kontent-docs-github-reader&metric=alert_status)](https://sonarcloud.io/dashboard?id=KenticoDocs_kontent-docs-github-reader&branch=develop) |
 
 # Kentico Kontent Documentation - GitHub Reader
 
