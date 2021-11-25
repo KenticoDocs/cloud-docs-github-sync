@@ -20,22 +20,23 @@ namespace GithubService.Services.Clients
         {
             _httpClient = httpClient;
             _httpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("KenticoCloudDocsGithubService", "1.0.0"));
+            _httpClient.DefaultRequestHeaders.Add("Authorization", $"token {accessToken}");
             _apiEndpoint = $"https://api.github.com/repos/{repositoryOwner}/{repositoryName}";
             _accessToken = accessToken;
         }
 
         public async Task<IEnumerable<GithubTreeNode>> GetTreeNodesRecursivelyAsync()
         {
-            var branchInfo = await GetContentAsync($"{_apiEndpoint}/branches/master?access_token={_accessToken}");
+            var branchInfo = await GetContentAsync($"{_apiEndpoint}/branches/master");
             var treeSha = branchInfo["commit"]["commit"]["tree"]["sha"].Value<string>();
 
-            var treeInfo = await GetContentAsync($"{_apiEndpoint}/git/trees/{treeSha}?recursive=1&access_token={_accessToken}");
+            var treeInfo = await GetContentAsync($"{_apiEndpoint}/git/trees/{treeSha}?recursive=1");
             return treeInfo["tree"].ToObject<List<GithubTreeNode>>();
         }
 
         public async Task<string> GetBlobContentAsync(string blobId)
         {
-            var dynamicContent = await GetContentAsync($"{_apiEndpoint}/git/blobs/{blobId}?access_token={_accessToken}");
+            var dynamicContent = await GetContentAsync($"{_apiEndpoint}/git/blobs/{blobId}");
 
             return DecodeContent(dynamicContent);
         }
@@ -43,7 +44,7 @@ namespace GithubService.Services.Clients
         public async Task<string> GetFileContentAsync(string filePath)
         {
             var encodedFilePath = Uri.EscapeDataString(filePath);
-            var dynamicContent = await GetContentAsync($"{_apiEndpoint}/contents/{encodedFilePath}?access_token={_accessToken}");
+            var dynamicContent = await GetContentAsync($"{_apiEndpoint}/contents/{encodedFilePath}");
 
             return DecodeContent(dynamicContent);
         }

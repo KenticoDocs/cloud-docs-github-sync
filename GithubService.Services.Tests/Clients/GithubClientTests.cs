@@ -48,7 +48,7 @@ namespace GithubService.Services.Tests.Clients
             var encodedContent = Convert.ToBase64String(Encoding.UTF8.GetBytes(expectedContent));
             var fileContent = "{ \"content\": \" " + encodedContent + " \" }";
             _mockHttpClient
-                .When($"{_baseAddress}/contents/{encodedPath}?access_token={RepositoryAccessToken}")
+                .When($"{_baseAddress}/contents/{encodedPath}")
                 .Respond("application/json", fileContent);
 
             var extractedContent = await _githubClient.GetFileContentAsync(filePath);
@@ -62,7 +62,7 @@ namespace GithubService.Services.Tests.Clients
             const string filePath = "some/file/path";
             var encodedPath = Uri.EscapeDataString(filePath);
             _mockHttpClient
-                .When($"{_baseAddress}/contents/{encodedPath}?access_token={RepositoryAccessToken}")
+                .When($"{_baseAddress}/contents/{encodedPath}")
                 .Respond(HttpStatusCode.BadRequest, message => new StringContent("This is a bad request"));
 
             Assert.ThrowsAsync<UnsuccessfulRequestException>(async () =>
@@ -77,7 +77,7 @@ namespace GithubService.Services.Tests.Clients
             var encodedContent = Convert.ToBase64String(Encoding.UTF8.GetBytes(expectedContent));
             var blobContent = "{ \"content\": \" " + encodedContent + " \" }";
             _mockHttpClient
-                .When($"{_baseAddress}/git/blobs/{blobId}?access_token={RepositoryAccessToken}")
+                .When($"{_baseAddress}/git/blobs/{blobId}")
                 .Respond("application/json", blobContent);
 
             var extractedContent = await _githubClient.GetBlobContentAsync(blobId);
@@ -125,10 +125,10 @@ namespace GithubService.Services.Tests.Clients
   ""truncated"": false
 }}";
             _mockHttpClient
-                .When($"{_baseAddress}/branches/master?access_token={RepositoryAccessToken}")
+                .When($"{_baseAddress}/branches/master")
                 .Respond("application/json", branchContent);
             _mockHttpClient
-                .When($"{_baseAddress}/git/trees/{treeSha}?recursive=1&access_token={RepositoryAccessToken}")
+                .When($"{_baseAddress}/git/trees/{treeSha}?recursive=1")
                 .Respond("application/json", treeContent);
             var expectedNodes = new List<GithubTreeNode>
             {
