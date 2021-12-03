@@ -5,6 +5,7 @@
         public const string CSharp = "c_";
         public const string Css = "css";
         public const string Curl = "curl";
+        public const string GraphQL = "graphql";
         public const string HTML = "html";
         public const string Java = "java";
         public const string JavaScript = "javascript";
@@ -24,6 +25,7 @@
             {
                 case CodeFragmentLanguage.Ruby:
                 case CodeFragmentLanguage.Curl:
+                case CodeFragmentLanguage.GraphQL:
                 case CodeFragmentLanguage.Shell:
                 case CodeFragmentLanguage.Python:
                     return "#";

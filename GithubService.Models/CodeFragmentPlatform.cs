@@ -12,6 +12,7 @@
         public const string Php = "php";
         public const string Ruby = "ruby";
         public const string React = "react";
+        public const string GraphQL = "graphql";
     }
 
     public static class CodeFragmentPlatformExtensions

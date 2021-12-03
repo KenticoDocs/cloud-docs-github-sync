@@ -84,6 +84,8 @@ namespace GithubService.Services.Parsers
                     return CodeFragmentPlatform.Ruby;
                 case "react":
                     return CodeFragmentPlatform.React;
+                case "graphql":
+                    return CodeFragmentPlatform.GraphQL;
                 default:
                     return null;
             }
@@ -123,6 +125,8 @@ namespace GithubService.Services.Parsers
                     return CodeFragmentLanguage.Shell;
                 case "curl":
                     return CodeFragmentLanguage.Curl;
+                case "graphql":
+                    return CodeFragmentLanguage.GraphQL;
                 default:
                     return null;
             }
