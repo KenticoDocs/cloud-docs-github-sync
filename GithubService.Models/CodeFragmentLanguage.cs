@@ -31,12 +31,24 @@
                     return "#";
                 case CodeFragmentLanguage.HTML:
                     return "<!--";
+                case CodeFragmentLanguage.Css:
+                    return "/*";
                 default:
                     return "//";
             }
         }
 
-        public static string GetCommentSuffix(this string language) 
-            => language == CodeFragmentLanguage.HTML ? " -->" : "";
+        public static string GetCommentSuffix(this string language)
+        {
+            switch (language)
+            {
+                case CodeFragmentLanguage.HTML:
+                    return " -->";
+                case CodeFragmentLanguage.Css:
+                    return "*/";
+                default:
+                    return "";
+            }
+        }
     }
 }
